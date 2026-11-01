@@ -2123,29 +2123,33 @@ if (window.CW_FRAME) {
   // steps travel with every error report, so a report says WHICH workflow broke and at WHICH step. Nothing personal.
   var FLOW_STEPS = {
     // A opening the app
-    "tab:now": "A1", "load:cabs": "A2", "load:rides": "A3", "load:weather": "A4",
+    "tab:now": "A1", "load:cabs": "A2", "load:rides": "A3", "load:weather": "A4", "open:welcomeOverlay": "A5",
     // B starting a ride or offering a lift
     "open:rideOverlay": "B1", "rpc:start_cab": "B2", "cab_started": "B3", "open:liftPop": "B4",
+    "open:mePop": "B5", "open:friendPop": "B6", "open:addFriendPop": "B6",
     // C joining
     "open:joinOverlay": "C1", "rpc:join_cab": "C2", "rpc:get_cab_contacts": "C3",
     // D in a ride
     "rpc:set_cab_flexible": "D1", "rpc:set_cab_phone": "D2", "rpc:leave_cab": "D3", "rpc:mark_departed": "D4", "departed": "D5",
     "rpc:set_my_friends": "D6", "rpc:set_my_note": "D7", "rpc:set_cab_car": "D8", "rpc:set_lift": "D9",
-    "rpc:undo_departed": "D10", "rpc:reopen_cab": "D10",
+    "rpc:undo_departed": "D10", "rpc:reopen_cab": "D10", "open:notePop": "D7", "open:carPop": "D8", "open:liftEditPop": "D9",
     // E plan ahead
     "tab:plan": "E1", "open:planOverlay": "E2", "rpc:add_plan": "E3", "plan_added": "E4", "rpc:remove_plan": "E5", "plan_shared": "E6",
     // F plan your travel
-    "tab:trips": "F1", "open:tripOverlay": "F2", "rpc:create_trip": "F3", "open:tripJoinOverlay": "F4", "rpc:join_trip": "F5",
+    "tab:trips": "F1", "open:tripPop": "F2", "rpc:create_trip": "F3", "open:tripJoinOverlay": "F4", "rpc:join_trip": "F5",
     "rpc:leave_trip": "F6", "rpc:remove_trip_member": "F7", "rpc:get_trip_contacts": "F8", "rpc:get_match_contacts": "F8",
-    "rpc:set_trip_phone": "F9",
+    "rpc:set_trip_phone": "F9", "open:tripWhenPop": "F10", "open:tripHowPop": "F11",
     // G weather · H map
-    "tab:weather": "G1", "rpc:report_sky": "G2", "tab:map": "H1",
+    "tab:weather": "G1", "rpc:report_sky": "G2", "open:skyRepPop": "G3", "open:lvInfoPop": "G4", "tab:map": "H1",
     // I feedback
     "open:fbPop": "I1", "open:chatOverlay": "I2", "rpc:send_feedback": "I3", "open:reviewOverlay": "I4", "rpc:submit_review": "I5",
     "open:feedbackOverlay": "I6",
+    // J bot rides
+    "bots_on": "J1",
     // K menu and settings
     "tab:more": "K1", "open:settingsOverlay": "K2", "open:detailsOverlay": "K3", "open:helpOverlay": "K4",
-    "open:privacyOverlay": "K5", "open:installOverlay": "K6", "open:versionPop": "K7"
+    "open:privacyOverlay": "K5", "open:installOverlay": "K6", "open:versionPop": "K7",
+    "open:pfDisplayPop": "K8", "open:pfPhonePop": "K9", "open:pfCarPop": "K9"
   };
   var flowTrail = [];
   function flowStep(signal) {
@@ -6451,7 +6455,7 @@ if (window.CW_FRAME) {
   function botsOn() {
     if (DEMO) return;
     resetDemo();
-    DEMO = true; supabase = wrapRpc(demoClient()); supabase.addWorld();
+    DEMO = true; supabase = wrapRpc(demoClient()); supabase.addWorld(); flowStep("bots_on");
     document.body.classList.add("bots"); $("botBar").hidden = false; $("botBarPlan").hidden = false;
     toast("Bots clear off as soon as a real person starts a ride.");
     openRows = {}; rideMenuFor = null;
