@@ -29,5 +29,6 @@ The first release for pilots at Bir.
 - Safety & contacts: emergency, rescue and hospital numbers, and the 144.500 MHz safety frequency.
 - The scenery: a painted view of the landing ground through the day, true to the real terrain, with gliders,
   tandems landing into the live wind, cows, cafés, the road and its traffic.
+- The app icon: the painted Bir sky with two gliders, and a white Alto taxi with wing bags on the roof, close up.
 - Bot rides: try everything with pretend rides that exist only on your phone.
 - Privacy: no accounts, no ads, no tracking; numbers shared only inside a ride and wiped when it's over.
