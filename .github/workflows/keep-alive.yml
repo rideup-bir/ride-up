@@ -1,0 +1,22 @@
+# Supabase pauses free projects after 7 days with no activity.
+# This asks the database for one row every 3 days so Ride Up never goes to sleep,
+# even in the quiet season. It uses the same public key the website already uses.
+name: Keep Ride Up's database awake
+
+on:
+  schedule:
+    - cron: "30 3 */3 * *"   # 03:30 UTC (9:00 am in India) every 3 days
+  workflow_dispatch:          # can also be run by hand from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://ysmsvepwsortccnjkpdd.supabase.co/rest/v1/cab_sessions?select=id&limit=1" \
+            -H "apikey: sb_publishable_8f1-9dArOD9FtXidDrpaKw_42w5i3ur" \
+            -H "Authorization: Bearer sb_publishable_8f1-9dArOD9FtXidDrpaKw_42w5i3ur")
+          echo "Supabase answered: $code"
+          test "$code" = "200"

@@ -1,0 +1,14 @@
+name: Idea
+description: A new feature or an improvement
+labels: ["idea"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it helps (who, and when at Bir)

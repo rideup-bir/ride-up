@@ -1,0 +1,33 @@
+RIDE UP — VERSION HISTORY
+Share a taxi from the Bir landing ground up to take-off.
+Made by flyers, for flyers at Bir-Billing, Himachal Pradesh, India.
+
+How versions are numbered
+- 1.0, 1.1, 1.2 ... are releases that people see.
+- 1.0.1, 1.0.2 ... are small fixes.
+- 2.0 would be a big change in how people use Ride Up.
+
+Newest first. Dates and times are Bir time (India).
+
+
+RIDE UP 1.0 — 17:00 · 01.11.2026
+The first release for pilots at Bir.
+- Now: start a taxi ride from the landing or hop into one; seats fill live on everyone's phone. Bring friends,
+  add a note, change the car, leave with fewer, "We've driven off", and "I didn't go".
+- Offer a lift: someone's driving you up and there's room? Offer the seats from the Landing area, leaving now.
+- Plan: say when you're heading up to fly in the next days, see who else is, and share your plan to WhatsApp.
+- Plan your travel: the whole month on a calendar of trips to and from Bir; ask for a ride or offer seats (taxi
+  or your own car, with your car details if you like), and join others; numbers are swapped once you're in.
+- Weather: Billing take-off and the Bir landing in one card with the next hours (swipe them, tap the place to
+  switch). "Sightline to the landing": a painted side view showing the forecast's cloud against the line of
+  sight, with ticks and crosses from people up there. Report what you see in two taps (with your saved name
+  and number). The forecast note links to Windy.
+- Feedback: a short chat with choices to tap, or just type.
+- Sharing: rides and plans go to WhatsApp with a short link and a small preview tile (the car and its seats, or
+  the day).
+- Getting around Bir: a map of key places, medical, ATMs, groceries and hostels.
+- Safety & contacts: emergency, rescue and hospital numbers, and the 144.500 MHz safety frequency.
+- The scenery: a painted view of the landing ground through the day, true to the real terrain, with gliders,
+  tandems landing into the live wind, cows, cafés, the road and its traffic.
+- Bot rides: try everything with pretend rides that exist only on your phone.
+- Privacy: no accounts, no ads, no tracking; numbers shared only inside a ride and wiped when it's over.

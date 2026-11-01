@@ -1,0 +1,32 @@
+Ride Up
+Copyright (C) 2026 Praval Sharda and the Ride Up contributors.
+
+Ride Up was originally created by Praval Sharda (2026).
+
+This program is free software: you can redistribute it and/or modify it under the terms of the
+GNU Affero General Public License as published by the Free Software Foundation, version 3
+(see LICENSE). It is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Additional terms under section 7 of the GNU Affero General Public License:
+
+  7(b) Author attribution. Every copy and every modified version of Ride Up that shows a user
+       interface must keep this author attribution visible to its users, in the app's About or
+       Credits screen (or the closest equivalent):
+
+           "Ride Up was originally created by Praval Sharda (2026)."
+
+  7(e) Name. This licence does not grant any right to use the name "Ride Up" (or its logo)
+       for a modified version run by others. Modified versions that are offered to the public
+       should use a different name, while keeping the attribution above.
+
+This licence covers the code, text and artwork in this repository unless a file says otherwise.
+Third-party parts keep their own licences:
+  - Supabase JS client (MIT), loaded from jsDelivr.
+  - Leaflet (BSD 2-Clause), loaded from jsDelivr.
+  - Weather and elevation data by Open-Meteo.com (CC BY 4.0).
+  - Map places and tiles: © OpenStreetMap contributors (ODbL); tiles by OSM France / HOT; Esri as backup;
+    satellite view © Esri, Maxar, Earthstar Geographics.
+  - Font: Caveat (fonts/caveat-700.woff2) by Impallari Type, SIL Open Font License 1.1 (https://openfontlicense.org).
+  - Terrain: Copernicus GLO-30 elevation data, © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH
+    2014-2018, provided under COPERNICUS by the European Union and ESA.

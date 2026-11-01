@@ -1,0 +1,19 @@
+name: From feedback
+description: Something a user or tester told us (filed during the weekly briefing)
+labels: ["from feedback"]
+body:
+  - type: textarea
+    id: said
+    attributes:
+      label: What they said
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Where it came from
+      placeholder: feedback / rating / questionnaire · stage · version
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What we'll do about it

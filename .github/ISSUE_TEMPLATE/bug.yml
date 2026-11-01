@@ -1,0 +1,20 @@
+name: Something's broken
+description: A bug, a crash, or something that doesn't work as it should
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      placeholder: I tapped "Join", and…
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should have happened?
+  - type: input
+    id: where
+    attributes:
+      label: Phone and browser
+      placeholder: e.g. iPhone 13, Safari · version shown at the bottom of More

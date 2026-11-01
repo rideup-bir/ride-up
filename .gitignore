@@ -1,0 +1,16 @@
+art-sources/
+.claude/
+.DS_Store
+CLAUDE.md
+
+# private account files: never commit
+*recovery-codes*
+cloudflare-*.txt
+*.heic
+*.HEIC
+*_4_5005_c.jpeg
+
+# the site serves every committed file: keep notes and error reports local
+notes/
+error-reports/
+docs/
