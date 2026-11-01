@@ -2,6 +2,14 @@
 
 A short routine keeps Ride Up healthy. It needs about 15 minutes a week.
 
+## Who looks after Ride Up
+
+Today Ride Up has one owner, its founder, who looks after it until others join (see [HANDOVER.md](HANDOVER.md):
+every account should get a second owner). Day to day it runs by itself: the database cleans itself up every hour, a
+GitHub job keeps it awake, and an automatic daily check and a weekly briefing (run by the owner's AI assistant,
+read-only on the database) report anything broken. Small fixes can go live straight away; anything bigger waits for
+the owner. When maintainers join, they share the routine below.
+
 ## Every week (Saturday evening works well)
 
 Open Supabase → SQL Editor and run:
@@ -28,6 +36,8 @@ Then:
 - GitHub → Actions: is "Keep Ride Up's database awake" still running? (GitHub pauses scheduled jobs after 60 days
   without activity in the repository. Re-enable it there.)
 - Cloudflare → rideup: builds used this month (limit 500).
+- GitHub → rideup-bir/ride-up → Settings → Rules: both rulesets ("Protect main", "Protect release tags") are Active.
+- Every owner still has two-factor login on, and the recovery codes are where they should be (a password manager).
 
 ## Every season
 
@@ -54,31 +64,39 @@ Phones send an anonymous report when something breaks (at most a few per visit).
 - **`flow_fail`**: a refused or failed step, for example `join_cab: cab_full @C2`. "network" means the phone had
   no signal; a refusal code like `cab_full` usually means the app worked as designed.
 
-The trail is made of these steps:
+The trail is made of these steps (the owners keep a fuller map with every refusal reason):
 
 | Step | Meaning | Step | Meaning |
 |---|---|---|---|
 | A1 | Now page opened | E1 | Plan page opened |
 | A2 | Rides loaded | E2 | Plan form opened |
-| A3 | Trips loaded | E3 | Plan saved (database) |
+| A3 | Travel posts loaded | E3 | Plan saved (database) |
 | A4 | Weather loaded | E4 | Plan added |
-| B1 | Start / join pop-up opened | E5 | Plan removed |
-| B2 | Ride started (database) | E6 | Plan shared to WhatsApp |
-| B3 | Ride / lift is up | F1 | Plan your travel opened |
-| B4 | Offer a lift pop-up opened | F2 | Travel form opened |
-| C1 | Join-a-lift form opened | F3 | Trip posted |
-| C2 | Joined (database) | F4 | Join-trip form opened |
-| C3 | Numbers loaded | F5 | Joined a trip |
-| D1 | "Leave with fewer" changed | F6 | Left a trip |
-| D2 | Number shared / hidden | F7 | Host removed someone |
-| D3 | Seat cancelled | F8 | Trip numbers loaded |
-| D4 | "We've driven off" (database) | F9 | Trip number changed |
-| D5 | Driven off | G1 | Weather page opened |
-| D6 | Friends added | G2 | Sky report sent |
-| D7 | Note changed | H1 | Map opened |
-| D8 | Car changed | I1–I6 | Feedback pop-up, chat, sent, rating opened, rating sent, note suggestion |
-| D9 | Lift changed | K1–K7 | Menu, Settings, Profile, Safety, info pages, Home Screen, Versions |
-| D10 | "I didn't go" / "still waiting" | | |
+| A5 | Welcome (first visit) | E5 | Plan removed |
+| B1 | Ride pop-up opened | E6 | Plan shared to WhatsApp |
+| B2 | Ride started (database) | F1 | Plan your travel opened |
+| B3 | Ride / lift is up | F2 | Travel form opened |
+| B4 | Offer a lift form opened | F3 | Trip posted (database) |
+| B5 | Your own circle (name, number) | F4 | Join-trip form opened |
+| B6 | A friend's circle / name | F5 | Joined a trip (database) |
+| C1 | Join pop-up opened | F6 | Left a trip |
+| C2 | Joined (database) | F7 | Poster removed someone |
+| C3 | Numbers loaded | F8 | Trip numbers loaded |
+| D1 | "Leave with fewer" changed | F9 | Trip number shared / hidden |
+| D2 | Number shared / hidden | F10 | When: calendar + time |
+| D3 | Seat cancelled / left | F11 | How: taxi or my car |
+| D4 | "We've driven off" (database) | G1 | Weather page opened |
+| D5 | Driven off | G2 | Sky report sent (database) |
+| D6 | Friends changed | G3 | Report pop-up opened |
+| D7 | Note added / changed | G4 | Forecast note opened |
+| D8 | Car changed | H1 | Map opened |
+| D9 | Lift changed | I1–I6 | Feedback faces, chat, sent, ratings |
+| D10 | "I didn't go" / reopened | J1 | Bot rides switched on |
+| | | K1–K9 | Menu, Settings, Profile, Help, info pages, Home Screen, Version, Display & units, number / car |
+
+Common refusal reasons: `slow_down` (the spam guard), `cab_full` (someone was quicker), `cab_closed` (it left or
+was cancelled), `not_found` / `not_member` (the ride was deleted after a week, or the phone lost its saved
+membership), `need_details` / `too_many_reports` (weather reports need a name and number; 3 an hour).
 
 ## Backups
 

@@ -9,7 +9,7 @@ what exists, who owns it, how a change goes live, and how to take over or step b
 |---|---|---|
 | Code | GitHub organisation **rideup-bir**, repository **ride-up** (public) | none that matter |
 | Website | Cloudflare Pages project **rideup** → https://rideup.pages.dev | 500 builds a month |
-| Database | Supabase project **Ride Up** (Mumbai, organisation "Ride Up") | pauses after 7 days with no activity (the keep-alive job prevents this); 500 MB |
+| Database | Supabase project **Ride Up** (Mumbai) | pauses after 7 days with no activity (the keep-alive job prevents this); 500 MB |
 | Project email | cabwait.thermally.yours@gmail.com | the login for Cloudflare, and the contact address in the app |
 
 Everything runs on free plans. There are no paid services, no ads and no money involved.
@@ -56,7 +56,7 @@ revert the commit on GitHub.
 |---|---|
 | The site doesn't load | Cloudflare → rideup → Deployments: is the last build green? Roll back if not. |
 | "Couldn't load rides" for everyone | Supabase dashboard: is the project paused? Click **Restore**. Check the keep-alive job in GitHub → Actions. |
-| Spam or abusive posts | Supabase → Table Editor: delete the rows (rides, plans or trips). Everything deletes itself after 7 days anyway. |
+| Spam or abusive posts | Supabase → Table Editor: delete the rows (rides, plans or trips). Everything deletes itself a week after it's over anyway. |
 | Someone reports a security problem | See [SECURITY.md](SECURITY.md). Fix privately first, then publish. |
 | Errors in the weekly check | See "Reading error reports" in [MAINTENANCE.md](MAINTENANCE.md). |
 
@@ -65,7 +65,7 @@ revert the commit on GitHub.
 Please keep these unless the community clearly wants otherwise:
 
 - **No logins, no ads, no tracking.** Names live on the phone; numbers are shared only inside a ride and wiped
-  when it's over; everything else is deleted after 7 days; usage counts are anonymous.
+  within an hour of it being over; everything else is deleted a week after it's over; usage counts are anonymous.
 - **Bir time everywhere.** The app's clock is India time for everyone, wherever they open it.
 - **Faster than WhatsApp, or it fails.** Every flow should take fewer taps than typing in the group.
 - **Plain, friendly English.** A *ride* is a shared taxi from the landing, a *lift* is a seat in someone's car, a
