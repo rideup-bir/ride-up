@@ -23,8 +23,8 @@ The first release for pilots at Bir.
   sight, with ticks and crosses from people up there. Report what you see in two taps (with your saved name
   and number). The forecast note links to Windy.
 - Feedback: a short chat with choices to tap, or just type.
-- Sharing: rides and plans go to WhatsApp with a short link and a small preview tile (the car and its seats, or
-  the day).
+- Sharing: rides and plans go to WhatsApp with a short link; the preview shows the app icon and says what it is
+  (e.g. "Alto · 2 seats left · ~9:10 am" or "Mon 2 Nov · 3 pilots heading up").
 - Getting around Bir: a map of key places, medical, ATMs, groceries and hostels.
 - Safety & contacts: emergency, rescue and hospital numbers, and the 144.500 MHz safety frequency.
 - The scenery: a painted view of the landing ground through the day, true to the real terrain, with gliders,

@@ -1,5 +1,5 @@
 // /p/<day>-<month> (e.g. /p/2-nov, shared from 1.0.1) or /p/<YYYY-MM-DD> (older links): the link in a shared plan
-// ("I'm heading up to fly tomorrow around 9:00 am… …/p/2-nov"). The small tile shows the day: share/day-<MM>-<DD>.png.
+// ("I'm heading up to fly tomorrow around 9:00 am… …/p/2-nov"). The small picture is the app icon (share/icon.png).
 import { read, page, clockOf } from "../../lib/preview.js";
 
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
@@ -27,5 +27,5 @@ export async function onRequestGet({ request, params }) {
   const n = plans.length;
   const title = n ? day + " · " + n + (n === 1 ? " pilot" : " pilots") + " heading up" : "Flying at Bir on " + day;
   const description = n && times.length ? "From " + clockOf(+times[0].slice(0, 2), +times[0].slice(3), h24) + ". Add your plan" : "See who's flying, and add your plan";
-  return page(request, { title, description, go: "/#plan-" + date, image: "day-" + date.slice(5) + ".png" });
+  return page(request, { title, description, go: "/#plan-" + date });
 }
