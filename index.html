@@ -1686,7 +1686,7 @@
     </div>
     <div class="rp-wa" id="rpWa" hidden>
       <div class="rp-hint" id="rpWaLine">Add your WhatsApp so your ride can reach you · <button type="button" class="rp-link" id="rpWaAdd">Add</button></div>
-      <input id="rpPhone" type="tel" inputmode="tel" placeholder="98765 43210" hidden data-rotate="phone">
+      <div class="rp-other" id="rpPhoneRow" hidden><input id="rpPhone" type="tel" inputmode="tel" enterkeyhint="done" placeholder="98765 43210" data-rotate="phone"><button type="button" class="rp-tick" id="rpPhoneOk" aria-label="Save my number">✓</button></div>
       <div class="field-error" id="rpPhoneErr">That doesn't look like a phone number</div>
     </div>
     <button class="submit-btn rp-go" id="rpGo" type="button">Start ride</button>
@@ -4717,7 +4717,7 @@ if (window.CW_FRAME) {
     rp.again = mem.length && !loadStored("rideup_friend_again_off", false) && mem.length <= friendsMax() ? mem : null;
     var p = getProfile();
     $("rpName").value = ""; $("rpNameErr").classList.remove("show");
-    $("rpPhone").value = ""; $("rpPhone").hidden = true; $("rpPhoneErr").classList.remove("show");
+    $("rpPhone").value = ""; $("rpPhoneRow").hidden = true; $("rpPhoneErr").classList.remove("show");
     $("rpOtherName").value = "";
     $("rpNameWrap").hidden = !!p.name;
     $("rpWa").hidden = !!normalizePhone(p.phone || "");
@@ -4797,7 +4797,18 @@ if (window.CW_FRAME) {
     if (b.hasAttribute("data-me")) return;   // your own circle just shows you (name + colour live on the Name page)
     openFriendPop(parseInt(b.dataset.fr, 10));
   };
-  $("rpWaAdd").onclick = function () { $("rpWaLine").hidden = true; $("rpPhone").hidden = false; $("rpPhone").focus(); };
+  $("rpWaAdd").onclick = function () { $("rpWaLine").hidden = true; $("rpPhoneRow").hidden = false; $("rpPhone").focus(); };
+  // ✓ saves the number to your profile (shared with your rides) and the whole line goes away
+  function rpPhoneDone() {
+    var raw = $("rpPhone").value.trim(), ph = normalizePhone(raw);
+    $("rpPhoneErr").classList.toggle("show", !!raw && !ph);
+    if (!ph) { $("rpPhone").focus(); return; }
+    saveProfile(null, raw, true);
+    $("rpPhone").blur(); $("rpPhone").value = ""; $("rpWa").hidden = true;
+    toast("Number saved: only people in your ride see it", "good");
+  }
+  $("rpPhoneOk").onclick = rpPhoneDone;
+  $("rpPhone").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); rpPhoneDone(); } });
   $("rpLiftGo").onclick = function () { closeSheet("rideOverlay"); openLiftPop(); };
   // your circle: name + colour
   var mpColour = null;
