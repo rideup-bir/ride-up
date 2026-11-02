@@ -10,6 +10,15 @@ How versions are numbered
 Newest first. Dates and times are Bir time (India).
 
 
+RIDE UP 1.0.1 — 18:53 · 02.11.2026
+Fixes from the first day of pilots using it.
+- A full ride now stays with the people in it until someone taps "We've driven off" (or 2 hours), because full
+  means "now we wait for the taxi". Everyone else sees it as Full for 30 minutes. (Before, it vanished for everyone
+  10 minutes after filling up.)
+- Change car (⋯ on your ride) shows Alto · 4, Eeco · 6, Bolero or Other with its seats again. (It had been opening
+  the "your own car" details by mistake.)
+
+
 RIDE UP 1.0 — 17:00 · 01.11.2026
 The first release for pilots at Bir.
 - Now: start a taxi ride from the landing or hop into one; seats fill live on everyone's phone. Bring friends,

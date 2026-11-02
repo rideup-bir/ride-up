@@ -2485,7 +2485,7 @@ if (window.CW_FRAME) {
     ["rideup_demo_db"].concat(DEMO_KEYS.map(function (k) { return k + "_demo"; })).forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
   }
   // Published versions are 1.0, 1.1, 1.2…; tested-but-unpublished upgrades after one get 1.1.1, 1.1.2…
-  var APP_VERSION = "1.0";
+  var APP_VERSION = "1.0.1";
   // "" for a normal release; "beta" adds a (beta) label for a test release. Set it at every publish.
   var RELEASE_KIND = "";
   // The Versions pop-up (tap the version line at the bottom of Settings): one list of points, shown in this order.
@@ -2501,7 +2501,8 @@ if (window.CW_FRAME) {
   // ---------- SETTINGS (change these numbers to tune the rules) ----------
   var WAITING_EXPIRE_MINUTES = 30;  // a ride that hasn't filled disappears this long after the last person joined
   var LEFT_LIST_MINUTES = 30;      // rides that have left are listed at the bottom of Now this long
-  var DONE_VISIBLE_MINUTES = 10;    // a full / departed ride stays on screen this long after filling or leaving
+  var FULL_MEMBER_MINUTES = 120;    // a full ride stays with its own people until "We've driven off" (or this long): full means "now we wait for the taxi"
+  var FULL_OTHERS_MINUTES = 30;     // everyone else sees it as Full this long, then it's hidden
   var FETCH_WINDOW_MINUTES = 720;   // how far back to load rides (lifts can be posted hours ahead)
   var SOON_MINUTES = 45;            // Now: plans starting within the next 45 min are shown straight away
   var PLAN_DAYS = 5;                // 5 flying days
@@ -3651,7 +3652,8 @@ if (window.CW_FRAME) {
     var now = Date.now();
     // "We've left" is the one signal of what really happened: the ride leaves the list at once
     // (it's shown quietly under "Left in the last 30 min" at the bottom of Now instead)
-    var visible = !cancelled && !hasLeft && (isFull ? now - doneAt.getTime() < DONE_VISIBLE_MINUTES * 60000 : now < expiresAt.getTime());
+    var fullFor = (myPlaceIn(s) ? FULL_MEMBER_MINUTES : FULL_OTHERS_MINUTES) * 60000;
+    var visible = !cancelled && !hasLeft && (isFull ? now - doneAt.getTime() < fullFor : now < expiresAt.getTime());
     var leftRecently = hasLeft && now - doneAt.getTime() < LEFT_LIST_MINUTES * 60000;
     var o = {
       s: s, passengers: passengers, starterId: starterId, startedAt: startedAt,
@@ -5956,7 +5958,7 @@ if (window.CW_FRAME) {
   function carLine() { var p = getProfile(); return [p.car_type, p.car_number].filter(Boolean).join(" · "); }
   function renderTripCar() { var c = carLine(); $("tripCarVal").textContent = c || "Not added"; if (!c) $("tripCarSw").checked = false; }
   $("tripCarSw").onchange = function () {
-    if (this.checked && !carLine()) { this.checked = false; openCarPop(function () { renderTripCar(); if (carLine()) $("tripCarSw").checked = true; }); return; }
+    if (this.checked && !carLine()) { this.checked = false; openMyCarPop(function () { renderTripCar(); if (carLine()) $("tripCarSw").checked = true; }); return; }
     renderTripCar();
   };
   // how many of you / seats to fill / room for: a menu of 1–6, or type a number up to 11
@@ -7023,7 +7025,7 @@ if (window.CW_FRAME) {
   }; });
   // the number pop-up on its own (from a ride's ⋯ menu): fill every profile box first, so saving keeps the rest
   var afterNumber = null, afterCar = null;
-  function openCarPop(then) {
+  function openMyCarPop(then) {   // your own car in your profile (for lifts); not the ride's "Change car" (openCarPop)
     var p = getProfile();
     $("detailsName").value = p.name || ""; $("detailsPhone").value = p.phone || ""; $("detailsShare").checked = p.share !== false;
     $("detailsCarType").value = p.car_type || ""; $("detailsCarNumber").value = p.car_number || "";
