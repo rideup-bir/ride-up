@@ -3161,8 +3161,13 @@ if (window.CW_FRAME) {
       frames.push(f);
     });
     if (fadeEnds === true && frames.length > 2) { frames[1].offset = Math.min(frames[1].offset, .04); }
-    var a = el.animate(frames, { duration: dist / speed * 1000, easing: "linear", fill: "forwards" });
-    a.onfinish = done;
+    var dur = dist / speed * 1000, ended = false;
+    var end = function () { if (ended) return; ended = true; if (done) done(); };
+    var a = el.animate(frames, { duration: dur, easing: "linear", fill: "forwards" });
+    a.onfinish = end;
+    // a hidden page (app in the background, screen locked or mirrored) may never play it to the end: this timer still
+    // ends it, so movers can't pile up and all start at once when the scene shows again
+    setTimeout(end, dur + 4000);
   }
   // opt.bend: comes round the bend at the taxi stand heading left (timed for when the camera is there)
   function spawnVehicle(m, opt) {
@@ -3233,9 +3238,12 @@ if (window.CW_FRAME) {
         var walking = / walk-/.test(body.className); body.className = "veh-body lit spr";
         if (i === cur && !walking) return;
         var pos = (i / (frames - 1) * 100) + "% 100%";
-        if (cur >= 0 && !walking) {   // the old pose fades out over the new one
-          var g = body.cloneNode(); g.className = "veh-body lit spr"; body.parentNode.appendChild(g);
-          g.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 320, easing: "ease-out" }).onfinish = function () { g.remove(); };
+        if (cur >= 0 && !walking && document.visibilityState === "visible") {   // the old pose fades out over the new one
+          Array.prototype.forEach.call(body.parentNode.querySelectorAll(".pose-fade"), function (o) { o.remove(); });
+          var g = body.cloneNode(); g.className = "veh-body lit spr pose-fade"; body.parentNode.appendChild(g);
+          var gone = function () { g.remove(); };
+          g.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 320, easing: "ease-out" }).onfinish = gone;
+          setTimeout(gone, 600);   // also when the fade never plays (hidden page)
         }
         body.style.backgroundPosition = pos; cur = i; },
       walk: function (on) { body.className = "veh-body lit spr" + (on ? " walk-" + img : ""); if (on) cur = -1; }, face: function (d) { veh.classList.toggle("left", d < 0); } };
@@ -7538,7 +7546,10 @@ if (window.CW_FRAME) {
   setInterval(function () { fetchSessions(); fetchPlans(); if (currentTab === "trips") fetchTrips(); }, 30000);
   setInterval(function () { renderScenes(); loadWeather(); renderMood(); }, 60000);
   document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "visible") { fetchSessions(); fetchPlans(); renderScenes(); }
+    if (document.visibilityState === "visible") {
+      Array.prototype.forEach.call(document.querySelectorAll(".pose-fade"), function (o) { o.remove(); });
+      fetchSessions(); fetchPlans(); renderScenes();
+    }
   });
   // First open: the name, once (skippable). How it works now lives on the empty home screen (no timed pop-up).
   maybeWelcome();
