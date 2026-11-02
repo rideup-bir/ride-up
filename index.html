@@ -217,7 +217,8 @@
   .cal-blank { aspect-ratio: 1; max-height: 46px; }
   .cal-day.today { box-shadow: inset 0 0 0 1.5px var(--blue); }
   .cal-day.on { background: var(--blue); color: #fff; }
-  .cal-day .cal-dots { display: flex; gap: 2px; height: 5px; margin-top: 2px; }
+  /* the dots sit under the number without pushing it up, so the number stays in the middle of its circle */
+  .cal-day .cal-dots { display: flex; gap: 2px; height: 5px; position: absolute; left: 50%; bottom: 4px; transform: translateX(-50%); }
   .cal-day .cal-dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
   .cal-day .cal-dots i.ask { background: var(--sunset); }
   .cal-day.on .cal-dots i { background: #fff; }
@@ -231,6 +232,7 @@
   .travel-cal .cal-day { aspect-ratio: auto; height: 36px; border-radius: 50%; width: 36px; margin: 0 auto; }
   .travel-cal .cal-day.on { box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 30%, transparent); font-weight: 800; }
   .travel-cal .cal-key { margin-top: 4px; }
+  .travel-cal .cal-day .cal-dots { bottom: 2px; }
   .my-trip { display: block; position: relative; width: 100%; text-align: left; background: #2E6B4E; color: #F4F1E8; border-radius: 18px; padding: 12px 70px 12px 14px; margin: 0 0 8px; box-shadow: 0 3px 10px rgba(46, 107, 78, .3); }
   .my-trip .mt-tag { display: block; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; opacity: .8; }
   .my-trip b { display: block; font-size: 19px; font-weight: 800; margin: 2px 0; }
@@ -261,8 +263,11 @@
   #tripPickCal { margin: 0 0 4px; }
   .trip-list { margin-top: 4px; }
   .trip-list .du-row:nth-child(n+3) .du-menu { top: calc(100% - 6px); bottom: auto; }
-  .trip-type { padding: 0 12px 12px; }
-  .trip-type input { width: 100%; }
+  .trip-type { padding: 0 12px 12px; display: flex; gap: 8px; }
+  .trip-type input { flex: 1; min-width: 0; }
+  /* finishes what was typed in a menu's "Type…" box */
+  .type-save { flex: none; padding: 0 16px; border-radius: 12px; background: var(--green); color: #fff; font-weight: 800; font-size: 14px; }
+  .type-save:active { transform: scale(.95); filter: brightness(.92); }
   .du-menu .du-type { color: var(--blue); font-weight: 700; }
   .trip-carsw span { flex: 1; text-align: right; }
   .trip-carsw span::after { content: none; }
@@ -734,6 +739,9 @@
     .g-scrim, .g-idx-btn, .g-toc-h, .g-fab { display: none !important; }
   }
   .g-link { display: inline-block; margin-top: 2px; }
+  /* a help link that finishes the sentence before it ("… plan together. See how to plan your travel ›") */
+  .g-inl { display: inline; background: none; border: 0; padding: 0; font: inherit; font-weight: 700; color: var(--blue); cursor: pointer; white-space: nowrap; }
+  .g-inl:active { opacity: .6; }
   .fold[open] summary::after { content: "–"; }
   .fold p { font-size: 14px; margin: 0 0 8px; }
   #privacyOverlay .fold p, #privacyOverlay .community-note p { text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
@@ -1511,8 +1519,7 @@
       <img class="pov-glider" id="povGlider" src="art/glider-red.webp" alt="" hidden>
       <header class="pg-head"><button class="pg-back" type="button" data-back="now" aria-label="Back"><span data-icon="back"></span></button><h1>Plan ahead</h1><button class="pg-gear" type="button" data-open="settings" aria-label="Settings"><span class="gear-e" aria-hidden="true">⚙️</span></button></header>
       <div class="pad">
-        <p class="page-sub" id="planStatusLine" data-w="planIntro">Tap a day to see who's heading up when, or to add your plan.</p>
-        <button type="button" class="tiny-link g-link" data-open="guide:plan">How Plan works ›</button>
+        <p class="page-sub"><span id="planStatusLine" data-w="planIntro">Tap a day to see who's heading up when, or to add your plan.</span> <button type="button" class="g-inl" data-open="guide:plan">See how Plan works ›</button></p>
         <div class="thumbs-line" id="planThumbs" hidden></div>
         <div id="dayList" class="two-col"></div>
         <div class="bot-card" id="botBarPlan" hidden><p>Entries with 🤖 are not real people. Only on your phone, to show how it works.</p><button type="button" class="bc-go" id="botClearPlan">Remove bots</button></div>
@@ -1524,8 +1531,7 @@
     <section class="tab-page" id="tab-weather">
       <header class="pg-head"><button class="pg-back" type="button" data-back="more" aria-label="Back"><span data-icon="back"></span></button><h1>Weather</h1><button class="pg-gear" type="button" data-open="settings" aria-label="Settings"><span class="gear-e" aria-hidden="true">⚙️</span></button></header>
       <div class="pad">
-        <p class="page-sub" id="wxUpdated">Loading the latest forecast…</p>
-        <button type="button" class="tiny-link g-link" data-open="guide:weather">How to read this ›</button>
+        <p class="page-sub"><span id="wxUpdated">Loading the latest forecast…</span> · <button type="button" class="g-inl" data-open="guide:weather">See how to read this ›</button></p>
         <div id="wxCards"></div>
         <!-- "Sightline to the landing": the forecast's cloud drawn on a picture like an instructor's whiteboard, people's
              reports as marks on it, the hours to tap through, and a Report button (a two-step pop-up) -->
@@ -1567,7 +1573,7 @@
     <section class="tab-page" id="tab-trips">
       <header class="pg-head"><button class="pg-back" type="button" id="tripsBack" data-back="more" aria-label="Back"><span data-icon="back"></span></button><h1>Plan your travel</h1><button class="pg-gear" type="button" data-open="settings" aria-label="Settings"><span class="gear-e" aria-hidden="true">⚙️</span></button></header>
       <div class="pad">
-        <p class="page-sub" data-w="travelIntro">Share your travel plan, see who else is going, and plan together.</p>
+        <p class="page-sub"><span data-w="travelIntro">Share your travel plan, see who else is going, and plan together.</span> <button type="button" class="g-inl" data-open="guide:travel">See how to plan your travel ›</button></p>
         <div class="travel-cal" id="travelCal"><div class="cal" id="travelMonth"></div></div>
         <div class="section-label">Your plan</div>
         <div id="myTrips"></div>
@@ -1600,10 +1606,10 @@
       <button class="st-row" type="button" data-open="share"><span class="st-ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></span><span class="st-tx"><b>Share</b><small>Spread the word</small></span><span class="chev">›</span></button>
     </div>
     <div class="st-group">
-      <button class="st-row" type="button" data-open="guide"><span class="st-ic">📖</span><span class="st-tx"><b>Help &amp; Guide</b><small>How everything works, step by step</small></span><span class="chev">›</span></button>
       <button class="st-row" type="button" data-open="info:about"><span class="st-ic">🪂</span><span class="st-tx"><b>About</b><small>Origin Story, Community</small></span><span class="chev">›</span></button>
       <button class="st-row" type="button" data-open="info:legal"><span class="st-ic">🔒</span><span class="st-tx"><b>Terms &amp; Privacy</b></span><span class="chev">›</span></button>
       <button class="st-row" type="button" data-open="info:credits"><span class="st-ic">📜</span><span class="st-tx"><b>Licences &amp; Credits</b></span><span class="chev">›</span></button>
+      <button class="st-row" type="button" data-open="guide"><span class="st-ic">📖</span><span class="st-tx"><b>Help &amp; Guide</b><small>How everything works, step by step</small></span><span class="chev">›</span></button>
       <button class="st-row" type="button" data-open="feedback"><span class="st-ic">💬</span><span class="st-tx"><b>Feedback</b><small>Tell us what works and what doesn't</small></span><span class="chev">›</span></button>
       <a class="st-row" href="mailto:cabwait.thermally.yours@gmail.com?subject=Ride%20Up" id="contactRow"><span class="st-ic">✉️</span><span class="st-tx"><b>Contact us</b><small>Write to the Ride Up team</small></span><span class="chev">›</span></a>
     </div>
@@ -1702,10 +1708,10 @@
       <div class="du-list trip-list">
         <div class="du-row"><button type="button" class="du-btn" data-menu="tripCountMenu"><b id="tripCountLab">How many of you?</b><span id="tripCountVal">Just me</span></button>
           <div class="du-menu" id="tripCountMenu" hidden></div>
-          <div class="trip-type" id="tripCountTypeRow" hidden><input id="tripCountType" type="number" inputmode="numeric" min="1" max="11" placeholder="Type a number (up to 11)" aria-label="Type a number"></div></div>
+          <div class="trip-type" id="tripCountTypeRow" hidden><input id="tripCountType" type="number" inputmode="numeric" enterkeyhint="done" min="1" max="11" placeholder="Type a number (up to 11)" aria-label="Type a number"><button type="button" class="type-save" id="tripCountSave">Save</button></div></div>
         <div class="du-row"><button type="button" class="du-btn" data-menu="tripStopMenu"><b id="tripStopsLabel">Part of the way?</b><span id="tripStopsVal">Whole way</span></button>
           <div class="du-menu" id="tripStopMenu" hidden></div>
-          <div class="trip-type" id="tripStopsTypeRow" hidden><input id="tripStopsOther" type="text" placeholder="Type the place" aria-label="Type the place"></div></div>
+          <div class="trip-type" id="tripStopsTypeRow" hidden><input id="tripStopsOther" type="text" enterkeyhint="done" maxlength="60" placeholder="Type the place" aria-label="Type the place"><button type="button" class="type-save" id="tripStopsSave">Save</button></div></div>
         <div class="du-row" id="tripCarRow" hidden><label class="du-btn trip-carsw"><b>Share my car details</b><span id="tripCarVal">Not added</span><input type="checkbox" class="st-sw" id="tripCarSw"></label></div>
       </div>
       <div class="pf-sub">Note</div>
@@ -2377,7 +2383,15 @@ if (window.CW_FRAME) {
 } else {
   var SUPABASE_URL = "https://ysmsvepwsortccnjkpdd.supabase.co";
   var SUPABASE_KEY = "sb_publishable_8f1-9dArOD9FtXidDrpaKw_42w5i3ur";
-  var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  // a request that hangs (no signal on the road, a phone that paused the app) gives up after 20 s instead of a minute
+  // or more, so the person gets "no signal" quickly and can try again (one plan a day / seat checks stop doubles)
+  function fetchWithTimeout(url, opts) {
+    if (typeof AbortController === "undefined") return fetch(url, opts);
+    var ac = new AbortController(), t = setTimeout(function () { ac.abort(); }, 20000);
+    if (opts && opts.signal) opts.signal.addEventListener("abort", function () { ac.abort(); });
+    return fetch(url, Object.assign({}, opts, { signal: ac.signal })).finally(function () { clearTimeout(t); });
+  }
+  var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { global: { fetch: fetchWithTimeout } });
 
   // ---------- ANONYMOUS USAGE COUNTS ----------
   // Only what happened, never who: no names, numbers, cookies or device IDs (see Privacy).
@@ -2439,7 +2453,7 @@ if (window.CW_FRAME) {
   function reportFail(what, err) {
     if (failsSent++ > 5) return;
     var m = String((err && (err.message || err.code)) || err || "error");
-    var code = /fetch|network|load failed|timed? ?out/i.test(m) ? "network" : (m.match(/[a-z]+(?:_[a-z]+)+|[a-z]{4,}/) || ["error"])[0];
+    var code = /fetch|network|load failed|timed? ?out|abort/i.test(m) ? "network" : (m.match(/[a-z]+(?:_[a-z]+)+|[a-z]{4,}/) || ["error"])[0];
     logEvent("flow_fail", (what + ": " + code).slice(0, 30) + " @" + (flowTrail[flowTrail.length - 1] || "-"));
   }
   var errorsSent = 0, pageStart = Date.now();
@@ -2974,6 +2988,7 @@ if (window.CW_FRAME) {
     if (m.indexOf("slow_down") !== -1) return "Lots happening right now — try again in a minute.";
     if (m.indexOf("too_many_reports") !== -1) return "That's 3 reports this hour — thanks! Try again a bit later.";
     if (m.indexOf("need_details") !== -1) return "Add your name and WhatsApp number first (Settings).";
+    if (/fetch|network|load failed|timed? ?out|abort/i.test(m)) return "No signal right now, so it wasn't saved. Try again in a moment.";
     if (m.indexOf("Could not find the function") !== -1) return "The database needs updating — run supabase-setup.sql in Supabase.";
     return fallback;
   }
@@ -5798,8 +5813,8 @@ if (window.CW_FRAME) {
   }
   // one small menu at a time; it closes on a choice or a tap anywhere else
   function closeDuMenus() { document.querySelectorAll(".du-menu").forEach(function (m) { m.hidden = true; }); }
-  document.querySelectorAll(".du-btn").forEach(function (b) {
-    b.onclick = function (e) { e.stopPropagation(); var m = $(b.dataset.menu), was = !m.hidden; closeDuMenus(); m.hidden = was; };
+  document.querySelectorAll(".du-btn[data-menu]").forEach(function (b) {   // (switch rows share the look but have no menu)
+    b.onclick = function (e) { e.stopPropagation(); var m = $(b.dataset.menu); if (!m) return; var was = !m.hidden; closeDuMenus(); m.hidden = was; };
   });
   document.addEventListener("click", function (e) { if (!e.target.closest || !e.target.closest(".du-menu")) closeDuMenus(); });
   [["unitWind", "wind"], ["unitTemp", "temp"], ["unitAlt", "alt"], ["unitClock", "clock"]].forEach(function (u) {
@@ -6281,8 +6296,9 @@ if (window.CW_FRAME) {
     if (isBir($("tripTo").value)) list.reverse();
     return list;
   }
+  var tripStopTyped = "";   // a place typed and saved with the box's Save button (or Enter)
   function renderTripStops() {
-    var list = tripStopList(), typed = !$("tripStopsTypeRow").hidden;
+    var list = tripStopList(), typed = !$("tripStopsTypeRow").hidden || !!tripStopTyped;
     $("tripStopMenu").innerHTML = '<button type="button" data-v=""' + (!tripStopPicks.length && !typed ? ' class="on"' : '') + '>' + (tripHow === "share" ? "Whole way" : "None") + '</button>' +
       list.map(function (p) { return '<button type="button" data-v="' + escapeHtml(p) + '"' + (tripStopPicks.indexOf(p) !== -1 ? ' class="on"' : '') + '>' + escapeHtml(p) + '</button>'; }).join("") +
       '<button type="button" class="du-type" data-v="__type">Type a place…</button>';
@@ -6291,17 +6307,24 @@ if (window.CW_FRAME) {
   $("tripStopMenu").onclick = function (e) {
     var b = e.target.closest("button"); if (!b) return;
     var v = b.dataset.v;
-    if (v === "__type") { closeDuMenus(); $("tripStopsTypeRow").hidden = false; $("tripStopsOther").focus(); renderTripStops(); return; }
-    if (!v) { tripStopPicks = []; $("tripStopsTypeRow").hidden = true; $("tripStopsOther").value = ""; closeDuMenus(); renderTripStops(); return; }
+    if (v === "__type") { closeDuMenus(); $("tripStopsOther").value = tripStopTyped; $("tripStopsTypeRow").hidden = false; $("tripStopsOther").focus(); renderTripStops(); return; }
+    if (!v) { tripStopPicks = []; tripStopTyped = ""; $("tripStopsTypeRow").hidden = true; $("tripStopsOther").value = ""; closeDuMenus(); renderTripStops(); return; }
     var i = tripStopPicks.indexOf(v); if (i === -1) tripStopPicks.push(v); else tripStopPicks.splice(i, 1);
     b.classList.toggle("on", i === -1);   // ticked in place, so the menu stays open: several can be ticked
-    $("tripStopMenu").querySelector('[data-v=""]').classList.toggle("on", !tripStopPicks.length && $("tripStopsTypeRow").hidden);
+    $("tripStopMenu").querySelector('[data-v=""]').classList.toggle("on", !tripStopPicks.length && !tripStopTyped && $("tripStopsTypeRow").hidden);
     tripStopsShow();
   };
   function tripStopsShow() { $("tripStopsVal").textContent = tripStopsValue() || (tripHow === "share" ? "Whole way" : "None"); }
   $("tripStopsOther").addEventListener("input", tripStopsShow);
+  function saveTypedStop() {
+    tripStopTyped = $("tripStopsOther").value.trim();
+    $("tripStopsTypeRow").hidden = true; $("tripStopsOther").blur();
+    renderTripStops();
+  }
+  $("tripStopsSave").onclick = saveTypedStop;
+  $("tripStopsOther").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); saveTypedStop(); } });
   function tripStopsValue() {
-    var other = !$("tripStopsTypeRow").hidden ? $("tripStopsOther").value.trim() : "";
+    var other = !$("tripStopsTypeRow").hidden ? $("tripStopsOther").value.trim() : tripStopTyped;
     return tripStopPicks.concat(other ? [other] : []).join(", ") || null;
   }
   // your own car: its details (type · number, from your profile) can go with the plan; no details saved yet →
@@ -6334,6 +6357,9 @@ if (window.CW_FRAME) {
   };
   $("tripCountType").addEventListener("input", function () { if (this.value) setTripCount(this.value); });
   $("tripCountType").addEventListener("blur", function () { this.value = tripCount(); });
+  function saveTypedCount() { $("tripCountTypeRow").hidden = true; $("tripCountType").blur(); }
+  $("tripCountSave").onclick = saveTypedCount;
+  $("tripCountType").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); saveTypedCount(); } });
   // When: the month calendar (days gone by can't be picked) and the same time wheel as the Plan page
   function renderTripWhenText() {
     var d = dayLabel(tripDate) === "Today" || dayLabel(tripDate) === "Tomorrow" ? dayLabel(tripDate) : shortDay(tripDate);
@@ -6383,7 +6409,7 @@ if (window.CW_FRAME) {
   // kind: "request" (share a taxi) or "offer" (booked taxi); opts: { date, from, to }
   function openTripForm(kind, opts) {
     opts = opts || {};
-    tripNeed = 2; tripRoom = 1; tripStopPicks = []; tripParty = 1; tripTime = "09:00";
+    tripNeed = 2; tripRoom = 1; tripStopPicks = []; tripStopTyped = ""; tripParty = 1; tripTime = "09:00";
     tripDate = opts.date && opts.date >= todayStr() ? opts.date : (travelDay && travelDay >= todayStr() ? travelDay : todayStr());
     if (tripDate === todayStr() && slotToMins(tripTime) < nowMins()) tripTime = minsToSlot(Math.ceil(nowMins() / 15) * 15 % 1440);   // today: not a time already gone
     $("tripFrom").value = opts.from || "Bir"; $("tripTo").value = opts.to || ""; $("tripStopsOther").value = ""; $("tripStopsTypeRow").hidden = true;
