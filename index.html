@@ -384,7 +384,8 @@
   .seat { width: 26px; height: 26px; border-radius: 50%; background: var(--blue); color: #fff; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
   .seat.me { background: var(--sunset); }
   .seat.empty { background: transparent; border: 2px dashed var(--sunset); }
-  .seat.pop { animation: pop 0.45s cubic-bezier(.3, 1.6, .5, 1) both; }
+  /* a seat that just filled bounces in (not ".pop": that is the pop-up window style, it stretched the seat) */
+  .seat.seat-pop { animation: pop 0.45s cubic-bezier(.3, 1.6, .5, 1) both; }
   @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
 
   .people { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); }
@@ -4305,7 +4306,7 @@ if (window.CW_FRAME) {
     var html = '<div class="seats">';
     var used = 0;
     people.forEach(function (p, i) {
-      html += '<span class="seat' + (p.id === mineId ? " me" : "") + (seenPeople[p.id] ? "" : " pop") + '" style="animation-delay:' + (i * 0.08) + 's" title="' + escapeHtml(p.name) + '">' + escapeHtml(initials(p.name)) + '</span>';
+      html += '<span class="seat' + (p.id === mineId ? " me" : "") + (seenPeople[p.id] ? "" : " seat-pop") + '" style="animation-delay:' + (i * 0.08) + 's" title="' + escapeHtml(p.name) + '">' + escapeHtml(initials(p.name)) + '</span>';
       for (var f = 0; f < (p.extra || 0); f++) html += '<span class="seat friend' + (p.id === mineId ? " me" : "") + '" title="' + escapeHtml(p.name) + '\'s friend">' + escapeHtml(initials(p.name)) + '<small>+</small></span>';
       used += 1 + (p.extra || 0);
     });
