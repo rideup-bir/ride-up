@@ -2225,6 +2225,13 @@ if (window.CW_FRAME) {
     var rpc = client.rpc.bind(client);
     client.rpc = function (fn, args) {
       if (fn === "log_event") return rpc(fn, args);
+      // a phone number typed into a name would be shown to everyone: keep it out of the name (and use it as the
+      // private WhatsApp number when that's empty)
+      var sp = args && typeof args.p_name === "string" ? splitNameNumber(args.p_name) : null;
+      if (sp) {
+        args = Object.assign({}, args, { p_name: sp.name || "A pilot" });
+        if ("p_phone" in args && !args.p_phone && normalizePhone(sp.phone)) args.p_phone = normalizePhone(sp.phone);
+      }
       flowStep("rpc:" + fn);
       return Promise.resolve(rpc(fn, args)).then(function (r) {
         if (r && r.error) reportFail(fn, r.error);
@@ -2486,7 +2493,7 @@ if (window.CW_FRAME) {
     ["rideup_demo_db"].concat(DEMO_KEYS.map(function (k) { return k + "_demo"; })).forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
   }
   // Published versions are 1.0, 1.1, 1.2…; tested-but-unpublished upgrades after one get 1.1.1, 1.1.2…
-  var APP_VERSION = "1.0.2";
+  var APP_VERSION = "1.0.3";
   // "" for a normal release; "beta" adds a (beta) label for a test release. Set it at every publish.
   var RELEASE_KIND = "";
   // The Versions pop-up (tap the version line at the bottom of Settings): one list of points, shown in this order.
@@ -3584,8 +3591,29 @@ if (window.CW_FRAME) {
     if (!p && DEMO) { try { p = JSON.parse(localStorage.getItem("rideup_profile")); } catch (e) {} }
     return p || {};
   }
+  // "Cameron +91 98765 43210" → { name: "Cameron", phone: "+91 98765 43210" } (null when there's no number in it)
+  function splitNameNumber(raw) {
+    var m = /\+?\d[\d\s().-]{6,}\d/.exec(raw || "");
+    if (!m || m[0].replace(/\D/g, "").length < 8) return null;
+    var name = (raw.slice(0, m.index) + " " + raw.slice(m.index + m[0].length))
+      .replace(/\b(whats ?app|wa|ph(one)?|mob(ile)?|cell|contact|number|no\.?)\s*:?\s*(?=\)|$)/gi, "").replace(/\(\s*\)/g, "")
+      .replace(/^[\s,;:|\/-]+|[\s,;:|\/-]+$/g, "").replace(/\s{2,}/g, " ");
+    return { name: name, phone: m[0].trim() };
+  }
+  var NAME_BOXES = "#rpName, #lpName, #mpName, #wcName, #joinName, #planName, #tripJoinName, #detailsName, #tripWarnName";
+  document.addEventListener("change", function (e) {
+    var el = e.target; if (!el.matches || !el.matches(NAME_BOXES)) return;
+    var sp = splitNameNumber(el.value); if (!sp) return;
+    el.value = sp.name;
+    var tel = el.closest(".pop, .sheet, .overlay"); tel = tel && tel.querySelector('input[type="tel"]');
+    if (tel && !tel.value.trim()) tel.value = sp.phone;
+    if (!normalizePhone(getProfile().phone || "") && normalizePhone(sp.phone)) saveProfile(null, sp.phone);
+    toast(sp.name ? "Moved your number to the WhatsApp box, so only your ride sees it." : "That's a phone number, so it went into the WhatsApp box. Add your name here.");
+  }, true);
   function saveProfile(name, phoneRaw, share) {
     var p = getProfile();
+    var sp = splitNameNumber(name);
+    if (sp && sp.name) { name = sp.name; if (!phoneRaw && !normalizePhone(p.phone || "")) phoneRaw = sp.phone; }
     if (name) p.name = name;
     if (phoneRaw) p.phone = phoneRaw;
     if (share !== undefined) p.share = share;

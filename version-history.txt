@@ -10,6 +10,11 @@ How versions are numbered
 Newest first. Dates and times are Bir time (India).
 
 
+RIDE UP 1.0.3 — 19:00 · 02.11.2026
+- A phone number typed into a name box ("Cameron +91 …") no longer shows to everyone: the app moves it to the
+  WhatsApp box, where only your ride can see it, and says so. (Names are public on the ride list; numbers aren't.)
+
+
 RIDE UP 1.0.2 — 18:55 · 02.11.2026
 - The scenery at night: a pale disc that came and went on the field (by the groups and the couple) is gone. It was a
   phone screen lighting up in someone's hand, drawn far too big by mistake; it's a tiny glow again.
