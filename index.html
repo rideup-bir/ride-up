@@ -140,7 +140,15 @@
   /* one bar under the map: ‹ list · − zoom slider + · list › */
   .map-ctl { display: flex; align-items: center; gap: 2px; margin: 10px 0 0; padding: 4px; background: var(--card); border-radius: 999px; box-shadow: var(--shadow); }
   .map-ctl button { flex: none; width: 38px; height: 38px; border-radius: 50%; background: none; color: var(--ink); font-size: 24px; line-height: 1; padding: 0 0 3px; }
-  .map-ctl button.mz { font-size: 22px; color: var(--blue); }
+  /* zoom: solid round buttons that press in, and a slider handle as big as them (easy to grab) */
+  .map-ctl button.mz { font-size: 24px; font-weight: 700; color: #fff; background: var(--blue); box-shadow: 0 2px 6px rgba(0, 0, 0, .22); transition: transform .12s, filter .12s, box-shadow .12s; }
+  .map-ctl button.mz:active { transform: scale(.86); filter: brightness(.88); box-shadow: 0 1px 2px rgba(0, 0, 0, .2); }
+  .map-ctl input[type=range] { -webkit-appearance: none; appearance: none; height: 38px; background: none; touch-action: none; }
+  .map-ctl input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: color-mix(in srgb, var(--blue) 28%, var(--line)); }
+  .map-ctl input[type=range]::-moz-range-track { height: 6px; border-radius: 3px; background: color-mix(in srgb, var(--blue) 28%, var(--line)); }
+  .map-ctl input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 38px; height: 38px; margin-top: -16px; border-radius: 50%; background: var(--card); border: 3px solid var(--blue); box-shadow: 0 2px 6px rgba(0, 0, 0, .25); }
+  .map-ctl input[type=range]::-moz-range-thumb { width: 32px; height: 32px; border-radius: 50%; background: var(--card); border: 3px solid var(--blue); box-shadow: 0 2px 6px rgba(0, 0, 0, .25); }
+  .map-ctl input[type=range]:active::-webkit-slider-thumb { transform: scale(1.08); }
   .map-ctl i { flex: none; width: 1px; height: 22px; background: var(--line); }
   .map-ctl input { flex: 1; min-width: 0; accent-color: var(--blue); margin: 0 4px; }
   /* Map / Satellite: a round layers button, as in Google Maps */
@@ -739,6 +747,13 @@
     .g-scrim, .g-idx-btn, .g-toc-h, .g-fab { display: none !important; }
   }
   .g-link { display: inline-block; margin-top: 2px; }
+  /* Home Screen app on iOS 26+: iOS blurs the top of the page under the clock, and the only thing that stops it is a
+     solid strip fixed to the top edge (iOS then paints the status bar that colour). The strip takes the colour of
+     whatever is under it: the page header, a pop-up, or the painting's sky (sbTick). Never in the browser. */
+  .sb-fill { display: none; position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top, 0px); z-index: 2147483000; pointer-events: none; background: var(--sb, var(--bg)); }
+  html.standalone .sb-fill { display: block; }
+  /* over the painting: a short soft edge, so the strip melts into the sky (it ends above the name and the ⚙) */
+  .sb-fill.on-art::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 10px; background: linear-gradient(var(--sb, transparent), transparent); }
   /* a help link that finishes the sentence before it ("… plan together. See how to plan your travel ›") */
   .g-inl { display: inline; background: none; border: 0; padding: 0; font: inherit; font-weight: 700; color: var(--blue); cursor: pointer; white-space: nowrap; }
   .g-inl:active { opacity: .6; }
@@ -999,19 +1014,19 @@
     .turn-upright { display: flex; position: fixed; inset: 0; z-index: 9999; background: var(--bg); color: var(--ink); align-items: center; justify-content: center; flex-direction: column; gap: 10px; font-size: 16px; font-weight: 600; text-align: center; padding: 24px; }
     .turn-upright span { font-size: 40px; }
     /* ...except the full-screen painting and Help & Guide, which work sideways too */
-    body.art-view .turn-upright, body.guide-open .turn-upright { display: none !important; }
+    body.art-view .turn-upright, body:has(#guideOverlay:not(.hidden)) .turn-upright { display: none !important; }
     body.art-view .stage { display: block; min-height: 0; }
   }
-  /* pull to refresh: a quiet turning arrow at the top, and "Release to refresh" once pulled far enough */
-  .ptr { position: fixed; z-index: 9000; left: 50%; top: calc(62px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); display: flex; align-items: center; gap: 7px;
-    color: var(--ink-soft); font-size: 13px; font-weight: 600; pointer-events: none; opacity: 0; transition: opacity .15s; }
-  .ptr svg { width: 22px; height: 22px; }
-  .ptr span { display: none; }
-  .ptr.ready span { display: inline; }
+  /* pull to refresh: the page itself slides down, uncovering a quiet turning arrow in the gap above it; pulled far
+     enough, "Release to refresh" appears UNDER the arrow (the arrow never moves sideways) */
+  .ptr { position: fixed; z-index: 9000; left: 50%; top: calc(14px + env(safe-area-inset-top, 0px)); width: 22px; height: 22px; margin-left: -11px;
+    color: var(--ink-soft); font-size: 13px; font-weight: 600; pointer-events: none; opacity: 0; }
+  .ptr svg { display: block; width: 22px; height: 22px; }
+  .ptr span { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 6px; white-space: nowrap; opacity: 0; transition: opacity .15s; }
+  .ptr.ready span { opacity: 1; }
   .ptr.spin svg { animation: ptrSpin .8s linear infinite; }
   @keyframes ptrSpin { to { transform: rotate(360deg); } }
-  body.art-view .ptr, .ptr.on-art { color: #fff; text-shadow: 0 1px 4px rgba(0, 0, 0, .6); }
-  body.art-view .ptr svg, .ptr.on-art svg { filter: drop-shadow(0 1px 3px rgba(0, 0, 0, .6)); }
+  .app > main.ptr-back { transition: transform .25s ease-out; }
   /* Now: the painting banner */
   .ru-banner { position: relative; overflow: hidden; height: 33vh; background: #5b8fb0; transition: height .45s ease; }
   .ru-canvas { position: absolute; left: 0; top: 0; width: 100%; }
@@ -1565,7 +1580,7 @@
       <div class="pad">
         <div class="ul-tabs hscroll" id="mapChips"></div>
         <div class="bir-map" id="birMap"><div class="map-loading">Loading the map…</div></div>
-        <div class="map-ctl"><button type="button" id="mapPrev" aria-label="Previous list">‹</button><i></i><button type="button" class="mz" id="mapZoomOut" aria-label="Zoom out">−</button><input type="range" id="mapZoom" min="13" max="19" step="0.05" value="15" aria-label="Zoom"><button type="button" class="mz" id="mapZoomIn" aria-label="Zoom in">+</button><i></i><button type="button" id="mapNext" aria-label="Next list">›</button></div>
+        <div class="map-ctl"><button type="button" id="mapPrev" aria-label="Previous list">‹</button><i></i><button type="button" class="mz" id="mapZoomOut" aria-label="Zoom out">−</button><input type="range" id="mapZoom" min="13" max="18" step="0.05" value="15" aria-label="Zoom"><button type="button" class="mz" id="mapZoomIn" aria-label="Zoom in">+</button><i></i><button type="button" id="mapNext" aria-label="Next list">›</button></div>
         <p class="fine-print">Places from OpenStreetMap, checked by local pilots. Tap a pin to open it in Google Maps. Something missing or wrong? Tell us in Settings → Feedback.</p>
       </div>
     </section>
@@ -1618,6 +1633,7 @@
 </div>
 
 <div class="toast-wrap" id="toasts" aria-live="polite"></div>
+<div class="sb-fill" id="sbFill" aria-hidden="true"></div>
 <div class="ptr" id="ptr" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg><span>Release to refresh</span></div>
 <div class="turn-upright" role="alert"><span>📱</span>Turn your phone upright to use Ride Up.</div>
 <button class="to-top" id="toTop" aria-label="Back to top" hidden>↑</button>
@@ -3095,6 +3111,8 @@ if (window.CW_FRAME) {
   var PAINT_KEYS = [[0, "night"], [330, "night"], [400, "dawn"], [470, "day"], [960, "day"], [1030, "golden"], [1065, "golden"], [1140, "night"], [1440, "night"]];
   // Colour of the bottom of each painting, so the page below it carries on seamlessly
   var PAINT_GROUND = { night: "#283E4D", dawn: "#3F5055", day: "#898456", golden: "#907D56" };
+  // …and of its top edge (the sky), for the strip under the phone's clock
+  var PAINT_SKY = { night: "#0E2760", dawn: "#BAD9EF", day: "#8FBFE6", golden: "#88B4DF" };
   function paintMix(m) {
     for (var i = 0; i < PAINT_KEYS.length - 1; i++) {
       var a = PAINT_KEYS[i], b = PAINT_KEYS[i + 1];
@@ -3864,7 +3882,6 @@ if (window.CW_FRAME) {
   }
   function closeSheet(id) {
     $(id).classList.add("hidden");
-    if (id === "guideOverlay") document.body.classList.remove("guide-open");
     // put the keyboard away properly (iPhones otherwise keep taps slightly off for pinned things)
     var a = document.activeElement;
     if (a && a !== document.body && a.blur && $(id).contains(a)) a.blur();
@@ -5653,28 +5670,53 @@ if (window.CW_FRAME) {
     window.scrollTo(0, 0); placeStageCard(); deeper(); logEvent("art_view");
   }
   function closeArtView() {
-    document.body.classList.remove("art-view"); $("ruArtX").hidden = true; placeStageCard();
+    document.body.classList.remove("art-view"); $("ruArtX").hidden = true; placeStageCard(); artByTurn = false;
   }
   // review hook, off the live site like ?t=: ?cam=1800 (or ?cam=1800,1.6) opens full screen held on that spot of the painting
   var CAM_HOLD = !IS_LIVE && /[?&]cam=(\d{3,4})(?:,([\d.]+))?/.exec(location.search);
   if (CAM_HOLD) setTimeout(function () { openArtView(); cam.hold = +CAM_HOLD[1]; cam.s = +(CAM_HOLD[2] || 1); camApply(); }, 1500);
   $("ruExpand").onclick = function (e) { e.stopPropagation(); openArtView(); };
+  // Sideways only the full-screen painting (and Help & Guide) work: turning the phone on the home page opens the
+  // painting, turning it upright again closes it (only when turning opened it). While a phone turns it reports its new
+  // size in steps, so the painting is placed again once the turn has settled.
+  var SIDEWAYS = window.matchMedia ? matchMedia("(orientation: landscape) and (max-height: 520px)") : null, artByTurn = false;
+  function onTurn() {
+    var art = document.body.classList.contains("art-view");
+    if (SIDEWAYS.matches) {
+      if (!art && currentTab === "now" && !openOverlayIds().length) { openArtView(); artByTurn = true; }
+    } else if (artByTurn) {
+      artByTurn = false;
+      if (art) { if (history.state && history.state.ru) history.back(); else closeArtView(); }   // Back closes it, history stays tidy
+    }
+    [120, 400, 900].forEach(function (ms) { setTimeout(placeStageCard, ms); });
+  }
+  if (SIDEWAYS) { if (SIDEWAYS.addEventListener) SIDEWAYS.addEventListener("change", onTurn); else SIDEWAYS.addListener(onTurn); }
+  if (SIDEWAYS && SIDEWAYS.matches) setTimeout(onTurn, 600);
   $("ruArtX").onclick = function (e) { e.stopPropagation(); goBack(); };
   // Pull to refresh (a home-screen app has no reload button): at the top of a page, pull down from BELOW the painting
   // (pulling the painting itself opens the art view), or pull down anywhere in the art view; a long, deliberate pull
   // (PTR_PULL px) shows "Release to refresh", and letting go there reloads Ride Up with the newest version.
   var PTR_PULL = 150;
+  // how far the page follows the finger: less and less the further it's pulled (like iOS), at most PTR_MAX px
+  var PTR_MAX = 130;
+  function ptrShift(dy) { return dy <= 0 ? 0 : PTR_MAX * (1 - Math.exp(-dy / 190)); }
   function ptrShow(dy) {
-    var el = $("ptr"), f = Math.max(0, Math.min(1, dy / PTR_PULL));
-    el.classList.toggle("on-art", currentTab === "now");   // over the painting: white, like the titles on it
-    el.style.opacity = dy > 12 ? String(0.35 + 0.65 * f) : "0";
+    var el = $("ptr"), main = document.querySelector(".app > main"), sh = ptrShift(dy), f = Math.max(0, Math.min(1, dy / PTR_PULL));
+    main.classList.remove("ptr-back");
+    main.style.transform = sh > 0.5 ? "translateY(" + sh.toFixed(1) + "px)" : "";
+    el.style.opacity = sh > 24 ? String(Math.min(1, (sh - 24) / 30) * (0.45 + 0.55 * f)) : "0";   // only once the gap shows it
     el.querySelector("svg").style.transform = "rotate(" + Math.round(dy * 2.2) + "deg)";
     el.classList.toggle("ready", dy >= PTR_PULL);
   }
   function ptrEnd(dy) {
-    var el = $("ptr");
-    if (dy >= PTR_PULL) { el.classList.add("spin"); el.querySelector("svg").style.transform = ""; logEvent("refresh", document.body.classList.contains("art-view") ? "art" : currentTab); setTimeout(function () { location.reload(); }, 250); }
-    else { el.style.opacity = "0"; el.classList.remove("ready"); }
+    var el = $("ptr"), main = document.querySelector(".app > main");
+    main.classList.add("ptr-back");
+    if (dy >= PTR_PULL) {
+      main.style.transform = "translateY(" + Math.round(ptrShift(PTR_PULL)) + "px)";   // stays open while it reloads
+      el.classList.add("spin"); el.querySelector("svg").style.transform = "";
+      logEvent("refresh", document.body.classList.contains("art-view") ? "art" : currentTab);
+      setTimeout(function () { location.reload(); }, 350);
+    } else { main.style.transform = ""; el.style.opacity = "0"; el.classList.remove("ready"); }
   }
   (function () {
     var y0 = null, x0 = 0, on = false;
@@ -5710,13 +5752,13 @@ if (window.CW_FRAME) {
       st.style.removeProperty("--pull");
       if (document.body.classList.contains("art-view")) {
         if (dy > 12 && Math.abs(dx) < dy) ptrEnd(dy);
-        else { ptrShow(0); if (e.touches.length === 0 && (dy < -50 && Math.abs(dx) < -dy || (Math.abs(dy) < 8 && Math.abs(dx) < 8))) goBack(); }
+        else { ptrShow(0); if (e.touches.length === 0 && !(SIDEWAYS && SIDEWAYS.matches) && (dy < -50 && Math.abs(dx) < -dy || (Math.abs(dy) < 8 && Math.abs(dx) < 8))) goBack(); }   // sideways only ✕ closes it
       }
       else if (dy > 90 && Math.abs(dx) < dy) openArtView();
       y0 = null;
     });
     st.addEventListener("click", function (e) {   // mouse / desktop: a click in the art view returns
-      if (document.body.classList.contains("art-view") && !e.target.closest("#ruArtX")) goBack();
+      if (document.body.classList.contains("art-view") && !e.target.closest("#ruArtX") && !(SIDEWAYS && SIDEWAYS.matches)) goBack();
     });
   })();
   function renderMood() {
@@ -6669,9 +6711,10 @@ if (window.CW_FRAME) {
     if (birMap) { setTimeout(function () { birMap.invalidateSize(); }, 50); return; }
     try { await loadLeaflet(); } catch (e) { $("birMap").innerHTML = '<div class="map-loading">Couldn\'t load the map — check your connection.</div>'; return; }
     $("birMap").innerHTML = "";
-    // locked to the Bir valley: it can't zoom or pan out far enough to show any state or country border
+    // locked to the Bir valley: it can't zoom or pan out far enough to show any state or country border; zoom
+    // stops at 18, the closest Esri has satellite pictures of Bir (19 = "Map data not yet available")
     var BIR_BOUNDS = L.latLngBounds([31.97, 76.64], [32.12, 76.80]);
-    birMap = L.map("birMap", { zoomControl: false, attributionControl: true, minZoom: 13, maxZoom: 19, zoomSnap: 0.05, zoomDelta: 0.5, maxBounds: BIR_BOUNDS, maxBoundsViscosity: 1.0 }).setView(VIEW_SPOT, 15);
+    birMap = L.map("birMap", { zoomControl: false, attributionControl: true, minZoom: 13, maxZoom: 18, zoomSnap: 0.05, zoomDelta: 0.5, maxBounds: BIR_BOUNDS, maxBoundsViscosity: 1.0 }).setView(VIEW_SPOT, 15);
     birMap.on("zoomend", function () { $("mapZoom").value = birMap.getZoom(); });
     // OpenStreetMap's own tile servers don't allow apps; the humanitarian style (OSM France) does, with Esri as a backup
     var tiles = L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap contributors · tiles OSM France / HOT" });
@@ -6679,16 +6722,19 @@ if (window.CW_FRAME) {
     tiles.on("tileerror", function () {
       if (fellBack) return; fellBack = true;
       birMap.removeLayer(tiles);
-      tiles = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19, attribution: "Tiles © Esri · places © OpenStreetMap contributors" }).addTo(birMap);
+      tiles = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", { maxZoom: 18, maxNativeZoom: 17, attribution: "Tiles © Esri · places © OpenStreetMap contributors" }).addTo(birMap);
     });
     // Map / Satellite: Esri's satellite pictures with its roads and place names on top
     var E = "https://server.arcgisonline.com/ArcGIS/rest/services/";
     var sat = L.layerGroup([
-      L.tileLayer(E + "World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19, attribution: "Imagery © Esri, Maxar, Earthstar Geographics and the GIS User Community" }),
-      L.tileLayer(E + "Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19 }),
-      L.tileLayer(E + "Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", { maxZoom: 19 })
+      L.tileLayer(E + "World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 18, maxNativeZoom: 18, attribution: "Imagery © Esri, Maxar, Earthstar Geographics and the GIS User Community" }),
+      L.tileLayer(E + "Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}", { maxZoom: 18, maxNativeZoom: 17 })
     ]);
-    sat.addTo(birMap);   // satellite first; the layers button switches to the street map and back
+    // place names: Esri's zoom-18 labels come out huge and blocky, so above 17.5 they hide (our pins still name places)
+    var satNames = L.tileLayer(E + "Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}", { maxZoom: 17 });
+    function syncSatNames() { var want = birMap.hasLayer(sat) && birMap.getZoom() <= 17.5; if (want !== birMap.hasLayer(satNames)) { if (want) satNames.addTo(birMap); else birMap.removeLayer(satNames); } }
+    birMap.on("zoomend", syncSatNames);
+    sat.addTo(birMap); syncSatNames();   // satellite first; the layers button switches to the street map and back
     var SatSwitch = L.Control.extend({ options: { position: "topright" }, onAdd: function () {
       var b = L.DomUtil.create("button", "map-sat"); b.type = "button"; b.setAttribute("aria-label", "Map or satellite view"); b.title = "Map / Satellite";
       b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 8.5 12 14l9.5-5.5z"/><path d="M4.5 12.3 2.5 13.5 12 19l9.5-5.5-2-1.2"/></svg>';
@@ -6696,6 +6742,7 @@ if (window.CW_FRAME) {
       b.onclick = function () {
         var toMap = birMap.hasLayer(sat);
         if (toMap) { birMap.removeLayer(sat); tiles.addTo(birMap); } else { birMap.removeLayer(tiles); sat.addTo(birMap); }
+        syncSatNames();
         logEvent("map_view", toMap ? "map" : "satellite");
       };
       return b;
@@ -7291,6 +7338,47 @@ if (window.CW_FRAME) {
   function usedOnce(k) { try { return localStorage.getItem("rideup_used_" + k) === "1"; } catch (e) { return false; } }
   function markUsed(k) { try { localStorage.setItem("rideup_used_" + k, "1"); } catch (e) {} }
   function isStandalone() { return !!(window.navigator.standalone || (window.matchMedia && matchMedia("(display-mode: standalone)").matches)); }
+  // the strip under the clock (see .sb-fill): every half second, the colour of what's right under it
+  function mixHex(a, b, t) {
+    var pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16), out = "#";
+    [16, 8, 0].forEach(function (sh) { var x = Math.round(((pa >> sh) & 255) * (1 - t) + ((pb >> sh) & 255) * t); out += (x < 16 ? "0" : "") + x.toString(16); });
+    return out;
+  }
+  // the painting exactly as it shows under the strip: the part in view, with its night / weather toning, the
+  // cross-fading paintings blended by their opacity
+  var sbCanvas = null;
+  function stageTopColour(stage, h) {
+    try {
+      if (!sbCanvas) { sbCanvas = document.createElement("canvas"); sbCanvas.width = sbCanvas.height = 1; }
+      var ctx = sbCanvas.getContext("2d", { willReadFrequently: true }), drawn = false;
+      ctx.clearRect(0, 0, 1, 1);
+      stage.querySelectorAll(".paint img").forEach(function (img) {
+        var cs = getComputedStyle(img), op = parseFloat(cs.opacity), r = img.getBoundingClientRect();
+        if (!img.complete || !img.naturalWidth || !(op > 0.02) || !r.width || r.top > h) return;
+        var kx = img.naturalWidth / r.width, ky = img.naturalHeight / r.height;
+        var sx = Math.max(0, -r.left) * kx, sw = Math.min(innerWidth, r.right) * kx - sx, sy = Math.max(0, -r.top) * ky, sh = Math.max(1, (h - Math.max(0, r.top)) * ky);
+        if (sw <= 0) return;
+        ctx.globalAlpha = drawn ? op : 1; ctx.filter = cs.filter && cs.filter !== "none" ? cs.filter : "none";
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, 1, 1); drawn = true;
+      });
+      if (!drawn) return "";
+      var d = ctx.getImageData(0, 0, 1, 1).data;
+      return "rgb(" + d[0] + "," + d[1] + "," + d[2] + ")";
+    } catch (e) { return ""; }
+  }
+  function sbTick() {
+    var fill = $("sbFill"), h = fill.offsetHeight;
+    if (!h || document.hidden) return;
+    var el = document.elementFromPoint(innerWidth / 2, h + 2), col = "", art = false;
+    for (; el && el !== document.documentElement; el = el.parentElement) {
+      if (el.id === "stage") { art = true; col = stageTopColour(el, h); if (!col) { var mx = paintMix(sceneMins()); col = mx.b ? mixHex(PAINT_SKY[mx.a], PAINT_SKY[mx.b], mx.t) : PAINT_SKY[mx.a]; } break; }
+      var bg = getComputedStyle(el).backgroundColor, m = bg.match(/rgba?\(([^)]+)\)/);
+      if (m) { var v = m[1].split(","); if (v.length < 4 || parseFloat(v[3]) > 0.85) { col = bg; break; } }
+    }
+    fill.style.setProperty("--sb", col || "");
+    fill.classList.toggle("on-art", art);
+  }
+  if (isStandalone()) { document.documentElement.classList.add("standalone"); setInterval(sbTick, 500); sbTick(); }
   // Is Ride Up on this phone's Home Screen? Inside the Home Screen app: yes. In Android Chrome / Edge the browser says so:
   // it reports an install ("appinstalled"), can be asked (getInstalledRelatedApps), and only offers to install
   // ("beforeinstallprompt") while it ISN'T installed, so a removed shortcut shows up again on the next visit. iPhone
@@ -7607,7 +7695,7 @@ if (window.CW_FRAME) {
   function openGuide(topic) {
     $("guideQ").value = ""; $("guideResults").hidden = true;
     if (guideMode() === "drawer") guideToc(false);
-    openSheet("guideOverlay"); document.body.classList.add("guide-open");
+    openSheet("guideOverlay");
     var n = topic ? guidePages.indexOf($("help-" + topic)) : -1;
     if (n >= 0) setTimeout(function () { guideJump(n); }, 250); else { guideScroller().scrollTop = 0; logEvent("help", "open"); }
     setTimeout(guideSpy, 400);
