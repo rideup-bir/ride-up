@@ -129,12 +129,15 @@ no-fly season. Even then, overcast skies cut it to 2 gliders.
 | Road | `road-strip` | always | the tarmac band along the far edge of the field |
 | Taxi corner: café cluster, open tea shack at the bend, parking ramp | painted into all four paintings (31 Oct 2026; layout from the satellite map, confirmed by the maker) | always | 1–2-floor cafés with balconies, big windows, fenced garden seating, a few people sitting; the patchwork-roofed open tea shack in front |
 | Shacks behind the road | painted cut-outs (Gemini, scaled and placed to the map) in the paintings | always | colourful: tarpaulin roofs, faded flex posters (pictures only, no text), plastic stools, umbrella tables |
-| Café lights | `lights-cafes` (the café cluster) | dusk–23:00, a third till midnight (`--cafe-glow`) | lit windows, string lights, garden lanterns |
+| Café lights | `lights-cafes` (the café cluster) | dusk till dawn, together with every other building (`--cafe-glow`) | lit windows, string lights, garden lanterns |
 | The left hotel + cafés | painted into all four paintings (31 Oct 2026; Bir High and the Hub Safari / Vikings cluster, x 749–994, no names): a small hotel with wooden balconies and a rooftop terrace, a garden café with umbrellas and a fence, little shops with awnings | always | people sitting on the terrace and in the garden |
-| Left lights | `lights-left` | dusk–23:00 (`--cafe-glow`) | lit windows, balcony and roof string lights, garden lanterns |
-| Tea-shack lights | `lights-shack` (the open shack at the bend), `lights-shacks` (the house by Charlie's, Himani), `lights-shack-i8` (the small shack) | dusk–19:45 (`--shack-glow`) | a bulb inside, string lights on the roof, lanterns on the tables |
+| Left lights | `lights-left` | dusk till dawn (`--cafe-glow`) | lit windows, balcony and roof string lights, garden lanterns |
+| Tea-shack lights | `lights-shack` (the open shack at the bend), `lights-shacks` (the house by Charlie's, Himani), `lights-shack-i8` (the small shack) | dusk till dawn (`--shack-glow`) | a bulb inside, string lights on the roof, lanterns on the tables |
 | Charlie's bulbs, village lights | painted in the night painting | night | glow |
 | Taxis at the stand | `car-taxi`, `car-own` | while rides are on in the app | one per live ride (up to 3), queued on the road edge from x 2084 |
+
+Rule (03.11.2026, the maker): all building lights behave the same: if Charlie's is lit (its lights are painted into the
+night painting), every café, shack and building is lit; all on at dusk, all off at dawn.
 
 ### 6.3 On the field (layer 7)
 
