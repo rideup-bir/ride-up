@@ -10,6 +10,28 @@ How versions are numbered
 Newest first. Dates and times are Bir time (India).
 
 
+RIDE UP 1.0.1 — 00:46 · 03.11.2026
+The first round of pilots' feedback, answered. Thanks to everyone on the group who tried it on day one.
+- Full rides: a full ride no longer disappears after 10 minutes. It stays with the people in it until someone taps
+  "We've driven off" (2 hours at most); everyone else sees it as Full for 30 minutes.
+- Change car: ⋯ → Change car now offers Alto / Eeco / Other + seats again (it opened the wrong pop-up).
+- Notes for leaving time and pick-up points are explained everywhere; rides leave from the LZ taxi stand.
+- Names: a phone number typed into the name box is moved to the private number box, so it's never shown.
+- Help & Guide (⚙ → Help & Guide): every workflow step by step with screenshots, one page with contents, search,
+  and links that open a topic (rideup.pages.dev/#help-notes). The FAQ moved here from About. "See how …" links on
+  the Weather, Plan, Plan your travel pages and the Start a ride pop-up.
+- Plan your travel: no longer breaks when "Share my car details" is tapped; Save buttons on the typed pick-up and
+  count boxes; the selected day is centred; a save with no signal stops after 20 seconds with a clear message.
+- Pull to refresh: pull down from the top of a page (or in the full-screen painting) to get the newest version.
+- Sideways: turning the phone on the home page opens the full-screen painting; Help & Guide works sideways too;
+  the rest of the app asks you to turn the phone upright.
+- iPhone Home Screen app: a solid status bar, so the top of the pages is no longer blurred (iOS 26+).
+- Map: zoom stops where satellite pictures exist; solid zoom buttons and a bigger slider handle.
+- Scenery: the night-time phone glow is a tiny light again (it had grown into a pale disc); the scenery no longer
+  piles up and restarts all at once after the app was in the background.
+- Settings: Help & Guide sits just above Feedback. About carries a one-line note of what changed.
+
+
 RIDE UP 1.0 — 17:00 · 01.11.2026
 The first release for pilots at Bir.
 - Now: start a taxi ride from the landing or hop into one; seats fill live on everyone's phone. Bring friends,
