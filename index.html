@@ -672,24 +672,31 @@
   .fold summary { cursor: pointer; font-weight: 800; font-size: 15px; padding: 10px 0; list-style: none; display: flex; justify-content: space-between; }
   .fold summary::-webkit-details-marker { display: none; }
   .fold summary::after { content: "+"; color: var(--blue); font-size: 18px; line-height: 1; }
-  /* Help & guide: topics fold open one at a time; screenshots load only when a topic opens */
+  /* Help & Guide, read like a book: an index (all pages, numbered), then one page at a time with Previous / Next */
   .g-search input { width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; font-size: 16px; }
-  .g-group h3 { font-size: 12.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--green); margin: 22px 2px 4px; }
-  details.g-topic { border-bottom: 1px solid var(--line); scroll-margin-top: calc(64px + env(safe-area-inset-top, 0px)); }   /* clear of the sticky page header */
-  details.g-topic > summary { list-style: none; cursor: pointer; padding: 13px 2px; font-weight: 700; font-size: 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-  details.g-topic > summary::-webkit-details-marker { display: none; }
-  details.g-topic > summary::after { content: "+"; color: var(--blue); font-size: 22px; font-weight: 400; line-height: 1; flex: none; }
-  details.g-topic[open] > summary::after { content: "−"; }
-  details.g-topic.flash > summary { color: var(--blue); }
-  .g-body { padding: 0 2px 16px; font-size: 15px; line-height: 1.5; }
-  .g-body p { margin: 0 0 8px; }
-  .g-body ol, .g-body ul { margin: 0 0 10px; padding-left: 20px; }
-  .g-body li { margin-bottom: 4px; }
+  .g-start { display: block; width: 100%; margin: 12px 0 4px; padding: 12px; border-radius: 14px; border: 0; background: var(--green); color: #fff; font: inherit; font-weight: 800; font-size: 15px; cursor: pointer; }
+  .g-sec-t { font-size: 12.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--green); margin: 20px 2px 2px; }
+  .g-li { display: flex; gap: 12px; align-items: baseline; width: 100%; padding: 11px 2px; border: 0; border-bottom: 1px solid var(--line); background: none; color: var(--ink); font: inherit; font-size: 15.5px; font-weight: 600; text-align: left; cursor: pointer; }
+  .g-li i { font-style: normal; color: var(--ink-soft); min-width: 22px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .g-idx-btn { margin-left: auto; border: 0; background: none; color: var(--blue); font: inherit; font-weight: 700; font-size: 14.5px; padding: 6px 4px; cursor: pointer; }
+  .g-where { display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .04em; margin: 2px 2px 12px; }
+  .g-bar { display: block; height: 3px; border-radius: 3px; background: var(--line); overflow: hidden; }
+  .g-bar i { display: block; height: 100%; background: var(--green); transition: width .2s; }
+  .g-page { display: none; padding: 0 2px 8px; font-size: 15.5px; line-height: 1.5; }
+  .g-page.on { display: block; }
+  .g-page h3 { font-size: 20px; line-height: 1.25; margin: 0 0 10px; }
+  .g-page p { margin: 0 0 10px; }
+  .g-page ol, .g-page ul { margin: 0 0 12px; padding-left: 20px; }
+  .g-page li { margin-bottom: 5px; }
   .g-faq p { margin-bottom: 12px; }
-  .g-shot { display: block; width: min(100%, 290px); height: auto; margin: 8px auto 4px; border-radius: 18px; border: 1px solid var(--line); box-shadow: 0 4px 16px rgba(0, 0, 0, .18); }
+  .g-shot { display: block; width: min(100%, 300px); height: auto; margin: 10px auto 4px; border-radius: 18px; border: 1px solid var(--line); box-shadow: 0 4px 16px rgba(0, 0, 0, .18); }
   .g-pair { display: flex; gap: 10px; }
-  .g-pair .g-shot { width: calc(50% - 5px); min-width: 0; margin: 8px 0 4px; }
-  .g-none, .g-foot { color: var(--ink-soft); font-size: 14px; margin: 16px 2px; }
+  .g-pair .g-shot { width: calc(50% - 5px); min-width: 0; margin: 10px 0 4px; }
+  .g-nav { position: sticky; bottom: 0; display: flex; gap: 10px; margin: 8px -18px 0; padding: 10px 18px calc(10px + env(safe-area-inset-bottom, 0px)); background: var(--card); border-top: 1px solid var(--line); }
+  .g-nav button { flex: 1; min-width: 0; padding: 11px 8px; border-radius: 14px; border: 1px solid var(--line); background: none; color: var(--ink); font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .g-nav #guideNext { background: var(--green); border-color: var(--green); color: #fff; }
+  .g-nav button:disabled { opacity: .35; cursor: default; }
+  .g-none { color: var(--ink-soft); font-size: 14px; margin: 16px 2px; }
   .g-link { display: inline-block; margin-top: 2px; }
   .fold[open] summary::after { content: "–"; }
   .fold p { font-size: 14px; margin: 0 0 8px; }
@@ -1996,212 +2003,206 @@
     <p class="meta">Ride Up isn't a rescue service. In an emergency, call first — then let your ride know on WhatsApp.</p>
   </div>
 </div>
-<!-- Help & guide: every feature, task by task, with screenshots (help/*.webp, made by art-sources/scripts/help_shots.py).
-     A link to "#help-<topic>" opens the guide at that topic (for replies in the WhatsApp group). -->
+<!-- Help & Guide: read like a book. One page (topic) at a time, ‹ Previous / Next ›, swipe sideways, ☰ Index for all
+     titles + search. Pages are the <article>s below, in reading order; a link "#help-<id>" opens that page.
+     Screenshots: help/*.webp, made by art-sources/scripts/help_shots.py (made-up data). -->
 <div class="overlay hidden" id="guideOverlay">
   <div class="sheet guide">
-    <div class="sheet-head"><h2>Help &amp; Guide</h2><button class="sheet-x" data-close aria-label="Close">✕</button></div>
-    <div class="g-search"><input id="guideQ" type="search" placeholder="Search: note, change car, weather, plan…" aria-label="Search the guide" autocomplete="off"></div>
-    <p class="g-none" id="guideNone" hidden>Nothing found. <button type="button" class="tiny-link" data-open="feedback">Ask us in Feedback ›</button></p>
+    <div class="sheet-head"><h2>Help &amp; Guide</h2><button type="button" class="g-idx-btn" id="guideIdxBtn" hidden>☰ Index</button><button class="sheet-x" data-close aria-label="Close">✕</button></div>
 
-    <section class="g-group"><h3>Start here</h3>
-      <details class="g-topic" id="help-app" data-kw="what is ride up home page how it works start join free">
-        <summary>What Ride Up does</summary>
-        <div class="g-body">
-          <p>One page to share a taxi from the Bir landing up to take-off. Start a ride, others join, and everyone sees the seats fill live. No sign-up, free.</p>
-          <ol><li><b>Start a ride</b>: you're going up and want company.</li><li><b>Join</b>: hop into a ride that's already going.</li><li><b>The weather</b> at take-off and the landing: tap it for the Weather page.</li><li><b>Plan</b> (flying days) and <b>Menu</b> (travel, map, safety, settings).</li></ol>
-          <p>It only works if more of us use it: before asking "anyone going up?" in the group, open Ride Up and look first.</p>
-          <img class="g-shot" loading="lazy" src="help/home-rides.webp" alt="The home page: Start a ride, a ride with a Join button, the weather and the menu bar">
-        </div>
-      </details>
-      <details class="g-topic" id="help-name" data-kw="name number whatsapp private privacy who sees profile change name">
-        <summary>Your name and WhatsApp number</summary>
-        <div class="g-body">
+    <!-- the index: every page, numbered, by section -->
+    <div class="g-index" id="guideIndex">
+      <div class="g-search"><input id="guideQ" type="search" placeholder="Search: note, change car, weather, 3 pm…" aria-label="Search the guide" autocomplete="off"></div>
+      <button type="button" class="g-start" id="guideStart">Read from the start ›</button>
+      <div id="guideList"></div>
+      <p class="g-none" id="guideNone" hidden>Nothing found. <button type="button" class="tiny-link" data-open="feedback">Ask us in Feedback ›</button></p>
+    </div>
+
+    <!-- one page at a time -->
+    <div class="g-read" id="guideRead" hidden>
+      <div class="g-where"><span id="guideWhere"></span><span class="g-bar"><i id="guideBar"></i></span></div>
+      <div class="g-pages" id="guidePages">
+
+      <section data-sec="App features">
+        <article class="g-page" id="help-app" data-kw="home page painting art scene weather start join who's planned what is ride up">
+          <h3>The home page</h3>
+          <p>The painting is the Bir landing ground, live: it follows the time of day and the weather, with gliders, tandems, cows and cafés. A little Bir magic on your screen. Tap ⤢ to see it full screen.</p>
+          <ol><li><b>Start a ride</b>: you're at the landing taxi stand and want pilots to share the taxi up to take-off.</li><li><b>Join</b>: hop into a ride that's already going.</li><li><b>The weather</b> at a glance. Tap it for the full Weather page.</li><li>The bar at the bottom: <b>Plan</b>, the green <b>home</b> button (it also starts a ride) and <b>Menu</b>.</li></ol>
+          <p>Further down: who's planned to fly, and rides that left in the last 30 minutes.</p>
+          <img class="g-shot" loading="lazy" src="help/home-rides.webp" alt="The home page: Start a ride, a ride with Join, the weather and the bottom bar">
+        </article>
+        <article class="g-page" id="help-plan-intro" data-kw="plan ahead tab flying days">
+          <h3>Plan</h3>
+          <p>Tap <b>Plan</b> at the bottom to plan ahead: say when you're going up on the coming days, see who else is, and find company early. Each day shows the forecast too.</p>
+          <img class="g-shot" loading="lazy" src="help/plan-page.webp" alt="The Plan page with the next days">
+        </article>
+        <article class="g-page" id="help-menu-intro" data-kw="menu weather safety travel map settings tiles">
+          <h3>Menu</h3>
+          <p>Everything else lives in <b>Menu</b>:</p>
+          <ul><li><b>Weather</b>: take-off and landing, hour by hour, and whether you can see the landing from take-off.</li><li><b>Safety &amp; Contacts</b>: emergency, rescue and hospital numbers.</li><li><b>Plan your travel</b>: getting to or leaving Bir with others.</li><li><b>Getting Around Bir</b>: a map of the places you need.</li><li>Your name and settings, Help &amp; Guide, About, Feedback.</li></ul>
+          <img class="g-shot" loading="lazy" src="help/menu.webp" alt="The Menu page with its four tiles">
+        </article>
+      </section>
+
+      <section data-sec="Getting started">
+        <article class="g-page" id="help-name" data-kw="name number whatsapp private privacy who sees profile change name">
+          <h3>Your name and WhatsApp number</h3>
           <p>Ride Up asks your name once. Everyone sees it on the rides you start or join.</p>
-          <p>Your <b>WhatsApp number</b> is private: only the people in the same ride see it, and it's wiped once the ride is over. Don't type it into the name box (if you do, Ride Up moves it into the number box for you).</p>
-          <ol><li>Menu → tap your name (at the top).</li><li>Change your name (while you're not in a ride), add your number, or turn "Share my number" off.</li></ol>
-          <img class="g-shot" loading="lazy" src="help/profile.webp" alt="The Profile page with name, WhatsApp number and Display & units">
-        </div>
-      </details>
-      <details class="g-topic" id="help-home-screen" data-kw="add to home screen app icon install iphone android">
-        <summary>Put Ride Up on your home screen</summary>
-        <div class="g-body">
-          <p>Opens full screen, like an app. No app store needed.</p>
-          <ol><li>Menu → Add to Home Screen.</li><li>iPhone (Safari): tap Share, then Add to Home Screen. Android (Chrome): tap ⋮, then Add to Home Screen.</li></ol>
-          <img class="g-shot" loading="lazy" src="help/install.webp" alt="The Add to Home Screen steps for iPhone and Android">
-        </div>
-      </details>
-      <details class="g-topic" id="help-bots" data-kw="bot rides try practice demo pretend test">
-        <summary>Try it first with bot rides</summary>
-        <div class="g-body">
+          <p>Your <b>WhatsApp number</b> is private: only the people in the same ride see it, and it's wiped once the ride is over. Keep it out of the name box (if it ends up there, Ride Up moves it to the number box for you).</p>
+          <ol><li>Menu → tap your name at the top.</li><li>Change your name (while you're not in a ride), add your number, or turn "Share my number" off.</li></ol>
+          <img class="g-shot" loading="lazy" src="help/profile.webp" alt="The Profile page: name, WhatsApp number, Display &amp; units">
+        </article>
+        <article class="g-page" id="help-home-screen" data-kw="add to home screen app icon install iphone android">
+          <h3>Put Ride Up on your home screen</h3>
+          <p>It then opens full screen, like an app. No app store needed.</p>
+          <ol><li>Menu → <b>Add to Home Screen</b>.</li><li>iPhone (Safari): tap Share, then Add to Home Screen. Android (Chrome): tap ⋮, then Add to Home Screen.</li></ol>
+          <img class="g-shot" loading="lazy" src="help/install.webp" alt="Add to Home Screen steps for iPhone and Android">
+        </article>
+        <article class="g-page" id="help-bots" data-kw="bot rides try practice demo pretend test">
+          <h3>Try it first with bot rides</h3>
           <p>Pretend rides that exist only on your phone, so you can try everything without bothering anyone.</p>
-          <ol><li>On the home page, tap <b>Try it with bot rides 🤖</b>.</li><li>Join a bot ride, or start your own and watch the bots join.</li><li>They go away when a real ride starts, when you tap Remove bots, or when you reload.</li></ol>
+          <ol><li>On the home page, tap <b>Try it with bot rides 🤖</b> (it shows when no real rides are on).</li><li>Join a bot ride, or start your own and watch the bots join.</li><li>They vanish when a real ride starts, when you tap Remove bots, or when you reload.</li></ol>
           <img class="g-shot" loading="lazy" src="help/bots.webp" alt="Bot rides on the home page, marked with a robot">
-        </div>
-      </details>
-    </section>
+        </article>
+      </section>
 
-    <section class="g-group"><h3>Share a taxi up</h3>
-      <details class="g-topic" id="help-start" data-kw="start a ride taxi alto eeco seats friends landing zone taxi stand time">
-        <summary>Start a ride</summary>
-        <div class="g-body">
-          <ol><li>Tap <b>Start a ride</b> (or the green button in the menu bar).</li><li>The car: Alto · 4 seats to begin with. Tap <b>change?</b> for another car.</li><li>Bringing friends? Tap +1, +2 or +3: their seats fill too.</li><li>Tap <b>Start ride</b>.</li></ol>
-          <p>A ride leaves from the <b>Landing Zone taxi stand</b>, and shows the time you started it. Leaving later or from somewhere else? Add a note (see below).</p>
-          <img class="g-shot" loading="lazy" src="help/start-pop.webp" alt="The Start a ride pop-up: change car, seats, friends, Start ride, Offer a lift">
-        </div>
-      </details>
-      <details class="g-topic" id="help-car" data-kw="change car type cab alto eeco bolero other seats swift innova">
-        <summary>Choose or change the car</summary>
-        <div class="g-body">
-          <ol><li>Starting: tap <b>change?</b> → Alto · 4, Eeco · 6, Bolero, or Other (type the car and set the seats).</li><li>Already started: tap <b>⋯</b> on your ride → <b>Change car</b> (only the person who started it).</li></ol>
-          <div class="g-pair"><img class="g-shot" loading="lazy" src="help/start-cars.webp" alt="The car choices when starting a ride"><img class="g-shot" loading="lazy" src="help/car-pop.webp" alt="Change the car on a ride that has started"></div>
-        </div>
-      </details>
-      <details class="g-topic" id="help-notes" data-kw="note leaving time pick up pickup point meeting point charlie cafe leaving in 15 minutes where">
-        <summary>Leaving time or pick-up point: add a note</summary>
-        <div class="g-body">
+      <section data-sec="Sharing a ride up">
+        <article class="g-page" id="help-start" data-kw="start a ride taxi alto eeco seats friends landing zone lz taxi stand time spots">
+          <h3>Start a ride</h3>
+          <ol><li>Tap <b>Start a ride</b> (or the green button at the bottom).</li><li>The car starts as an Alto · 4 seats. Tap <b>change?</b> for another car.</li><li>Friends coming with you? Tap +1, +2 or +3: their seats fill too.</li><li>Tap <b>Start ride</b>. Others see it straight away and can join.</li></ol>
+          <p>A ride leaves from the <b>taxi stand at the landing (LZ)</b>, and shows the time you started it. Leaving later, or from somewhere else? Say it in a note (two pages on).</p>
+          <img class="g-shot" loading="lazy" src="help/start-pop.webp" alt="The Start a ride pop-up: change the car, seats, friends, Start ride, Offer a lift">
+        </article>
+        <article class="g-page" id="help-car" data-kw="change car type cab alto eeco bolero other seats swift innova">
+          <h3>Choose or change the car</h3>
+          <ol><li>When starting: tap <b>change?</b> → Alto · 4, Eeco · 6, Bolero, or Other (type the car and set the seats).</li><li>Already started: tap <b>⋯</b> on your ride → <b>Change car</b>. Only the person who started the ride can change it.</li></ol>
+          <div class="g-pair"><img class="g-shot" loading="lazy" src="help/start-cars.webp" alt="The car choices when starting a ride"><img class="g-shot" loading="lazy" src="help/car-pop.webp" alt="Changing the car on a ride that has started"></div>
+        </article>
+        <article class="g-page" id="help-notes" data-kw="note leaving time pick up pickup point meeting point charlie cafe leaving in 15 minutes where on the way">
+          <h3>Leaving time or pick-up point: add a note</h3>
           <p>The time on a ride is when it was started. Say everything else in a note: everyone in the ride sees it.</p>
-          <ol><li>Tap <b>⋯</b> on your ride → <b>Add a note</b>.</li><li>Tap a quick pick ("At the taxi stand", "Leaving in 5 min"…) or type your own, like "Leaving at 10:30" or "Pick me up at Charlie's".</li><li>Tap Save.</li></ol>
-          <p>Joining and want to be picked up on the way? Join, then add your own note the same way.</p>
-          <div class="g-pair"><img class="g-shot" loading="lazy" src="help/mine-menu.webp" alt="The ⋯ menu on your ride with Add a note"><img class="g-shot" loading="lazy" src="help/note-pop.webp" alt="The note pop-up with quick picks"></div>
-        </div>
-      </details>
-      <details class="g-topic" id="help-share" data-kw="share whatsapp group link send ride">
-        <summary>Share your ride to the WhatsApp group</summary>
-        <div class="g-body">
-          <ol><li>On your ride, tap <b>Share to group</b>.</li><li>WhatsApp opens with the message and a link: pick the group and send.</li><li>Whoever taps the link lands on your ride and can join.</li></ol>
-          <p>The group stays the place to chat; Ride Up keeps the seats straight.</p>
-          <img class="g-shot" loading="lazy" src="help/mine.webp" alt="Your ride with the Share to group button and the ⋯ menu">
-        </div>
-      </details>
-      <details class="g-topic" id="help-later" data-kw="later today 3pm afternoon tomorrow schedule time future book slot">
-        <summary>Going later today? Use Plan</summary>
-        <div class="g-body">
-          <p>A ride is for now: it stays up for 30 minutes after the last person joins. For "2 seats at 3 pm":</p>
-          <ol><li>Tap <b>Plan</b> and add your plan for that time: others see who's going up when.</li><li>Close to the time, <b>Start a ride</b> and share it to the group.</li></ol>
-          <img class="g-shot" loading="lazy" src="help/plan-form.webp" alt="Adding a plan with a time">
-        </div>
-      </details>
-      <details class="g-topic" id="help-join" data-kw="join a ride seat friends hop in whatsapp call">
-        <summary>Join a ride</summary>
-        <div class="g-body">
-          <ol><li>Tap <b>Join</b> on a ride.</li><li>Bringing friends? Tap +1, +2 or +3.</li><li>Tap <b>Join</b>. You're in: the seat fills on everyone's phone.</li><li>Use the WhatsApp or call buttons on the ride to reach the others (for those who share their number).</li></ol>
+          <ol><li>Tap <b>⋯</b> on your ride → <b>Add a note</b>.</li><li>Tap a quick pick ("At the taxi stand", "Leaving in 5 min"…) or type your own, like "Leaving at 10:30" or "Pick me up at Charlie's".</li><li>Tap <b>Save</b>.</li></ol>
+          <p>Joining and want to be picked up on the way? Join first, then add your own note the same way.</p>
+          <div class="g-pair"><img class="g-shot" loading="lazy" src="help/mine-menu.webp" alt="The ⋯ menu on your ride, with Add a note"><img class="g-shot" loading="lazy" src="help/note-pop.webp" alt="The note pop-up with quick picks"></div>
+        </article>
+        <article class="g-page" id="help-share" data-kw="share whatsapp group link send ride">
+          <h3>Share your ride to the WhatsApp group</h3>
+          <ol><li>On your ride, tap <b>Share to group</b>.</li><li>WhatsApp opens with the message and a link. Pick the group and send.</li><li>Anyone who taps the link lands on your ride and can join.</li></ol>
+          <p>Chat in the group; Ride Up keeps track of the seats.</p>
+          <img class="g-shot" loading="lazy" src="help/mine.webp" alt="Your ride with Share to group and the ⋯ menu">
+        </article>
+        <article class="g-page" id="help-join" data-kw="join a ride seat friends hop in whatsapp call spots">
+          <h3>Join a ride</h3>
+          <ol><li>Tap <b>Join</b> on a ride.</li><li>Friends coming with you? Tap +1, +2 or +3.</li><li>Tap <b>Join</b>. You're in: your seat fills on everyone's phone.</li><li>Use the WhatsApp or call buttons on the ride to reach the others (those who share their number).</li></ol>
           <img class="g-shot" loading="lazy" src="help/join-pop.webp" alt="The Join pop-up with seats and friends">
-        </div>
-      </details>
-      <details class="g-topic" id="help-inside" data-kw="menu dots inside your ride leave with fewer friend cancel seat share my number">
-        <summary>Inside your ride: the ⋯ menu</summary>
-        <div class="g-body">
-          <ul><li><b>Share my contact number with this ride</b>, on or off.</li><li><b>Happy to leave with fewer</b>: you'll go even if not every seat fills (you cover the empty share).</li><li><b>Add a friend</b>, <b>Add a note</b>, <b>Change car</b>.</li><li><b>We've driven off</b>: tap when the taxi leaves.</li><li><b>Cancel my seat</b>: you're out. When the last person leaves, the ride is cancelled.</li></ul>
+        </article>
+        <article class="g-page" id="help-inside" data-kw="menu dots inside your ride leave with fewer friend cancel seat share my number">
+          <h3>Inside your ride: the ⋯ menu</h3>
+          <ul><li><b>Share my contact number with this ride</b>: on or off.</li><li><b>Happy to leave with fewer</b>: you'll go even if not every seat fills, and cover the empty share.</li><li><b>Add a friend</b>, <b>Add a note</b>, <b>Change car</b>.</li><li><b>We've driven off</b>: tap it when the taxi leaves.</li><li><b>Cancel my seat</b>: you're out. When the last person leaves, the ride is cancelled.</li></ul>
           <img class="g-shot" loading="lazy" src="help/mine-menu.webp" alt="The ⋯ menu on your ride">
-        </div>
-      </details>
-      <details class="g-topic" id="help-full" data-kw="full ride disappeared gone listing vanished waiting for taxi">
-        <summary>When the ride is full</summary>
-        <div class="g-body">
+        </article>
+        <article class="g-page" id="help-full" data-kw="full ride disappeared gone listing vanished waiting for taxi">
+          <h3>When the ride is full</h3>
           <p>A full ride stays on screen for everyone in it until someone taps <b>We've driven off</b> (or for 2 hours), so you still have it while you wait for the taxi. Others see it as Full for 30 minutes.</p>
           <img class="g-shot" loading="lazy" src="help/full.webp" alt="A full ride with the We've driven off button">
-        </div>
-      </details>
-      <details class="g-topic" id="help-gone" data-kw="we've driven off left didn't go mistake undo">
-        <summary>We've driven off, or I didn't go</summary>
-        <div class="g-body">
-          <ol><li>When the taxi leaves, one of you taps <b>We've driven off</b>: the ride moves to "Left in the last 30 min" at the bottom of the home page.</li><li>Tapped it by mistake, or got left behind? Just start or join another ride: Ride Up asks "Didn't go after all?" → tap <b>I didn't go</b>, and the others are asked if they left.</li></ol>
-        </div>
-      </details>
-      <details class="g-topic" id="help-lift" data-kw="lift own car driving offer seats pick up">
-        <summary>Offer a lift in your own car</summary>
-        <div class="g-body">
-          <ol><li>Tap Start a ride → <b>Offer a lift</b> (at the bottom).</li><li>Room for 1, 2 or 3; it leaves the Landing area now: change the pick-up or time from ⋯ on your ride.</li><li>You and whoever joins can call or WhatsApp each other.</li></ol>
+        </article>
+        <article class="g-page" id="help-gone" data-kw="we've driven off left didn't go mistake undo">
+          <h3>We've driven off, or I didn't go</h3>
+          <ol><li>When the taxi leaves, one of you taps <b>We've driven off</b>. The ride moves to "Left in the last 30 min" at the bottom of the home page.</li><li>Tapped it by mistake, or got left behind? Just start or join another ride: Ride Up asks "Didn't go after all?" Tap <b>I didn't go</b>, and the others are asked whether they left.</li></ol>
+        </article>
+        <article class="g-page" id="help-lift" data-kw="lift own car driving offer seats pick up">
+          <h3>Offer a lift in your own car</h3>
+          <ol><li>Tap Start a ride → <b>Offer a lift</b> (at the bottom).</li><li>Room for 1, 2 or 3. It leaves the landing now: change the pick-up place or time from ⋯ on your ride.</li><li>You and whoever joins can call or WhatsApp each other.</li></ol>
           <p>It's for sharing a ride, not for running paid rides.</p>
           <img class="g-shot" loading="lazy" src="help/lift-pop.webp" alt="The Offer a lift pop-up">
-        </div>
-      </details>
-    </section>
+        </article>
+      </section>
 
-    <section class="g-group"><h3>Plan</h3>
-      <details class="g-topic" id="help-plan" data-kw="plan flying day tomorrow who is flying going up when plan ahead">
-        <summary>Plan your flying day</summary>
-        <div class="g-body">
-          <p>See who's going up when, over the next days, and find company early.</p>
-          <ol><li>Tap <b>Plan</b> in the menu bar.</li><li>Each day shows the forecast and who's planned. Tap a day to see names and times.</li><li>Tap <b>+ Add my plan</b>, pick your time (and a note if you like), then <b>Add my plan</b>.</li><li>Share the day to the WhatsApp group when it asks.</li></ol>
+      <section data-sec="Planning ahead">
+        <article class="g-page" id="help-plan" data-kw="plan flying day tomorrow who is flying going up when plan ahead">
+          <h3>Plan your flying day</h3>
+          <ol><li>Tap <b>Plan</b> at the bottom.</li><li>Each day shows the forecast and who's planned. Tap a day to see names and times.</li><li>Tap <b>+ Add my plan</b>, pick your time (add a note if you like), then <b>Add my plan</b>.</li><li>When it asks, share the day to the WhatsApp group.</li></ol>
           <div class="g-pair"><img class="g-shot" loading="lazy" src="help/plan-page.webp" alt="The Plan page with the next days"><img class="g-shot" loading="lazy" src="help/plan-day.webp" alt="A day opened: who's flying and when"></div>
-        </div>
-      </details>
-      <details class="g-topic" id="help-travel" data-kw="travel delhi chandigarh gaggal airport dharamshala manali coming leaving bir trip seats">
-        <summary>Plan your travel to or from Bir</summary>
-        <div class="g-body">
-          <p>Coming to Bir or leaving? Find others on the same route and day.</p>
-          <ol><li>Menu → <b>Plan your travel</b>.</li><li>The calendar shows days with seats on offer or people asking.</li><li>Tap <b>Add your travel plan</b>: ask for a ride, or say you have seats (taxi or your car), with the place, day and time.</li><li>Join someone's plan: once you're in, you can see each other's numbers.</li></ol>
-          <div class="g-pair"><img class="g-shot" loading="lazy" src="help/travel-page.webp" alt="Plan your travel: the month calendar"><img class="g-shot" loading="lazy" src="help/travel-form.webp" alt="Adding a travel plan"></div>
-        </div>
-      </details>
-    </section>
+        </article>
+        <article class="g-page" id="help-later" data-kw="later today 3pm afternoon tomorrow schedule time future book slot spots">
+          <h3>Going later today? Use Plan</h3>
+          <p>A ride is for now: it stays up for 30 minutes after the last person joins. For something like "2 spots at 3 pm":</p>
+          <ol><li>Tap <b>Plan</b> and add your plan for that time. Others see who's going up when.</li><li>Close to the time, <b>Start a ride</b> and share it to the group.</li></ol>
+          <img class="g-shot" loading="lazy" src="help/plan-form.webp" alt="Adding a plan with a time">
+        </article>
+      </section>
 
-    <section class="g-group"><h3>Weather and more</h3>
-      <details class="g-topic" id="help-weather" data-kw="weather wind gusts forecast take-off billing landing hours windy">
-        <summary>Weather at take-off and the landing</summary>
-        <div class="g-body">
+      <section data-sec="Checking the weather">
+        <article class="g-page" id="help-weather" data-kw="weather wind gusts forecast take-off billing landing hours windy">
+          <h3>Weather at take-off and the landing</h3>
           <ol><li>Tap the weather on the home page, or Menu → <b>Weather</b>.</li><li>Tap TAKE-OFF or LANDING to switch; swipe the hours.</li></ol>
           <p>It's a forecast model: good for a feel, never a flying briefing. Look at the sky and ask local pilots.</p>
-          <img class="g-shot" loading="lazy" src="help/weather-page.webp" alt="The Weather page with take-off, landing and the hours">
-        </div>
-      </details>
-      <details class="g-topic" id="help-sightline" data-kw="sightline cloud clouding see the landing from take-off visibility base">
-        <summary>Sightline: can you see the landing from take-off?</summary>
-        <div class="g-body">
-          <p>A side view from take-off down to the landing, with the forecast's cloud for the hour you pick, and ticks or crosses from pilots who are there now.</p>
+          <img class="g-shot" loading="lazy" src="help/weather-page.webp" alt="The Weather page: take-off, landing and the hours">
+        </article>
+        <article class="g-page" id="help-sightline" data-kw="sightline cloud clouding clouds rolling see the landing from take-off visibility base">
+          <h3>Sightline: can you see the landing from take-off?</h3>
+          <p>A side view from take-off down to the landing, with the forecast's cloud for the hour you pick, and ticks or crosses from pilots who are up there.</p>
           <ol><li>Weather → <b>Sightline to the landing</b>.</li><li>Tap an hour to see the cloud then.</li><li>Tap the title for what the picture means, and a link to Windy.</li></ol>
           <img class="g-shot" loading="lazy" src="help/weather-sightline.webp" alt="The Sightline picture with the hours and the Report button">
-        </div>
-      </details>
-      <details class="g-topic" id="help-report" data-kw="report clouds clear visible sky tell others take-off landing">
-        <summary>Report what you see</summary>
-        <div class="g-body">
-          <ol><li>Weather → Sightline → <b>Report</b>.</li><li>Pick where you are: TAKE-OFF or LANDING.</li><li>Tap the clear side if you can see across, the foggy side if not.</li></ol>
-          <p>Reports show your name; your number stays private (it only stops repeat reports, 3 an hour).</p>
+        </article>
+        <article class="g-page" id="help-report" data-kw="report clouds clear visible sky tell others take-off landing">
+          <h3>Report what you see</h3>
+          <ol><li>Weather → Sightline → <b>Report</b>.</li><li>Pick where you are: TAKE-OFF or LANDING.</li><li>Tap the clear side if you can see across, the foggy side if you can't.</li></ol>
+          <p>Reports show your name. Your number stays private: it only stops repeat reports (3 an hour).</p>
           <img class="g-shot" loading="lazy" src="help/report-pop.webp" alt="Report: take-off or landing">
-        </div>
-      </details>
-      <details class="g-topic" id="help-map" data-kw="map getting around atm medical cafe stays bus taxi">
-        <summary>Map of Bir</summary>
-        <div class="g-body">
-          <ol><li>Menu → <b>Getting Around Bir</b>.</li><li>Pick a list (Key places, Medical, ATMs…); tap a pin to open it in Google Maps.</li></ol>
-          <img class="g-shot" loading="lazy" src="help/map.webp" alt="The map of Bir with pins">
-        </div>
-      </details>
-      <details class="g-topic" id="help-safety" data-kw="safety emergency rescue 112 hospital ambulance radio 144.500">
-        <summary>Safety and contacts</summary>
-        <div class="g-body">
-          <p>Menu → <b>Safety &amp; Contacts</b>: call 112 for any emergency, the Billing Paragliding Association's rescue, hospitals, helplines, and the 144.500 MHz safety frequency. Ride Up isn't a rescue service: call first.</p>
-          <img class="g-shot" loading="lazy" src="help/safety.webp" alt="Safety & Contacts with call buttons">
-        </div>
-      </details>
-      <details class="g-topic" id="help-menu" data-kw="menu settings units knots fahrenheit dark mode colour delete data feedback">
-        <summary>Menu and settings</summary>
-        <div class="g-body">
-          <ul><li><b>Your name</b> (top): profile, number, your car (for lifts), Display &amp; units (light / dark, km/h or knots, °C or °F, 12 h / 24 h).</li><li><b>Share my number</b>, <b>Add to Home Screen</b>, <b>Share</b> (send Ride Up to a friend).</li><li><b>About</b>, <b>Terms &amp; Privacy</b>, <b>Feedback</b>.</li></ul>
-          <img class="g-shot" loading="lazy" src="help/menu.webp" alt="The Menu page">
-        </div>
-      </details>
-    </section>
+        </article>
+      </section>
 
-    <section class="g-group"><h3>Questions</h3>
-      <details class="g-topic" id="help-faq" data-kw="questions faq account free disappear latest version update reload weather unavailable group">
-        <summary>Common questions</summary>
-        <div class="g-body g-faq">
-          <p><b>Do I need an account?</b> No. Your name is remembered on this device.</p>
-          <p><b>Is it free?</b> Yes, and ad-free. Built by and for the flying community.</p>
-          <p><b>Why did a ride disappear?</b> A waiting ride closes 30 minutes after the last person joined. A full ride stays with its people until they've driven off. Rides that left are listed at the bottom for 30 minutes.</p>
-          <p><b>Do we still need the WhatsApp group?</b> Yes: chat there, keep the seats here. Share your ride to the group with one tap.</p>
-          <p><b>"Weather unavailable"?</b> The weather service is busy or your signal is weak. Try again in a while.</p>
-          <p><b>How do I get the newest version?</b> Reload the page. From the home screen: close Ride Up fully and open it again.</p>
+      <section data-sec="In case of emergency">
+        <article class="g-page" id="help-safety" data-kw="safety emergency rescue 112 hospital ambulance radio 144.500 accident">
+          <h3>Safety and contacts</h3>
+          <p>Menu → <b>Safety &amp; Contacts</b>: call 112 for any emergency, the Billing Paragliding Association's rescue, hospitals and helplines, and the 144.500 MHz safety frequency. Tap a number to call.</p>
+          <p>Ride Up isn't a rescue service: call first, then let your ride know on WhatsApp.</p>
+          <img class="g-shot" loading="lazy" src="help/safety.webp" alt="Safety &amp; Contacts with call buttons">
+        </article>
+      </section>
+
+      <section data-sec="Planning a trip to or from Bir">
+        <article class="g-page" id="help-travel" data-kw="travel delhi chandigarh gaggal airport dharamshala manali coming leaving bir trip seats">
+          <h3>Plan your travel to or from Bir</h3>
+          <ol><li>Menu → <b>Plan your travel</b>.</li><li>The calendar shows the days with seats on offer or people asking.</li><li>Tap <b>Add your travel plan</b>: ask for a ride, or say you have seats (taxi or your own car), with the place, day and time.</li><li>Join someone's plan. Once you're in, you can see each other's numbers.</li></ol>
+          <div class="g-pair"><img class="g-shot" loading="lazy" src="help/travel-page.webp" alt="Plan your travel: the month calendar"><img class="g-shot" loading="lazy" src="help/travel-form.webp" alt="Adding a travel plan"></div>
+        </article>
+      </section>
+
+      <section data-sec="Getting around Bir">
+        <article class="g-page" id="help-map" data-kw="map getting around atm medical cafe stays bus taxi grocery">
+          <h3>Map of Bir</h3>
+          <ol><li>Menu → <b>Getting Around Bir</b>.</li><li>Pick a list (Key places, Medical, ATMs…). Tap a pin to open it in Google Maps.</li></ol>
+          <img class="g-shot" loading="lazy" src="help/map.webp" alt="The map of Bir with pins">
+        </article>
+      </section>
+
+      <section data-sec="Settings">
+        <article class="g-page" id="help-menu" data-kw="menu settings units knots fahrenheit dark mode colour delete data feedback newest version update reload">
+          <h3>Your settings</h3>
+          <ul><li><b>Your name</b> (top of Menu): name, colour, WhatsApp number, your car (for lifts), and Display &amp; units (light or dark, km/h or knots, °C or °F, 12 h or 24 h).</li><li><b>Share my number</b>, <b>Add to Home Screen</b>, <b>Share</b> (send Ride Up to a friend).</li><li><b>About</b>, <b>Terms &amp; Privacy</b>, <b>Feedback</b>.</li></ul>
+          <p><b>Getting the newest version:</b> reload the page. From the home screen: close Ride Up fully and open it again.</p>
+          <img class="g-shot" loading="lazy" src="help/menu.webp" alt="The Menu page">
+        </article>
+      </section>
+
+      <section data-sec="Questions">
+        <article class="g-page g-faq" id="help-faq" data-kw="questions faq account free disappear latest version update reload weather unavailable group">
+          <h3>Common questions</h3>
+          <p><b>Do I need an account?</b> No. Your name is remembered on this phone.</p>
+          <p><b>Is it free?</b> Yes, and ad-free. Made by flyers, for flyers.</p>
+          <p><b>Why did a ride disappear?</b> A ride that's still waiting closes 30 minutes after the last person joined. A full ride stays with its people until they've driven off. Rides that left are listed at the bottom for 30 minutes.</p>
+          <p><b>Do we still need the WhatsApp group?</b> Yes: chat there, keep the seats here. Share your ride to the group in one tap.</p>
+          <p><b>"Weather unavailable"?</b> The weather service is busy, or your signal is weak. Try again in a while.</p>
           <p><b>Can I see wind in knots or temperature in °F?</b> Yes: Menu → your name → Display &amp; units.</p>
-          <p><b>Something's broken or missing?</b> Menu → Feedback. Every message is read.</p>
-        </div>
-      </details>
-    </section>
-    <p class="g-foot">Still stuck? <button type="button" class="tiny-link" data-open="feedback">Tell us in Feedback ›</button></p>
+          <p><b>Something broken or missing?</b> Menu → Feedback. Every message is read.</p>
+        </article>
+      </section>
+
+      </div>
+      <div class="g-nav"><button type="button" id="guidePrev">‹ Previous</button><button type="button" id="guideNext">Next ›</button></div>
+    </div>
   </div>
 </div>
 <!-- Privacy -->
@@ -7425,36 +7426,73 @@ if (window.CW_FRAME) {
   // ?bots on the link (for testing) opens with bot rides on
   if (/[?&](bots|demo)\b/.test(location.search)) setTimeout(botsOn, 300);
   // ---------- HELP & GUIDE ----------
-  // openGuide("notes") opens the guide at that topic; a link "#help-notes" does the same (for replies in the group)
-  function guideTopics() { return Array.prototype.slice.call(document.querySelectorAll("#guideOverlay details.g-topic")); }
+  // Read like a book: the index lists every page (numbered, by section); a page shows alone with Previous / Next and
+  // swipes. openGuide("notes") opens that page; a link "#help-notes" does the same (for replies in the group).
+  var guidePages = Array.prototype.slice.call(document.querySelectorAll("#guidePages .g-page")), guideAt = -1;
+  (function () {
+    var html = "", last = "";
+    guidePages.forEach(function (pg, n) {
+      var sec = pg.closest("section").dataset.sec;
+      if (sec !== last) { html += '<div class="g-sec-t" data-sec="' + escapeHtml(sec) + '">' + escapeHtml(sec) + '</div>'; last = sec; }
+      html += '<button type="button" class="g-li" data-n="' + n + '"><i>' + (n + 1) + '</i><span>' + escapeHtml(pg.querySelector("h3").textContent) + '</span></button>';
+    });
+    $("guideList").innerHTML = html;
+  })();
+  function guideIndex() {
+    guideAt = -1; $("guideRead").hidden = true; $("guideIndex").hidden = false; $("guideIdxBtn").hidden = true;
+    var sh = $("guideOverlay").querySelector(".sheet"); sh.scrollTop = 0;
+  }
+  function guideShow(n) {
+    n = Math.max(0, Math.min(guidePages.length - 1, n)); guideAt = n;
+    guidePages.forEach(function (pg, k) { pg.classList.toggle("on", k === n); });
+    var pg = guidePages[n];
+    $("guideIndex").hidden = true; $("guideRead").hidden = false; $("guideIdxBtn").hidden = false;
+    $("guideWhere").textContent = pg.closest("section").dataset.sec + " · " + (n + 1) + " of " + guidePages.length;
+    $("guideBar").style.width = ((n + 1) / guidePages.length * 100) + "%";
+    $("guidePrev").disabled = n === 0;
+    var next = guidePages[n + 1];
+    $("guideNext").textContent = next ? "Next ›" : "Back to the index";
+    $("guideOverlay").querySelector(".sheet").scrollTop = 0;
+    logEvent("help", pg.id.slice(5));
+  }
   function openGuide(topic) {
     $("guideQ").value = ""; guideFilter("");
-    guideTopics().forEach(function (d) { d.open = false; d.classList.remove("flash"); });
     openSheet("guideOverlay");
-    var d = topic && $("help-" + topic);
-    if (d) { d.open = true; d.classList.add("flash"); setTimeout(function () { d.scrollIntoView({ block: "start" }); }, 260); setTimeout(function () { d.classList.remove("flash"); }, 2600); }
-    logEvent("help", topic || "open");
+    var n = topic ? guidePages.indexOf($("help-" + topic)) : -1;
+    if (n >= 0) guideShow(n); else { guideIndex(); logEvent("help", "index"); }
   }
   function guideFilter(q) {
-    var words = q.toLowerCase().split(/\s+/).filter(Boolean), shown = [];
-    guideTopics().forEach(function (d) {
-      var text = (d.textContent + " " + (d.dataset.kw || "")).toLowerCase();
+    var words = q.toLowerCase().split(/\s+/).filter(Boolean), hits = 0;
+    document.querySelectorAll("#guideList .g-li").forEach(function (b) {
+      var pg = guidePages[+b.dataset.n], text = (pg.textContent + " " + (pg.dataset.kw || "")).toLowerCase();
       var hit = words.every(function (w) { return text.indexOf(w) !== -1; });
-      d.hidden = !hit; if (hit) shown.push(d);
+      b.hidden = !hit; if (hit) hits++;
     });
-    shown.forEach(function (d) { d.open = !!words.length && shown.length <= 2; });   // a short list opens itself; an empty search folds everything
-    document.querySelectorAll("#guideOverlay .g-group").forEach(function (g) { g.hidden = !g.querySelector("details.g-topic:not([hidden])"); });
-    $("guideNone").hidden = shown.length > 0;
+    document.querySelectorAll("#guideList .g-sec-t").forEach(function (t) {
+      var el = t.nextElementSibling, any = false;
+      while (el && el.classList.contains("g-li")) { if (!el.hidden) any = true; el = el.nextElementSibling; }
+      t.hidden = !any;
+    });
+    $("guideNone").hidden = hits > 0; $("guideStart").hidden = words.length > 0;
   }
   $("guideQ").oninput = function () { guideFilter(this.value); };
-  // one topic open at a time (unless searching), so the page stays short
-  guideTopics().forEach(function (d) {
-    d.addEventListener("toggle", function () {
-      if (!d.open) return;
-      if (!$("guideQ").value.trim()) guideTopics().forEach(function (o) { if (o !== d) o.open = false; });
-      logEvent("help", d.id.slice(5));
-    });
-  });
+  $("guideList").onclick = function (e) { var b = e.target.closest(".g-li"); if (b) guideShow(+b.dataset.n); };
+  $("guideStart").onclick = function () { guideShow(0); };
+  $("guideIdxBtn").onclick = guideIndex;
+  $("guidePrev").onclick = function () { guideShow(guideAt - 1); };
+  $("guideNext").onclick = function () { if (guideAt >= guidePages.length - 1) guideIndex(); else guideShow(guideAt + 1); };
+  // swipe sideways on a page: left = next, right = previous (a swipe from the very left edge still goes back)
+  (function () {
+    var sx = 0, sy = 0, on = false, el = $("guidePages");
+    el.addEventListener("touchstart", function (e) { on = e.touches.length === 1 && e.touches[0].clientX > 30 && !e.target.closest("input"); sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+    el.addEventListener("touchend", function (e) {
+      if (!on) return; on = false;
+      var t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+      if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx) * 0.6) return;
+      if (dx < 0 && guideAt < guidePages.length - 1) guideShow(guideAt + 1);
+      else if (dx > 0 && guideAt > 0) guideShow(guideAt - 1);
+    }, { passive: true });
+  })();
   (function () {
     var m = /^#help(?:-([a-z-]+))?$/.exec(location.hash || "");
     if (!m) return;
