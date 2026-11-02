@@ -963,7 +963,20 @@
   @media (orientation: landscape) and (max-height: 520px) {
     .turn-upright { display: flex; position: fixed; inset: 0; z-index: 9999; background: var(--bg); color: var(--ink); align-items: center; justify-content: center; flex-direction: column; gap: 10px; font-size: 16px; font-weight: 600; text-align: center; padding: 24px; }
     .turn-upright span { font-size: 40px; }
+    /* ...except the full-screen painting and Help & Guide, which work sideways too */
+    body.art-view .turn-upright, body.guide-open .turn-upright { display: none !important; }
+    body.art-view .stage { display: block; min-height: 0; }
   }
+  /* pull to refresh: a quiet turning arrow at the top, and "Release to refresh" once pulled far enough */
+  .ptr { position: fixed; z-index: 9000; left: 50%; top: calc(62px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); display: flex; align-items: center; gap: 7px;
+    color: var(--ink-soft); font-size: 13px; font-weight: 600; pointer-events: none; opacity: 0; transition: opacity .15s; }
+  .ptr svg { width: 22px; height: 22px; }
+  .ptr span { display: none; }
+  .ptr.ready span { display: inline; }
+  .ptr.spin svg { animation: ptrSpin .8s linear infinite; }
+  @keyframes ptrSpin { to { transform: rotate(360deg); } }
+  body.art-view .ptr, .ptr.on-art { color: #fff; text-shadow: 0 1px 4px rgba(0, 0, 0, .6); }
+  body.art-view .ptr svg, .ptr.on-art svg { filter: drop-shadow(0 1px 3px rgba(0, 0, 0, .6)); }
   /* Now: the painting banner */
   .ru-banner { position: relative; overflow: hidden; height: 33vh; background: #5b8fb0; transition: height .45s ease; }
   .ru-canvas { position: absolute; left: 0; top: 0; width: 100%; }
@@ -1572,6 +1585,7 @@
 </div>
 
 <div class="toast-wrap" id="toasts" aria-live="polite"></div>
+<div class="ptr" id="ptr" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg><span>Release to refresh</span></div>
 <div class="turn-upright" role="alert"><span>📱</span>Turn your phone upright to use Ride Up.</div>
 <button class="to-top" id="toTop" aria-label="Back to top" hidden>↑</button>
 <button class="a2hs" id="a2hsHint" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v6M9 11h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Full screen? Add Ride Up to your Home Screen</button>
@@ -3802,6 +3816,7 @@ if (window.CW_FRAME) {
   }
   function closeSheet(id) {
     $(id).classList.add("hidden");
+    if (id === "guideOverlay") document.body.classList.remove("guide-open");
     // put the keyboard away properly (iPhones otherwise keep taps slightly off for pinned things)
     var a = document.activeElement;
     if (a && a !== document.body && a.blur && $(id).contains(a)) a.blur();
@@ -5597,19 +5612,58 @@ if (window.CW_FRAME) {
   if (CAM_HOLD) setTimeout(function () { openArtView(); cam.hold = +CAM_HOLD[1]; cam.s = +(CAM_HOLD[2] || 1); camApply(); }, 1500);
   $("ruExpand").onclick = function (e) { e.stopPropagation(); openArtView(); };
   $("ruArtX").onclick = function (e) { e.stopPropagation(); goBack(); };
-  // pull the painting down to open the art view; in the art view, swipe up or tap anywhere to come back
+  // Pull to refresh (a home-screen app has no reload button): at the top of a page, pull down from BELOW the painting
+  // (pulling the painting itself opens the art view), or pull down anywhere in the art view; a long, deliberate pull
+  // (PTR_PULL px) shows "Release to refresh", and letting go there reloads Ride Up with the newest version.
+  var PTR_PULL = 150;
+  function ptrShow(dy) {
+    var el = $("ptr"), f = Math.max(0, Math.min(1, dy / PTR_PULL));
+    el.classList.toggle("on-art", currentTab === "now");   // over the painting: white, like the titles on it
+    el.style.opacity = dy > 12 ? String(0.35 + 0.65 * f) : "0";
+    el.querySelector("svg").style.transform = "rotate(" + Math.round(dy * 2.2) + "deg)";
+    el.classList.toggle("ready", dy >= PTR_PULL);
+  }
+  function ptrEnd(dy) {
+    var el = $("ptr");
+    if (dy >= PTR_PULL) { el.classList.add("spin"); el.querySelector("svg").style.transform = ""; logEvent("refresh", document.body.classList.contains("art-view") ? "art" : currentTab); setTimeout(function () { location.reload(); }, 250); }
+    else { el.style.opacity = "0"; el.classList.remove("ready"); }
+  }
+  (function () {
+    var y0 = null, x0 = 0, on = false;
+    document.addEventListener("touchstart", function (e) {
+      on = false; y0 = null;
+      if (e.touches.length !== 1 || window.scrollY > 0 || openOverlayIds().length || document.body.classList.contains("art-view")) return;
+      if (e.target.closest("#stage, input, textarea, select, .hours, .day-strip, .hour-chips, .cal, .leaflet-container")) return;
+      y0 = e.touches[0].clientY; x0 = e.touches[0].clientX; on = true;
+    }, { passive: true });
+    document.addEventListener("touchmove", function (e) {
+      if (!on) return;
+      var dy = e.touches[0].clientY - y0, dx = e.touches[0].clientX - x0;
+      if (window.scrollY > 0 || Math.abs(dx) > Math.max(30, dy)) { on = false; ptrShow(0); return; }
+      ptrShow(dy);
+    }, { passive: true });
+    document.addEventListener("touchend", function (e) {
+      if (!on) return; on = false;
+      ptrEnd(e.changedTouches[0].clientY - y0);
+    }, { passive: true });
+  })();
+  // pull the painting down to open the art view; in the art view, swipe up (or tap) to come back, pull down to refresh
   (function () {
     var y0 = null, x0 = 0, st = $("stage");
-    st.addEventListener("touchstart", function (e) { if (window.scrollY <= 2) { y0 = e.touches[0].clientY; x0 = e.touches[0].clientX; } else y0 = null; }, { passive: true });
+    st.addEventListener("touchstart", function (e) { if (window.scrollY <= 2 || document.body.classList.contains("art-view")) { y0 = e.touches[0].clientY; x0 = e.touches[0].clientX; } else y0 = null; }, { passive: true });
     st.addEventListener("touchmove", function (e) {
-      if (y0 === null || document.body.classList.contains("art-view")) return;
+      if (y0 === null) return;
       var dy = e.touches[0].clientY - y0;
-      // (the picture stays put; a long enough pull opens the art view)
+      if (document.body.classList.contains("art-view")) ptrShow(Math.abs(e.touches[0].clientX - x0) < dy ? dy : 0);
+      // (on the home page the picture stays put; a long enough pull opens the art view)
     }, { passive: true });
     st.addEventListener("touchend", function (e) {
       var dy = y0 === null ? 0 : e.changedTouches[0].clientY - y0, dx = e.changedTouches[0].clientX - x0;
       st.style.removeProperty("--pull");
-      if (document.body.classList.contains("art-view")) { if (e.touches.length === 0 && (dy < -50 && Math.abs(dx) < -dy || (Math.abs(dy) < 8 && Math.abs(dx) < 8))) goBack(); }
+      if (document.body.classList.contains("art-view")) {
+        if (dy > 12 && Math.abs(dx) < dy) ptrEnd(dy);
+        else { ptrShow(0); if (e.touches.length === 0 && (dy < -50 && Math.abs(dx) < -dy || (Math.abs(dy) < 8 && Math.abs(dx) < 8))) goBack(); }
+      }
       else if (dy > 90 && Math.abs(dx) < dy) openArtView();
       y0 = null;
     });
@@ -7482,7 +7536,7 @@ if (window.CW_FRAME) {
   }
   function openGuide(topic) {
     $("guideQ").value = ""; guideFilter(""); guideToc(false);
-    openSheet("guideOverlay");
+    openSheet("guideOverlay"); document.body.classList.add("guide-open");
     var n = topic ? guidePages.indexOf($("help-" + topic)) : -1;
     if (n >= 0) setTimeout(function () { guideJump(n, false); }, 250); else { guideScroller().scrollTop = 0; logEvent("help", "open"); }
     setTimeout(guideSpy, 400);
