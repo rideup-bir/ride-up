@@ -672,22 +672,39 @@
   .fold summary { cursor: pointer; font-weight: 800; font-size: 15px; padding: 10px 0; list-style: none; display: flex; justify-content: space-between; }
   .fold summary::-webkit-details-marker { display: none; }
   .fold summary::after { content: "+"; color: var(--blue); font-size: 18px; line-height: 1; }
-  /* Help & Guide, Wikipedia-style: the whole guide on one page; the contents slide in from the left on phones
-     (☰ Contents) and stay in a column on the left on wide screens; the page you're on is highlighted */
+  /* Help & Guide, Wikipedia-style: the whole guide on one page. Search (+ the ☰ contents icon) stays under the title;
+     a green "☰ Contents" pill and a ↑ back-to-top float bottom right. The contents: sections that open and close, App
+     features open. Phone upright: a drawer from the left. Sideways: a column you open and close. Wide screens: a column. */
+  .g-bar { position: sticky; top: calc(52px + env(safe-area-inset-top, 0px)); z-index: 5; display: flex; gap: 8px; align-items: center; margin: 0 -18px; padding: 8px 18px 10px; background: var(--card); border-bottom: 1px solid var(--line); }
+  .g-search { flex: 1; min-width: 0; }
   .g-search input { width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; font-size: 16px; }
-  .g-idx-btn { margin-left: auto; border: 0; background: none; color: var(--blue); font: inherit; font-weight: 700; font-size: 14.5px; padding: 6px 4px; cursor: pointer; white-space: nowrap; }
-  .g-toc { position: fixed; z-index: 30; top: 0; bottom: 0; left: 0; width: min(84vw, 320px); box-sizing: border-box; overflow-y: auto; padding: calc(14px + env(safe-area-inset-top, 0px)) 14px calc(20px + env(safe-area-inset-bottom, 0px));
-    background: var(--card); border-right: 1px solid var(--line); box-shadow: 8px 0 24px rgba(0, 0, 0, .3); transform: translateX(-105%); transition: transform .22s ease; }
+  .g-idx-btn { flex: none; width: 42px; height: 42px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font-size: 19px; line-height: 1; cursor: pointer; }
+  .g-idx-btn[aria-expanded="true"] { color: var(--green); border-color: var(--green); }
+  .g-results { position: absolute; left: 18px; right: 18px; top: 100%; margin-top: 4px; max-height: 55vh; overflow-y: auto; background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 10px 28px rgba(0, 0, 0, .3); padding: 6px; }
+  .g-results button { display: block; width: 100%; text-align: left; border: 0; background: none; color: var(--ink); font: inherit; font-size: 15px; font-weight: 600; padding: 9px 10px; border-radius: 10px; cursor: pointer; }
+  .g-results button small { display: block; font-size: 12px; font-weight: 600; color: var(--green); }
+  .g-results p { margin: 8px 10px; color: var(--ink-soft); font-size: 14px; }
+  .g-toc { position: fixed; z-index: 30; top: 0; bottom: 0; left: 0; width: min(84vw, 320px); box-sizing: border-box; overflow-y: auto; padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(24px + env(safe-area-inset-bottom, 0px));
+    background: var(--card); border-right: 1px solid var(--line); box-shadow: 8px 0 24px rgba(0, 0, 0, .3); transform: translateX(-105%); transition: transform .22s ease; scrollbar-width: none; }
+  .g-toc::-webkit-scrollbar { width: 0; }
+  .g-toc.scrolling { scrollbar-width: thin; }
+  .g-toc.scrolling::-webkit-scrollbar { width: 4px; }
+  .g-toc.scrolling::-webkit-scrollbar-thumb { background: var(--ink-soft); border-radius: 4px; }
   .g-toc.open { transform: none; }
   .g-scrim { position: fixed; z-index: 29; inset: 0; background: rgba(0, 0, 0, .4); }
-  .g-toc-h { font-weight: 800; font-size: 17px; margin: 2px 2px 10px; }
-  .g-sec-t { font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--green); margin: 16px 2px 2px; }
-  .g-li { display: flex; gap: 10px; align-items: baseline; width: 100%; padding: 8px 6px; margin: 1px 0; border: 0; border-radius: 10px; background: none; color: var(--ink); font: inherit; font-size: 14.5px; font-weight: 600; text-align: left; cursor: pointer; }
-  .g-li i { font-style: normal; color: var(--ink-soft); min-width: 20px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .g-toc-h { font-weight: 800; font-size: 18px; margin: 2px 2px 12px; }
+  .g-sec { border-bottom: 1px solid var(--line); }
+  .g-sec-t { display: flex; justify-content: space-between; align-items: center; width: 100%; border: 0; background: none; color: var(--ink); font: inherit; font-weight: 800; font-size: 15px; text-align: left; padding: 12px 2px; cursor: pointer; }
+  .g-sec-t::after { content: "+"; color: var(--blue); font-size: 20px; font-weight: 400; line-height: 1; }
+  .g-sec.open > .g-sec-t::after { content: "−"; }
+  .g-sec-list { display: none; padding: 0 0 8px 14px; }
+  .g-sec.open > .g-sec-list { display: block; }
+  .g-li { display: flex; gap: 10px; align-items: baseline; width: 100%; padding: 8px 8px; margin: 1px 0; border: 0; border-radius: 10px; background: none; color: var(--ink-soft); font: inherit; font-size: 14.5px; font-weight: 600; text-align: left; cursor: pointer; }
+  .g-li i { font-style: normal; min-width: 20px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
   .g-li.here { background: var(--blue-soft, rgba(47, 127, 193, .15)); color: var(--blue); }
   .g-sec-h { font-size: 12.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--green); margin: 26px 2px 4px; padding-top: 6px; border-top: 1px solid var(--line); }
-  section:first-child > .g-sec-h { border-top: 0; margin-top: 4px; }
-  .g-page { padding: 6px 2px 14px; font-size: 15.5px; line-height: 1.5; scroll-margin-top: calc(64px + env(safe-area-inset-top, 0px)); }
+  section:first-child > .g-sec-h { border-top: 0; margin-top: 10px; }
+  .g-page { padding: 6px 2px 14px; font-size: 15.5px; line-height: 1.5; scroll-margin-top: calc(122px + env(safe-area-inset-top, 0px)); }
   .g-page h3 { font-size: 19px; line-height: 1.25; margin: 6px 0 8px; }
   .g-page h3 i { font-style: normal; color: var(--ink-soft); font-weight: 700; margin-right: 6px; }
   .g-page p { margin: 0 0 10px; }
@@ -698,13 +715,23 @@
   .g-shot { display: block; width: min(100%, 300px); height: auto; margin: 10px auto 4px; border-radius: 18px; border: 1px solid var(--line); box-shadow: 0 4px 16px rgba(0, 0, 0, .18); }
   .g-pair { display: flex; gap: 10px; }
   .g-pair .g-shot { width: calc(50% - 5px); min-width: 0; margin: 10px 0 4px; }
-  .g-none, .g-foot { color: var(--ink-soft); font-size: 14px; margin: 16px 2px; }
-  /* wide screens: contents in a column on the left, always there */
-  @media (min-width: 760px) {
+  .g-none, .g-foot { color: var(--ink-soft); font-size: 14px; margin: 16px 2px 90px; }
+  .g-fab { position: fixed; z-index: 28; right: 16px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); border: 0; border-radius: 999px; padding: 11px 16px; background: var(--green); color: #fff; font: inherit; font-weight: 800; font-size: 14.5px; box-shadow: 0 6px 18px rgba(0, 0, 0, .3); cursor: pointer; }
+  .g-top { position: fixed; z-index: 28; right: 22px; bottom: calc(74px + env(safe-area-inset-bottom, 0px)); width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); color: var(--ink); font-size: 19px; font-weight: 700; box-shadow: 0 4px 14px rgba(0, 0, 0, .25); cursor: pointer; }
+  /* sideways phones: the contents, once opened, stay open as a column; the pages take the rest */
+  @media (orientation: landscape) and (max-height: 520px) {
+    .overlay#guideOverlay .sheet.guide { max-width: none; }
+    body.toc-on .g-wrap { display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: 22px; align-items: start; }
+    body.toc-on .g-toc { position: sticky; top: calc(116px + env(safe-area-inset-top, 0px)); z-index: 1; width: auto; max-height: calc(100vh - 130px); transform: none; box-shadow: none; padding: 0 12px 20px 0; background: none; }
+    body:not(.toc-on) .g-toc { display: none; }
+    .g-scrim, .g-toc-h { display: none !important; }
+  }
+  /* tablets and computers: the contents are always there in a column */
+  @media (min-width: 760px) and (min-height: 521px) {
     .overlay#guideOverlay .sheet.guide { max-width: 1040px; }
-    .g-wrap { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 28px; align-items: start; }
-    .g-toc { position: sticky; top: 64px; z-index: 1; width: auto; max-height: calc(100vh - 80px); transform: none; box-shadow: none; border-right: 1px solid var(--line); padding: 4px 14px 20px 0; background: none; }
-    .g-scrim, .g-idx-btn, .g-toc-h { display: none !important; }
+    .g-wrap { display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: 28px; align-items: start; }
+    .g-toc { position: sticky; top: calc(116px + env(safe-area-inset-top, 0px)); z-index: 1; width: auto; max-height: calc(100vh - 130px); transform: none; box-shadow: none; padding: 0 14px 20px 0; background: none; }
+    .g-scrim, .g-idx-btn, .g-toc-h, .g-fab { display: none !important; }
   }
   .g-link { display: inline-block; margin-top: 2px; }
   .fold[open] summary::after { content: "–"; }
@@ -2031,15 +2058,19 @@
      Screenshots: help/*.webp, made by art-sources/scripts/help_shots.py (made-up data). -->
 <div class="overlay hidden" id="guideOverlay">
   <div class="sheet guide">
-    <div class="sheet-head"><h2>Help &amp; Guide</h2><button type="button" class="g-idx-btn" id="guideIdxBtn" aria-expanded="false" aria-controls="guideToc">☰ Contents</button><button class="sheet-x" data-close aria-label="Close">✕</button></div>
+    <div class="sheet-head"><h2>Help &amp; Guide</h2><button class="sheet-x" data-close aria-label="Close">✕</button></div>
+    <!-- always there under the title: search, and the contents icon beside it -->
+    <div class="g-bar">
+      <div class="g-search"><input id="guideQ" type="search" placeholder="Search: note, car, 3 pm…" aria-label="Search the guide" autocomplete="off"></div>
+      <button type="button" class="g-idx-btn" id="guideIdxBtn" aria-label="Contents" aria-expanded="false" aria-controls="guideToc">☰</button>
+      <div class="g-results" id="guideResults" hidden></div>
+    </div>
     <div class="g-wrap">
-    <!-- contents: a drawer from the left on phones, a column on the left on wide screens -->
+    <!-- contents: a drawer from the left (phone upright), a column you open and close (sideways), always there (wide screens) -->
     <div class="g-scrim" id="guideScrim" hidden></div>
     <nav class="g-toc" id="guideToc" aria-label="Contents">
       <div class="g-toc-h">Contents</div>
-      <div class="g-search"><input id="guideQ" type="search" placeholder="Search: note, car, 3 pm…" aria-label="Search the guide" autocomplete="off"></div>
       <div id="guideList"></div>
-      <p class="g-none" id="guideNone" hidden>Nothing found. <button type="button" class="tiny-link" data-open="feedback">Ask us in Feedback ›</button></p>
     </nav>
     <div class="g-main">
       <div class="g-pages" id="guidePages">
@@ -2225,6 +2256,8 @@
       <p class="g-foot">Still stuck? <button type="button" class="tiny-link" data-open="feedback">Tell us in Feedback ›</button></p>
     </div>
     </div>
+    <button type="button" class="g-top" id="guideTop" aria-label="Back to the top" hidden>↑</button>
+    <button type="button" class="g-fab" id="guideFab" aria-controls="guideToc">☰ Contents</button>
   </div>
 </div>
 <!-- Privacy -->
@@ -7496,71 +7529,91 @@ if (window.CW_FRAME) {
   // ?bots on the link (for testing) opens with bot rides on
   if (/[?&](bots|demo)\b/.test(location.search)) setTimeout(botsOn, 300);
   // ---------- HELP & GUIDE ----------
-  // Wikipedia-style: the whole guide on one page; ☰ Contents (phones) or the left column (wide screens) jumps to a
-  // page, and the page in view is highlighted. openGuide("notes") jumps there; a link "#help-notes" does the same.
+  // Wikipedia-style: the whole guide on one page. Search under the title shows matching pages; the contents (sections
+  // that open and close, App features open) are a drawer on an upright phone, a column you open and close sideways,
+  // and always there on wide screens. openGuide("notes") jumps there; a link "#help-notes" does the same.
   var guidePages = Array.prototype.slice.call(document.querySelectorAll("#guidePages .g-page"));
+  var GUIDE_SIDE = "(orientation: landscape) and (max-height: 520px)", GUIDE_WIDE = "(min-width: 760px) and (min-height: 521px)";
+  function guideMode() { return matchMedia(GUIDE_WIDE).matches ? "wide" : matchMedia(GUIDE_SIDE).matches ? "side" : "drawer"; }
   (function () {
     var html = "", last = "";
     guidePages.forEach(function (pg, n) {
       var sec = pg.closest("section").dataset.sec, h = pg.querySelector("h3");
       if (sec !== last) {
-        html += '<div class="g-sec-t">' + escapeHtml(sec) + '</div>'; last = sec;
+        html += (last ? "</div></div>" : "") + '<div class="g-sec' + (last ? "" : " open") + '"><button type="button" class="g-sec-t">' + escapeHtml(sec) + '</button><div class="g-sec-list">';
+        last = sec;
         var sh = document.createElement("div"); sh.className = "g-sec-h"; sh.textContent = sec; pg.parentNode.insertBefore(sh, pg);
       }
       html += '<button type="button" class="g-li" data-n="' + n + '"><i>' + (n + 1) + '</i><span>' + escapeHtml(h.textContent) + '</span></button>';
       h.insertAdjacentHTML("afterbegin", "<i>" + (n + 1) + "</i>");
     });
-    $("guideList").innerHTML = html;
+    $("guideList").innerHTML = html + "</div></div>";
   })();
   function guideScroller() { return $("guideOverlay").querySelector(".sheet"); }
+  function guideTocOpen() { var m = guideMode(); return m === "wide" || (m === "side" ? document.body.classList.contains("toc-on") : $("guideToc").classList.contains("open")); }
   function guideToc(open) {
-    $("guideToc").classList.toggle("open", open); $("guideScrim").hidden = !open; $("guideIdxBtn").setAttribute("aria-expanded", String(open));
+    var m = guideMode();
+    if (m === "side") document.body.classList.toggle("toc-on", open);   // sideways: stays open as a column until closed
+    else { $("guideToc").classList.toggle("open", open && m === "drawer"); $("guideScrim").hidden = !(open && m === "drawer"); }
+    $("guideIdxBtn").setAttribute("aria-expanded", String(open));
+    if (open) { var here = document.querySelector("#guideList .g-li.here"); if (here) here.closest(".g-sec").classList.add("open"); guideSpy(); }
   }
-  function guideJump(n, smooth) {
+  function guideJump(n) {
     var pg = guidePages[n]; if (!pg) return;
-    guideToc(false);
-    pg.scrollIntoView({ block: "start" });   // an instant jump, like Wikipedia (works even mid-animation)
+    if (guideMode() === "drawer") guideToc(false);
+    $("guideResults").hidden = true;
+    pg.scrollIntoView({ block: "start" });   // an instant jump, like Wikipedia
     pg.classList.add("flash"); setTimeout(function () { pg.classList.remove("flash"); }, 1600); setTimeout(guideSpy, 60);
     logEvent("help", pg.id.slice(5));
   }
   function guideSpy() {
-    var top = guideScroller().getBoundingClientRect().top + 90, cur = 0;
+    var sc = guideScroller(), top = sc.getBoundingClientRect().top + 140, cur = 0;
     guidePages.forEach(function (pg, n) { if (pg.getBoundingClientRect().top <= top) cur = n; });
     var toc = $("guideToc"), on = null;
     document.querySelectorAll("#guideList .g-li").forEach(function (b) { var h = +b.dataset.n === cur; b.classList.toggle("here", h); if (h) on = b; });
     // keep the highlighted line in view inside the contents (scrolling only the contents, not the page)
-    if (on && toc.scrollHeight > toc.clientHeight) {
+    if (on && on.offsetParent && toc.scrollHeight > toc.clientHeight) {
       var tr = toc.getBoundingClientRect(), br = on.getBoundingClientRect();
       if (br.top < tr.top + 40 || br.bottom > tr.bottom - 40) toc.scrollTop += br.top - tr.top - toc.clientHeight / 3;
     }
+    $("guideTop").hidden = sc.scrollTop < 700;
   }
   function openGuide(topic) {
-    $("guideQ").value = ""; guideFilter(""); guideToc(false);
+    $("guideQ").value = ""; $("guideResults").hidden = true;
+    if (guideMode() === "drawer") guideToc(false);
     openSheet("guideOverlay"); document.body.classList.add("guide-open");
     var n = topic ? guidePages.indexOf($("help-" + topic)) : -1;
-    if (n >= 0) setTimeout(function () { guideJump(n, false); }, 250); else { guideScroller().scrollTop = 0; logEvent("help", "open"); }
+    if (n >= 0) setTimeout(function () { guideJump(n); }, 250); else { guideScroller().scrollTop = 0; logEvent("help", "open"); }
     setTimeout(guideSpy, 400);
   }
-  function guideFilter(q) {
-    var words = q.toLowerCase().split(/\s+/).filter(Boolean), hits = 0;
-    document.querySelectorAll("#guideList .g-li").forEach(function (b) {
-      var pg = guidePages[+b.dataset.n], text = (pg.textContent + " " + (pg.dataset.kw || "")).toLowerCase();
-      var hit = words.every(function (w) { return text.indexOf(w) !== -1; });
-      b.hidden = !hit; if (hit) hits++;
-    });
-    document.querySelectorAll("#guideList .g-sec-t").forEach(function (t) {
-      var el = t.nextElementSibling, any = false;
-      while (el && el.classList.contains("g-li")) { if (!el.hidden) any = true; el = el.nextElementSibling; }
-      t.hidden = !any;
-    });
-    $("guideNone").hidden = hits > 0;
+  // search: the matching pages drop down under the search bar
+  function guideSearch(q) {
+    var words = q.toLowerCase().split(/\s+/).filter(Boolean), box = $("guideResults");
+    if (!words.length) { box.hidden = true; return []; }
+    var hits = guidePages.filter(function (pg) { var t = (pg.textContent + " " + (pg.dataset.kw || "")).toLowerCase(); return words.every(function (w) { return t.indexOf(w) !== -1; }); });
+    box.innerHTML = hits.length ? hits.slice(0, 12).map(function (pg) {
+      return '<button type="button" data-n="' + guidePages.indexOf(pg) + '"><small>' + escapeHtml(pg.closest("section").dataset.sec) + '</small>' + escapeHtml(pg.querySelector("h3").textContent) + '</button>';
+    }).join("") : '<p>Nothing found. <button type="button" class="tiny-link" id="guideAsk">Ask us in Feedback ›</button></p>';
+    box.hidden = false;
+    var ask = $("guideAsk"); if (ask) ask.onclick = function () { closeSheet("guideOverlay"); openFeedback(false); };
+    return hits;
   }
-  $("guideQ").oninput = function () { guideFilter(this.value); };
-  $("guideQ").onkeydown = function (e) { if (e.key === "Enter") { var b = document.querySelector("#guideList .g-li:not([hidden])"); if (b) guideJump(+b.dataset.n, true); } };
-  $("guideList").onclick = function (e) { var b = e.target.closest(".g-li"); if (b) guideJump(+b.dataset.n, true); };
-  $("guideIdxBtn").onclick = function () { guideToc(!$("guideToc").classList.contains("open")); if ($("guideToc").classList.contains("open")) guideSpy(); };
+  $("guideQ").oninput = function () { guideSearch(this.value); };
+  $("guideQ").onkeydown = function (e) {
+    if (e.key === "Enter") { var h = guideSearch(this.value); if (h.length) { this.blur(); guideJump(guidePages.indexOf(h[0])); } }
+    if (e.key === "Escape") { this.value = ""; $("guideResults").hidden = true; }
+  };
+  $("guideResults").onclick = function (e) { var b = e.target.closest("button[data-n]"); if (b) { $("guideQ").blur(); guideJump(+b.dataset.n); } };
+  $("guideList").onclick = function (e) {
+    var t = e.target.closest(".g-sec-t"); if (t) { t.parentNode.classList.toggle("open"); return; }
+    var b = e.target.closest(".g-li"); if (b) guideJump(+b.dataset.n);
+  };
+  $("guideIdxBtn").onclick = $("guideFab").onclick = function () { guideToc(!guideTocOpen()); };
   $("guideScrim").onclick = function () { guideToc(false); };
+  $("guideTop").onclick = function () { guideScroller().scrollTop = 0; guideSpy(); };
   guideScroller().addEventListener("scroll", function () { if (!$("guideOverlay").classList.contains("hidden")) guideSpy(); }, { passive: true });
+  // the contents' scrollbar shows only while you scroll it
+  (function () { var t = null, toc = $("guideToc"); toc.addEventListener("scroll", function () { toc.classList.add("scrolling"); clearTimeout(t); t = setTimeout(function () { toc.classList.remove("scrolling"); }, 900); }, { passive: true }); })();
   (function () {
     var m = /^#help(?:-([a-z-]+))?$/.exec(location.hash || "");
     if (!m) return;
