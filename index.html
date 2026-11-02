@@ -1648,8 +1648,8 @@
       <button class="st-row" type="button" data-open="info:legal"><span class="st-ic">🔒</span><span class="st-tx"><b>Terms &amp; Privacy</b></span><span class="chev">›</span></button>
       <button class="st-row" type="button" data-open="info:credits"><span class="st-ic">📜</span><span class="st-tx"><b>Licences &amp; Credits</b></span><span class="chev">›</span></button>
       <button class="st-row" type="button" data-open="guide"><span class="st-ic">📖</span><span class="st-tx"><b>Help &amp; Guide</b><small>How everything works, step by step</small></span><span class="chev">›</span></button>
-      <button class="st-row" type="button" data-open="feedback"><span class="st-ic">💬</span><span class="st-tx"><b>Feedback</b><small>Tell us what works and what doesn't</small></span><span class="chev">›</span></button>
-      <a class="st-row" href="mailto:cabwait.thermally.yours@gmail.com?subject=Ride%20Up" id="contactRow"><span class="st-ic">✉️</span><span class="st-tx"><b>Contact us</b><small>Write to the Ride Up team</small></span><span class="chev">›</span></a>
+      <button class="st-row" type="button" data-open="feedback"><span class="st-ic">💬</span><span class="st-tx"><b>Feedback</b><small>Help improve this project</small></span><span class="chev">›</span></button>
+      <a class="st-row" href="mailto:cabwait.thermally.yours@gmail.com?subject=Ride%20Up" id="contactRow"><span class="st-ic">✉️</span><span class="st-tx"><b>Reach Out</b><small>Write a mail, Claude checks it every week</small></span><span class="chev">›</span></a>
     </div>
     <button class="version" type="button" id="versionLine" aria-label="Version and what's new"></button>
   </div>
@@ -2373,7 +2373,7 @@
       <p>• <b>Feedback</b> is kept so the team can read it, and only the team can see it. A name or number you add to it is removed after 90 days.</p>
       <p>• <b>No cookies.</b> The only thing kept on your device is your own name, number, car, friends' names, notes and settings, and the rides you're part of — "Delete saved data" (Settings → your name) clears it.</p>
       <p>• <b>Anonymous usage counts.</b> To see what's useful, the app notes things like "the map was opened" or "a ride was started", with the app's version, and a short note if something breaks. Never your name, number, location or anything that points to you or your device. These counts are deleted after six months.</p>
-      <p>• <b>Want something deleted sooner?</b> Send a note through Settings → Feedback, or email us (Settings → Contact us).</p>
+      <p>• <b>Want something deleted sooner?</b> Send a note through Settings → Feedback, or email us (Settings → Reach Out).</p>
     </details>
     <!-- 3. Licences & Credits: a short summary, then two folds -->
     <div class="community-note" data-k="credits"><p><b>A free community tool, open source under the GNU AGPL-3.0.</b> Anyone can use it, improve it and keep it going. Ride Up opens WhatsApp and Google Maps to connect people and show places, but isn't connected to or endorsed by WhatsApp, Meta or Google. Everyone whose work it builds on is credited below.</p></div>
@@ -7379,7 +7379,7 @@ if (window.CW_FRAME) {
     if ($("installRow")) $("installRow").hidden = usedOnce("install") || installedHere();
     if ($("pfInstallRow")) $("pfInstallRow").hidden = !usedOnce("install") || installedHere();
     $("stAv").textContent = initials(p.name); $("stAv").style.background = myColour();
-    $("stShare").checked = p.share !== false;
+    $("stShare").checked = !!normalizePhone(p.phone || "") && p.share !== false;   // no number yet: off
     if ($("stCar")) $("stCar").textContent = p.car_type || p.car_number ? [p.car_type, p.car_number].filter(Boolean).join(" · ") : "Add it once, used when you offer a lift";
   }
   function renderMenuTiles() {
@@ -7463,7 +7463,11 @@ if (window.CW_FRAME) {
     renderProfileSwitches();
     toast(this.checked ? "Your car shows on lifts you offer" : "Your car stays off your lift cards");
   };
-  $("stShare").onchange = function () { markUsed("share"); var p = getProfile(); p.share = this.checked; saveStored("rideup_profile", p); toast(this.checked ? "Your number will be shared with your ride" : "Your number stays hidden"); };
+  $("stShare").onchange = function () {
+    var p = getProfile();
+    // no number saved yet: the switch stays off and the number pop-up opens; saving it turns sharing on
+    if (this.checked && !normalizePhone(p.phone || "")) { this.checked = false; openNumberPop(function () { var q = getProfile(); q.share = true; saveStored("rideup_profile", q); updateDetailsSub(); renderProfileSwitches(); toast("Number saved and shared with your rides", "good"); }); return; }
+    markUsed("share"); p.share = this.checked; saveStored("rideup_profile", p); toast(this.checked ? "Your number will be shared with your ride" : "Your number stays hidden"); };
   $("stFresh").onclick = function () { $("startFresh").onclick(); };
   // Profile colours: blue (default), the others, or "random" (a new one each time the app opens)
   function renderProfileColours() {
