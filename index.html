@@ -27,13 +27,13 @@
   @media (max-width: 900px) { .phone-side { display: none; } }
 </style>
 <title>Ride Up – Bir rides</title>
-<meta name="description" content="Share a taxi from the landing ground up to take-off. No sign-up.">
+<meta name="description" content="Under maintenance. Back soon! Till then, happy thermalling.">
 <!-- the link-preview card (WhatsApp, iMessage, Telegram…): share-card.jpg, 1200 x 630. The image needs a full
      https address, so update these if the site's address changes. -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Ride Up">
-<meta property="og:title" content="Ride Up · Bir-Billing">
-<meta property="og:description" content="Share a taxi from the landing ground up to take-off. No sign-up.">
+<meta property="og:title" content="Under Maintenance 🛠️">
+<meta property="og:description" content="Back soon! Till then, happy thermalling.">
 <meta property="og:url" content="https://rideup.pages.dev/">
 <meta property="og:image" content="https://rideup.pages.dev/share-card.jpg">
 <meta property="og:image:width" content="1200">
@@ -1512,9 +1512,24 @@
   .help-radio { display: flex; align-items: center; gap: 12px; background: #FBF4E6; color: #14212B; border-radius: 14px; padding: 10px 14px; margin: 12px 0 4px; font-size: 14px; }
   .help-radio span { display: block; font-size: 12.5px; color: #4A5863; }
   .radio-ico { width: 30px; height: 30px; flex: none; color: #1E6FB8; }
+
+  /* Closed for the 1.1 rebuild: the live painting fills the screen, with the note, a rotating weather line and the emergency numbers over it */
+  body.maint .tabbar, body.maint .a2hs, body.maint .bot-hint, body.maint .to-top, body.maint .toast-wrap, body.maint .overlay, body.maint .art-mood, body.maint #ruBody, body.maint #ruArtX { display: none !important; }
+  .mt-shade { position: absolute; inset: 0; z-index: 4; pointer-events: none; background: linear-gradient(rgba(8,20,32,.72), rgba(8,20,32,.5) 38%, rgba(8,20,32,.08) 52%, rgba(8,16,24,.25) 62%, rgba(8,14,20,.9) 80%); }
+  #maintBody { position: absolute; inset: 0; z-index: 5; overflow-y: auto; display: flex; flex-direction: column; justify-content: space-between; gap: 20px; color: #fff; padding: calc(30px + env(safe-area-inset-top, 0px)) 18px calc(14px + env(safe-area-inset-bottom, 0px)); }
+  .mt-head { font-size: 31px; font-weight: 800; line-height: 1.1; margin: 0 0 10px; letter-spacing: -.3px; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,.35); }
+  .mt-note p { margin: 0 0 8px; font-size: 15.5px; line-height: 1.38; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.45); }
+  .mt-low { display: flex; flex-direction: column; gap: 9px; }
+  body.maint.art-view .ru-wx { display: block !important; position: static; align-self: flex-start; max-width: 100%; white-space: normal; overflow: visible; text-overflow: clip; border-radius: 14px; text-align: left; line-height: 1.3; background: rgba(255,255,255,.16); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); font-size: 13px; padding: 7px 12px; color: #fff; cursor: pointer; }
+  #wxLine { display: inline-block; transition: opacity .25s; }
+  .mt-safe { background: rgba(27,36,48,.92); border-radius: 14px; padding: 10px 12px; }
+  .mt-safe > div { font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #F09AA3; margin-bottom: 3px; }
+  .mt-safe a { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 4px 0; text-decoration: none; color: #A9B3BD; font-size: 12px; text-align: right; }
+  .mt-safe a b { color: #6FB8EE; font-size: 14.5px; white-space: nowrap; }
+  .mt-cows { font-size: 12.5px; font-style: italic; color: #fff; opacity: .78; text-align: center; }
 </style>
 </head>
-<body data-tab="now">
+<body data-tab="now" class="maint art-view">
 <div class="app">
   <main>
     <!-- NOW -->
@@ -1525,7 +1540,15 @@
         <div class="ru-canvas" id="stageScene"></div>
         <a class="ru-name" id="viewSpot" target="_blank" rel="noopener" aria-label="Landing Site, Bir: open in Google Maps">Landing Site - Bir</a>
         <button class="ru-gear" type="button" data-open="settings" aria-label="Settings"><span class="gear-e" aria-hidden="true">⚙️</span></button>
-        <button class="ru-wx" id="wxUnit" type="button" aria-label="Open the Weather page"><span id="wxLine">Checking the weather…</span></button>
+        <div class="mt-shade"></div>
+        <div id="maintBody">
+          <div><h1 class="mt-head">Under Maintenance 🛠️</h1>
+          <div class="mt-note"><p>In September the weather at Bir was marginal, so I spent my days hanging around the LZ. I built this app assuming everyone does. Turns out, October <span style="white-space:nowrap">hits differently 😄</span></p><p>So I’m renovating it around how we Few Pilot People actually plan our flying days.</p><p>Be back soon! Till then, Happy Thermalling! 🪂</p></div></div>
+          <div class="mt-low"><button class="ru-wx" id="wxUnit" type="button" aria-label="Open Windy at Bir"><span id="wxLine">Checking the weather…</span></button>
+          <div class="mt-safe"><div>In an emergency</div><a href="tel:112"><b>112</b>All emergencies</a><a href="tel:+919805245001"><b>+91 98052 45001</b>Paragliding Association rescue</a><a href="tel:108"><b>108</b>Free ambulance</a></div>
+          <div class="mt-cows">“Always wave at the cows when you land in their field.”</div></div>
+        </div>
+        
         <button class="ru-expand" id="ruExpand" type="button" aria-label="Show the whole painting">⤢</button>
         <div class="mood art-mood" id="moodLine"></div><button class="ru-artx" id="ruArtX" type="button" aria-label="Back" hidden>✕</button>
         <div class="ru-grab" aria-hidden="true"></div>
@@ -2428,13 +2451,14 @@
 <!-- pinned file + its fingerprint (integrity): the browser refuses it if the CDN copy is ever changed -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <script>
+  if (location.hash) history.replaceState(null, "", location.pathname + location.search);   // closed for now: old shared links land here
+
 if (window.CW_FRAME) {
   // the phone frame (see the top of the page); the app itself runs inside the frame
   var stageEl = document.createElement("div");
   stageEl.className = "phone-stage";
   stageEl.innerHTML = '<div class="phone-bg"></div><div class="phone"><iframe title="Ride Up" src="' + location.pathname + location.search + location.hash + '"></iframe></div>' +
-    '<div class="phone-side"><h2>Ride <span>Up</span></h2><p>Made for your phone. Open this page on your phone at the landing ground, or add it to your Home Screen.</p>' +
-    '<a href="?full">Use the full-width view instead</a></div>';
+    '';
   document.body.appendChild(stageEl);
 } else {
   var SUPABASE_URL = "https://ysmsvepwsortccnjkpdd.supabase.co";
@@ -4177,6 +4201,7 @@ if (window.CW_FRAME) {
   // keep one history entry while we're "deeper" than home, so the phone's Back comes to us first
   function deeper() { try { if (!history.state || !history.state.ru) history.pushState({ ru: 1 }, ""); } catch (e) {} }
   function goBack() {
+    return;   // closed for now: nothing to go back to
     if (document.body.classList.contains("art-view")) { closeArtView(); return; }
     var open = openOverlayIds();
     if (open.length) { closeSheet(open[open.length - 1]); return; }
@@ -4622,7 +4647,7 @@ if (window.CW_FRAME) {
 
   // the big Start button (and the dock's +) open the quick ride pop-up
   $("openStart").onclick = function () { openQuickRide("start"); };
-  $("wxUnit").onclick = function () { showTab("weather"); };   // our Weather page (the Windy link lives there)
+  $("wxUnit").onclick = function (e) { e.stopPropagation(); window.open(WEATHER_URL, "_blank", "noopener"); };   // our Weather page (the Windy link lives there)
   $("wxUnit").onkeydown = function (e) { if (e.key === "Enter") this.onclick(); };
 
   // Join
@@ -5723,6 +5748,7 @@ if (window.CW_FRAME) {
     window.scrollTo(0, 0); placeStageCard(); deeper(); logEvent("art_view");
   }
   function closeArtView() {
+    return;   // closed for now: the painting stays
     document.body.classList.remove("art-view"); $("ruArtX").hidden = true; placeStageCard(); artByTurn = false;
   }
   // review hook, off the live site like ?t=: ?cam=1800 (or ?cam=1800,1.6) opens full screen held on that spot of the painting
@@ -5947,7 +5973,7 @@ if (window.CW_FRAME) {
   function renderWeather() {
     if (!wxData) return;
     var c0 = wxData[1].current;
-    $("wxLine").innerHTML = wxIcon(c0.weather_code, c0.is_day) + escapeHtml(wxWords(c0.weather_code) + " · " + tempStr(c0.temperature_2m) + " · wind " + windStr(c0.wind_speed_10m) + " from " + compass(c0.wind_direction_10m));
+    // the line on the painting takes turns: see the rotation further down
     $("wxCards").innerHTML = wxData.map(function (loc, i) {
       if (i !== wxPlace) return "";
       var c = loc.current, spot = WX_SPOTS[i];
@@ -7835,6 +7861,27 @@ if (window.CW_FRAME) {
   loadWeather();
   setInterval(function () { fetchSessions(); fetchPlans(); if (currentTab === "trips") fetchTrips(); }, 30000);
   setInterval(function () { renderScenes(); loadWeather(); renderMood(); }, 60000);
+  // The line on the painting takes turns: take-off weather, the mood line, the general forecast. A new one on every refresh, then every 8 seconds.
+  (function () {
+    var turn = 0;
+    try { turn = (+localStorage.getItem("rideup_line_turn") || 0) + 1; localStorage.setItem("rideup_line_turn", turn); } catch (e) {}
+    function wx(c, head) { return wxIcon(c.weather_code, c.is_day) + escapeHtml(head + wxWords(c.weather_code) + " · " + tempStr(c.temperature_2m) + " · wind " + windStr(c.wind_speed_10m) + " from " + compass(c.wind_direction_10m)); }
+    function lines() {
+      var mood = ($("moodLine").textContent || "").trim();
+      if (/plan tab|ride up|a ride|plan your/i.test(mood)) mood = "";   // no pointing at parts of the app while it's closed
+      return [wxData && wxData[0] ? wx(wxData[0].current, "Take-off · ") : "", mood ? escapeHtml(mood) : "", wxData && wxData[1] ? wx(wxData[1].current, "") : ""];
+    }
+    function next() {
+      var l = lines(), el = $("wxLine"), tries = 0;
+      while (!l[turn % 3] && tries++ < 3) turn++;
+      var t = l[turn % 3]; turn++;
+      if (!t) return;
+      el.style.opacity = 0;
+      setTimeout(function () { el.innerHTML = t; el.style.opacity = 1; }, 250);
+    }
+    var wait = setInterval(function () { if (wxData) { clearInterval(wait); next(); setInterval(next, 8000); } }, 300);
+  })();
+
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState === "visible") {
       Array.prototype.forEach.call(document.querySelectorAll(".pose-fade"), function (o) { o.remove(); });
