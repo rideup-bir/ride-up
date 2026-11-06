@@ -1527,6 +1527,10 @@
   .mt-safe a { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 4px 0; text-decoration: none; color: #A9B3BD; font-size: 12px; text-align: right; }
   .mt-safe a b { color: #6FB8EE; font-size: 14.5px; white-space: nowrap; }
   .mt-cows { font-size: 12.5px; font-style: italic; color: #fff; opacity: .78; text-align: center; }
+  /* Closed page, kept light for phones: only the slow camera moves. The moving people, clouds and layers each hold a screen-sized-many-times picture in memory, enough to crash an iPhone when always on. */
+  body.maint .lay-life, body.maint .csh-run { display: none !important; }
+  body.maint .lay, body.maint .lay > img, body.maint .fore-grass { animation: none !important; will-change: auto !important; }
+  body.maint.art-view .ru-wx { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(14,26,38,.55); }
 </style>
 </head>
 <body data-tab="now" class="maint art-view">
