@@ -34,6 +34,8 @@ create table if not exists cab_sessions (
   disputed_at  timestamptz
 );
 create index if not exists cab_sessions_created on cab_sessions (created_at);
+-- 1.1: a taxi ride can leave later (today until 17:30, then tomorrow morning until 12:00); null = leaving now
+alter table cab_sessions add column if not exists leave_at timestamptz;
 
 create table if not exists cab_passengers (
   id         uuid primary key default gen_random_uuid(),
@@ -52,6 +54,43 @@ create table if not exists cab_passenger_private (
   passenger_id uuid primary key references cab_passengers (id) on delete cascade,
   token        uuid not null default gen_random_uuid(),
   phone        text
+);
+
+-- 2.0: the ride's notes chat (sent with Send, time-stamped, not deletable, 200 characters, 10 per person)
+create table if not exists cab_notes (
+  id           uuid primary key default gen_random_uuid(),
+  session_id   uuid not null references cab_sessions (id) on delete cascade,
+  passenger_id uuid not null references cab_passengers (id) on delete cascade,
+  created_at   timestamptz not null default now(),
+  body         text not null check (char_length(body) between 1 and 200)
+);
+create index if not exists cab_notes_session on cab_notes (session_id, created_at);
+
+-- 2.0: landed out → ask for a pickup. Everyone sees the rough place; the exact spot and the numbers are
+-- private, shared only between the pilot asking and the one who says "I can pick up". Ends after 2 hours.
+create table if not exists pickups (
+  id          uuid primary key default gen_random_uuid(),
+  created_at  timestamptz not null default now(),
+  name        text not null,
+  place       text not null,               -- "near Gunehar" (rough)
+  km          numeric(5,1),                -- how far from the landing, roughly
+  going_to    text not null default 'Bir landing',
+  people      int not null default 1 check (people between 1 and 8),
+  note        text,
+  status      text not null default 'open' check (status in ('open', 'coming', 'done', 'cancelled')),
+  helper_name text,
+  helper_at   timestamptz,
+  ends_at     timestamptz not null default now() + interval '2 hours'
+);
+create index if not exists pickups_created on pickups (created_at);
+create table if not exists pickup_private (
+  pickup_id    uuid primary key references pickups (id) on delete cascade,
+  token        uuid not null default gen_random_uuid(),
+  phone        text,
+  lat          double precision,
+  lon          double precision,
+  helper_token uuid,
+  helper_phone text
 );
 
 -- "Plan ahead": who's heading up to fly when
@@ -183,12 +222,15 @@ alter table sky_report_private    enable row level security;
 alter table feedback              enable row level security;
 alter table review_feedback       enable row level security;
 alter table usage_events          enable row level security;
+alter table cab_notes             enable row level security;
+alter table pickups               enable row level security;
+alter table pickup_private        enable row level security;
 
 -- Public tables: anyone may read them. Private tables get no rules at all, so nobody outside can read them.
 do $$
 declare t text;
 begin
-  foreach t in array array['cab_sessions', 'cab_passengers', 'flight_plans', 'trips', 'trip_members', 'sky_reports'] loop
+  foreach t in array array['cab_sessions', 'cab_passengers', 'flight_plans', 'trips', 'trip_members', 'sky_reports', 'cab_notes', 'pickups'] loop
     execute format('drop policy if exists "public read" on %I', t);
     execute format('create policy "public read" on %I for select using (true)', t);
   end loop;
@@ -197,6 +239,7 @@ end $$;
 -- A second lock: the app's roles may only READ the public tables, and touch nothing else directly.
 revoke all on all tables in schema public from anon, authenticated;
 grant select on cab_sessions, cab_passengers, flight_plans, trips, trip_members, sky_reports to anon;
+grant select on cab_notes, pickups to anon;   -- 2.0
 alter default privileges in schema public revoke all on tables from anon, authenticated;
 
 
@@ -226,11 +269,18 @@ begin
   update cab_passenger_private k set phone = null
     from cab_passengers p join cab_sessions s on s.id = p.session_id
    where k.passenger_id = p.id and k.phone is not null
-     and (p.left_at is not null or s.status in ('departed', 'cancelled') or s.created_at < now() - interval '4 hours');
+     and (p.left_at is not null or s.status in ('departed', 'cancelled')
+          or greatest(s.created_at, coalesce(s.leave_at, s.created_at)) < now() - interval '4 hours');   -- counted from the leaving time
   update trip_member_private k set phone = null
     from trip_members m join trips t on t.id = m.trip_id
    where k.member_id = m.id and k.phone is not null
      and (m.left_at is not null or t.status = 'cancelled' or t.trip_date < bir_today());
+  -- 2.0 pickups: over after 2 hours; the exact spot and numbers go as soon as a pickup is over
+  update pickups set status = 'done' where status in ('open', 'coming') and ends_at < now();
+  update pickup_private k set phone = null, lat = null, lon = null, helper_phone = null
+    from pickups u where u.id = k.pickup_id and u.status in ('done', 'cancelled')
+     and (k.phone is not null or k.lat is not null or k.helper_phone is not null);
+  delete from pickups where created_at < now() - interval '7 days';
   delete from cab_sessions where created_at < now() - interval '7 days';
   delete from trips where trip_date < bir_today() - 7 or (status = 'cancelled' and created_at < now() - interval '7 days');
   delete from flight_plans where plan_date < bir_today() - 7;
@@ -244,11 +294,14 @@ end $$;
 -- not_found, cab_full, cab_closed, not_member, not_owner, too_small, slow_down.
 
 -- Start a taxi ride or offer a lift. p_leave_* = leave your old ride in the same step.
+-- p_leave_at (1.1): when a taxi ride leaves, if not now (from 10 min ago up to 20 hours ahead).
+drop function if exists start_cab(uuid, int, text, text, text, text, text, uuid, uuid, text, int, boolean, text, text, int, text);
 create or replace function start_cab(
   p_id uuid, p_capacity int, p_name text, p_car_number text default null, p_car_type text default null,
   p_notes text default null, p_phone text default null, p_leave_passenger uuid default null, p_leave_token uuid default null,
   p_vehicle text default 'taxi', p_extra int default 0, p_flexible boolean default false,
-  p_pickup text default null, p_time text default null, p_window int default null, p_friends text default null)
+  p_pickup text default null, p_time text default null, p_window int default null, p_friends text default null,
+  p_leave_at timestamptz default null)
 returns json language plpgsql security definer set search_path = public as $$
 declare
   v_session uuid;
@@ -260,15 +313,17 @@ begin
   if coalesce(trim(p_name), '') = '' then raise exception 'name_required'; end if;
   if p_capacity is null or p_capacity < 1 or p_capacity > 12 then raise exception 'bad_capacity'; end if;
   if v_extra < 0 or 1 + v_extra > p_capacity then raise exception 'bad_capacity'; end if;
-  if v_own and coalesce(p_phone, '') !~ '^[0-9]{11,15}$' then raise exception 'phone_required'; end if;
+  if coalesce(p_phone, '') !~ '^[0-9]{11,15}$' then raise exception 'phone_required'; end if;   -- 2.0: everyone
   if v_own and coalesce(trim(p_pickup), '') = '' then raise exception 'pickup_required'; end if;
   if p_time is not null and p_time !~ '^[0-2][0-9]:[0-5][0-9]$' then raise exception 'bad_time'; end if;
   if p_window is not null and (p_window < 0 or p_window > 60) then raise exception 'bad_time'; end if;
+  if p_leave_at is not null and (p_leave_at < now() - interval '10 minutes' or p_leave_at > now() + interval '20 hours') then
+    raise exception 'bad_time'; end if;
   if p_leave_passenger is not null then perform leave_cab(p_leave_passenger, p_leave_token); end if;
   perform rideup_cleanup();
   perform rideup_rate_limit('cab_sessions', 5);
 
-  insert into cab_sessions (id, capacity, car_number, car_type, status, vehicle, flexible, pickup, leave_time, leave_window)
+  insert into cab_sessions (id, capacity, car_number, car_type, status, vehicle, flexible, pickup, leave_time, leave_window, leave_at)
   values (coalesce(p_id, gen_random_uuid()), p_capacity,
           case when v_own then nullif(left(trim(coalesce(p_car_number, '')), 20), '') end,
           nullif(left(trim(coalesce(p_car_type, '')), 30), ''),
@@ -277,7 +332,8 @@ begin
           not v_own and coalesce(p_flexible, false),
           case when v_own then left(trim(p_pickup), 80) end,
           case when v_own then p_time end,
-          case when v_own and p_time is not null then coalesce(p_window, 10) end)
+          case when v_own and p_time is not null then coalesce(p_window, 10) end,
+          case when not v_own then p_leave_at end)
   returning id into v_session;
 
   insert into cab_passengers (session_id, name, notes, extra, friends)
@@ -310,7 +366,7 @@ begin
 
   select status, capacity, vehicle into v_status, v_capacity, v_vehicle from cab_sessions where id = p_session for update;
   if v_status is null then raise exception 'not_found'; end if;
-  if v_vehicle = 'own' and coalesce(p_phone, '') !~ '^[0-9]{11,15}$' then raise exception 'phone_required'; end if;
+  if coalesce(p_phone, '') !~ '^[0-9]{11,15}$' then raise exception 'phone_required'; end if;   -- 2.0: everyone
   if p_leave_passenger is not null then perform leave_cab(p_leave_passenger, p_leave_token); end if;
   if v_status = 'full' then raise exception 'cab_full'; end if;
   if v_status <> 'waiting' then raise exception 'cab_closed'; end if;
@@ -442,11 +498,7 @@ $$;
 create or replace function set_cab_phone(p_passenger uuid, p_token uuid, p_phone text)
 returns void language plpgsql security definer set search_path = public as $$
 begin
-  if coalesce(p_phone, '') !~ '^[0-9]{11,15}$' and exists (
-       select 1 from cab_passengers p join cab_sessions s on s.id = p.session_id
-        where p.id = p_passenger and s.vehicle = 'own') then
-    raise exception 'phone_required';
-  end if;
+  if coalesce(p_phone, '') !~ '^[0-9]{11,15}$' then raise exception 'phone_required'; end if;   -- 2.0: the number can change, not go
   update cab_passenger_private
      set phone = case when p_phone ~ '^[0-9]{11,15}$' then p_phone end
    where passenger_id = p_passenger and token = p_token;
@@ -493,6 +545,24 @@ begin
   update cab_sessions set car_type = nullif(left(trim(coalesce(p_car_type, '')), 30), ''), capacity = p_capacity,
          status = case when v_used >= p_capacity then 'full' else 'waiting' end
    where id = v_session;
+end $$;
+
+-- 1.1: the person who started a taxi ride changes when it leaves (null = now)
+create or replace function set_cab_time(p_passenger uuid, p_token uuid, p_leave_at timestamptz)
+returns void language plpgsql security definer set search_path = public as $$
+declare v_session uuid; v_starter uuid; v_vehicle text; v_status text;
+begin
+  select p.session_id into v_session
+    from cab_passengers p join cab_passenger_private k on k.passenger_id = p.id
+   where p.id = p_passenger and k.token = p_token and p.left_at is null;
+  if v_session is null then raise exception 'not_member'; end if;
+  select vehicle, status into v_vehicle, v_status from cab_sessions where id = v_session for update;
+  if v_vehicle <> 'taxi' or v_status not in ('waiting', 'full') then raise exception 'cab_closed'; end if;
+  select id into v_starter from cab_passengers where session_id = v_session order by joined_at, id limit 1;
+  if v_starter <> p_passenger then raise exception 'not_owner'; end if;
+  if p_leave_at is not null and (p_leave_at < now() - interval '10 minutes' or p_leave_at > now() + interval '20 hours') then
+    raise exception 'bad_time'; end if;
+  update cab_sessions set leave_at = p_leave_at where id = v_session;
 end $$;
 
 -- Add or change your own note on a ride
@@ -549,6 +619,104 @@ begin
          car_type = nullif(left(trim(coalesce(p_car_type, '')), 30), ''),
          car_number = nullif(left(trim(coalesce(p_car_number, '')), 20), '')
    where id = v_session;
+end $$;
+
+
+-- ============ 2.0: THE RIDE'S NOTES CHAT ============
+-- Anyone in the ride can send a note: 1-200 characters, at most 10 each, never deleted (they go with the ride after 7 days).
+create or replace function send_note(p_passenger uuid, p_token uuid, p_body text)
+returns uuid language plpgsql security definer set search_path = public as $$
+declare v_session uuid; v_status text; v_id uuid; v_body text := trim(coalesce(p_body, ''));
+begin
+  select p.session_id into v_session
+    from cab_passengers p join cab_passenger_private k on k.passenger_id = p.id
+   where p.id = p_passenger and k.token = p_token and p.left_at is null;
+  if v_session is null then raise exception 'not_member'; end if;
+  select status into v_status from cab_sessions where id = v_session;
+  if v_status = 'cancelled' then raise exception 'cab_closed'; end if;
+  if char_length(v_body) < 1 or char_length(v_body) > 200 then raise exception 'bad_note'; end if;
+  if (select count(*) from cab_notes where passenger_id = p_passenger) >= 10 then raise exception 'too_many_notes'; end if;
+  perform rideup_rate_limit('cab_notes', 30);
+  insert into cab_notes (session_id, passenger_id, body) values (v_session, p_passenger, v_body) returning id into v_id;
+  return v_id;
+end $$;
+
+
+-- ============ 2.0: LANDED OUT → ASK FOR A PICKUP ============
+-- Errors: name_required, phone_required, bad_place, already_asked, not_found, taken, not_yours, slow_down.
+create or replace function ask_pickup(p_name text, p_phone text, p_place text, p_km numeric, p_going text, p_people int,
+  p_note text, p_lat double precision, p_lon double precision)
+returns json language plpgsql security definer set search_path = public as $$
+declare v_id uuid; v_token uuid;
+begin
+  if coalesce(trim(p_name), '') = '' then raise exception 'name_required'; end if;
+  if coalesce(p_phone, '') !~ '^[0-9]{11,15}$' then raise exception 'phone_required'; end if;
+  if coalesce(trim(p_place), '') = '' then raise exception 'bad_place'; end if;
+  -- the Kangra valley and the hills around Bir, nothing further
+  if p_lat is null or p_lon is null or p_lat not between 31.6 and 32.5 or p_lon not between 76.2 and 77.3 then raise exception 'bad_place'; end if;
+  if coalesce(p_people, 1) not between 1 and 8 then raise exception 'bad_capacity'; end if;
+  perform rideup_cleanup();
+  if exists (select 1 from pickups u join pickup_private k on k.pickup_id = u.id
+              where k.phone = p_phone and u.status in ('open', 'coming')) then raise exception 'already_asked'; end if;
+  perform rideup_rate_limit('pickups', 3);
+  insert into pickups (name, place, km, going_to, people, note)
+  values (left(trim(p_name), 40), left(trim(p_place), 60), round(least(greatest(coalesce(p_km, 0), 0), 999)::numeric, 1),
+          coalesce(nullif(left(trim(coalesce(p_going, '')), 40), ''), 'Bir landing'), coalesce(p_people, 1),
+          nullif(left(trim(coalesce(p_note, '')), 120), ''))
+  returning id into v_id;
+  insert into pickup_private (pickup_id, phone, lat, lon) values (v_id, p_phone, p_lat, p_lon) returning token into v_token;
+  return json_build_object('pickup_id', v_id, 'token', v_token);
+end $$;
+
+-- "I can pick up": the first pilot to say so gets the exact spot and the number; everyone else sees "someone is coming"
+create or replace function offer_pickup(p_pickup uuid, p_name text, p_phone text)
+returns json language plpgsql security definer set search_path = public as $$
+declare v_status text; v_ends timestamptz; v_htoken uuid := gen_random_uuid(); k pickup_private%rowtype; v_name text;
+begin
+  if coalesce(trim(p_name), '') = '' then raise exception 'name_required'; end if;
+  if coalesce(p_phone, '') !~ '^[0-9]{11,15}$' then raise exception 'phone_required'; end if;
+  select status, ends_at, name into v_status, v_ends, v_name from pickups where id = p_pickup for update;
+  if v_status is null then raise exception 'not_found'; end if;
+  if v_status <> 'open' or v_ends < now() then raise exception 'taken'; end if;
+  select * into k from pickup_private where pickup_id = p_pickup;
+  if k.phone = p_phone then raise exception 'not_yours'; end if;
+  update pickups set status = 'coming', helper_name = left(trim(p_name), 40), helper_at = now() where id = p_pickup;
+  update pickup_private set helper_token = v_htoken, helper_phone = p_phone where pickup_id = p_pickup;
+  return json_build_object('helper_token', v_htoken, 'name', v_name, 'phone', k.phone, 'lat', k.lat, 'lon', k.lon);
+end $$;
+
+-- The other side's number (and, for the one coming, the exact spot)
+create or replace function get_pickup_contact(p_pickup uuid, p_token uuid)
+returns json language plpgsql stable security definer set search_path = public as $$
+declare u pickups%rowtype; k pickup_private%rowtype;
+begin
+  select * into u from pickups where id = p_pickup;
+  select * into k from pickup_private where pickup_id = p_pickup;
+  if u.id is null then raise exception 'not_found'; end if;
+  if k.token = p_token then
+    return json_build_object('role', 'asker', 'name', u.helper_name, 'phone', k.helper_phone);
+  elsif k.helper_token = p_token then
+    return json_build_object('role', 'helper', 'name', u.name, 'phone', k.phone, 'lat', k.lat, 'lon', k.lon);
+  end if;
+  raise exception 'not_yours';
+end $$;
+
+-- The pilot who asked: 'done' (I'm back) or 'cancelled'. The one coming: 'cancelled' = can't come after all (open again).
+create or replace function close_pickup(p_pickup uuid, p_token uuid, p_state text)
+returns void language plpgsql security definer set search_path = public as $$
+declare k pickup_private%rowtype;
+begin
+  select * into k from pickup_private where pickup_id = p_pickup;
+  if k.pickup_id is null then raise exception 'not_found'; end if;
+  if k.token = p_token and p_state in ('done', 'cancelled') then
+    update pickups set status = p_state where id = p_pickup and status in ('open', 'coming');
+    update pickup_private set phone = null, lat = null, lon = null, helper_phone = null where pickup_id = p_pickup;
+  elsif k.helper_token is not null and k.helper_token = p_token and p_state = 'cancelled' then
+    update pickups set status = 'open', helper_name = null, helper_at = null where id = p_pickup and status = 'coming';
+    update pickup_private set helper_token = null, helper_phone = null where pickup_id = p_pickup;
+  else
+    raise exception 'not_yours';
+  end if;
 end $$;
 
 
@@ -831,10 +999,11 @@ begin
   end loop;
   for f in select p.oid::regprocedure as sig from pg_proc p join pg_namespace n on n.oid = p.pronamespace
             where n.nspname = 'public' and p.proname = any (array['start_cab', 'join_cab', 'leave_cab', 'mark_departed',
-              'undo_departed', 'reopen_cab', 'get_cab_contacts', 'set_cab_phone', 'set_cab_flexible', 'set_cab_car',
+              'undo_departed', 'reopen_cab', 'get_cab_contacts', 'set_cab_phone', 'set_cab_flexible', 'set_cab_car', 'set_cab_time',
               'set_my_note', 'set_my_friends', 'set_lift', 'add_plan', 'remove_plan', 'create_trip', 'join_trip',
               'leave_trip', 'remove_trip_member', 'get_trip_contacts', 'get_match_contacts', 'set_trip_phone',
-              'report_sky', 'send_feedback', 'submit_review', 'log_event']) loop
+              'report_sky', 'send_feedback', 'submit_review', 'log_event',
+              'send_note', 'ask_pickup', 'offer_pickup', 'get_pickup_contact', 'close_pickup']) loop
     execute format('grant execute on function %s to anon', f.sig);
   end loop;
 end $$;
@@ -846,7 +1015,7 @@ alter default privileges in schema public revoke execute on functions from publi
 do $$
 declare t text;
 begin
-  foreach t in array array['cab_sessions', 'cab_passengers', 'flight_plans', 'trips', 'trip_members', 'sky_reports'] loop
+  foreach t in array array['cab_sessions', 'cab_passengers', 'flight_plans', 'trips', 'trip_members', 'sky_reports', 'cab_notes', 'pickups'] loop
     begin
       execute format('alter publication supabase_realtime add table %I', t);
     exception when duplicate_object then null;
