@@ -1811,6 +1811,10 @@
   .w2-day.open .w2-cb { top: 64px; }
   .w2-rn, .w2-sr { position: absolute; right: 10px; background: rgba(14,22,32,.75); color: #fff; border-radius: 10px; padding: 4px 9px; font-size: 11.5px; }
   .w2-rn { top: 92px; } .w2-sr { top: 120px; }
+
+  .nt-list { display: flex; flex-direction: column; gap: 4px; margin: 10px 0; } .nt-list .fp-t { padding: 8px 2px; border-top: 1px solid var(--line); } .nt-list small { display: block; font-size: 11.5px; color: var(--ink-soft); }
+  #ntOn[hidden] { display: none; }
+  .a2-why { background: var(--green-bg); color: var(--ink); border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 5px; margin: 6px 0 10px; } .a2-why b { color: var(--green-ink); } .a2-why span { font-size: 13.5px; line-height: 1.35; }
 </style>
 </head>
 <body data-tab="now">
@@ -1997,6 +2001,22 @@
   <div class="pk-f"><small>NOTE (OPTIONAL)</small><input id="pkNote" maxlength="120" placeholder="By the bridge, next to the red-roof shop"></div>
   <p class="sl-ft">Everyone sees the village, not your exact spot. Your exact spot goes only to the pilot who says they'll come. It ends by itself after 2 hours.</p>
   <button class="submit-btn" id="pkGo" type="button">Post the pickup</button>
+</div></div>
+
+<!-- Notifications (2.0): asked once, and Settings → Notifications -->
+<div class="overlay hidden pop-ov" id="pushAsk"><div class="pop" role="dialog" aria-label="Notifications">
+  <h2 class="pop-t">🔔 Get a ping when your ride changes?</h2>
+  <p class="pop-sub">When someone joins, the time moves, it's called off, or it's about to leave. And when your pickup is coming.</p>
+  <button class="submit-btn" id="paAllow" type="button">Allow</button>
+  <button class="rp-cancel" id="paLater" type="button">Not now</button>
+</div></div>
+<div class="overlay hidden pop-ov" id="notifyPop"><div class="pop" role="dialog" aria-label="Notifications">
+  <button class="pop-x" type="button" data-close aria-label="Close">✕</button>
+  <h2 class="pop-t">Notifications</h2>
+  <p class="pop-sub" id="ntState"></p>
+  <button class="submit-btn" id="ntOn" type="button">Turn notifications on</button>
+  <div class="nt-list" id="ntList"></div>
+  <p class="sl-ft">On iPhone, notifications work only when Ride Up is on your Home Screen. On Android they also work in Chrome.</p>
 </div></div>
 
 <!-- ⋮ (2.0): the menu on the painting and on every page -->
@@ -2814,9 +2834,9 @@
 <div class="overlay hidden pop-ov" id="installOverlay">
   <div class="sheet pop-sheet">
     <div class="sheet-head"><h2>Add to your Home Screen</h2><button class="sheet-x" data-close aria-label="Close">✕</button></div>
-    <p class="meta">It opens full-screen like an app — no app store needed.</p>
+    <div class="a2-why"><b>Why add it</b><span>🔔 Get a ping when someone joins your ride or your pickup is coming (iPhone needs this)</span><span>⤢ Opens full screen, like an app — no app store needed</span><span>⚡ One tap from your Home Screen</span></div>
     <div class="steps">
-      <div class="step"><span data-icon="apple"></span><div><b>iPhone (Safari)</b><span>Tap Share, then Add to Home Screen.</span></div></div>
+      <div class="step"><span data-icon="apple"></span><div><b>iPhone (Safari)</b><span>Tap Share, then Add to Home Screen. Open Ride Up from the new icon and allow notifications.</span></div></div>
       <div class="step"><span data-icon="android"></span><div><b>Android (Chrome)</b><span>Tap ⋮, then Add to Home screen.</span></div></div>
     </div>
     <p class="meta">Using another browser? Look for Share or Add to Home Screen in its menu.</p>
@@ -5393,6 +5413,7 @@ if (window.CW_FRAME) {
     await fetchSessions();
     showTab("now");
     if (DEMO && start) botsJoin(result.data.session_id);
+    if (!DEMO) askPush();
     if (DEMO) botHintAfter(start ? "started" : "joined");
   };
 
@@ -8038,7 +8059,7 @@ if (window.CW_FRAME) {
       if (what === "feedback") { openFeedback(false); return; }
       if (what === "details") openDetails();
       if (what === "emergency") $("sosEmBtn").onclick();
-      if (what === "notify") { if (typeof openNotify === "function") openNotify(); else toast("Notifications come with the next step of the build."); }
+      if (what === "notify") openNotify();
       if (what === "share") shareApp();
     };
   });
@@ -8743,7 +8764,7 @@ if (window.CW_FRAME) {
       toast(/already_asked/.test(m) ? "You already have a pickup open." : /bad_place/.test(m) ? "That spot is too far from Bir for a pickup here." : friendlyError(r.error, "Couldn't post it — try again."), "bad"); return;
     }
     saveStored("rideup_pickup", { id: r.data.pickup_id, token: r.data.token, at: Date.now() });
-    closeSheet("pickupPop"); showTab("now"); toast("Asked. Pilots see it on top of the Ride list.", "good"); logEvent("pickup", "ask");
+    closeSheet("pickupPop"); showTab("now"); toast("Asked. Pilots see it on top of the Ride list.", "good"); logEvent("pickup", "ask"); askPush();
     fetchPickups();
   };
   document.addEventListener("click", async function (e) {
@@ -8759,7 +8780,7 @@ if (window.CW_FRAME) {
       setBusy(b, false);
       if (r.error) { toast(/taken/.test(r.error.message || "") ? "Someone else is already going." : /not_yours/.test(r.error.message || "") ? "That's your own pickup." : friendlyError(r.error, "Couldn't — try again."), "bad"); fetchPickups(); return; }
       saveStored("rideup_helping", { id: id, token: r.data.helper_token, lat: r.data.lat, lon: r.data.lon, phone: r.data.phone, name: r.data.name, at: Date.now() });
-      toast("Thanks! Their spot is on the card.", "good"); logEvent("pickup", "offer"); fetchPickups(); return;
+      toast("Thanks! Their spot is on the card.", "good"); logEvent("pickup", "offer"); fetchPickups(); askPush(); return;
     }
     if (k === "map" && mh) { window.open("https://maps.google.com/?q=" + mh.lat + "," + mh.lon, "_blank", "noopener"); return; }
     if (k === "wa") {
@@ -9180,6 +9201,73 @@ if (window.CW_FRAME) {
     if (k === "rel") toast(b.dataset.v === "Head wind" ? "Head wind: the wind blows up the slope at the SW take-off, what you want for launching." : b.dataset.v === "Cross wind" ? "Cross wind: the wind blows across the slope. Launching is harder; take care." : "Tail wind: the wind blows from behind the SW take-off. Don't launch there.");
   });
   document.addEventListener("click", function (e) { if (e.target.id === "wxReport") { var r = $("lvReport"); if (r) r.click(); } });
+
+  // ---------- 2.0 NOTIFICATIONS ----------
+  // Asked once, right after your first join or start (or pickup). iPhone: only from the Home Screen app. The phone's push
+  // address is linked to your rides and pickups (each proven by its token); Settings → Notifications chooses what pings.
+  var PUSH_OK = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+  var IS_IOS = /iPhone|iPad|iPod/.test(navigator.userAgent), IS_STANDALONE = (window.navigator.standalone === true) || matchMedia("(display-mode: standalone)").matches;
+  var swReg = null;
+  if (PUSH_OK && !DEMO) navigator.serviceWorker.register("sw.js").then(function (r) { swReg = r; pushRelink(); }).catch(function () {});
+  function b64ToBytes(b) { var p = "=".repeat((4 - b.length % 4) % 4), s = atob((b + p).replace(/-/g, "+").replace(/_/g, "/")), a = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return a; }
+  function pushLinks() {
+    var links = getMemberships().map(function (m) { return { passenger_id: m.passenger_id, token: m.token }; });
+    var mp = loadStored("rideup_pickup", null), mh = loadStored("rideup_helping", null);
+    if (mp) links.push({ pickup_id: mp.id, token: mp.token }); if (mh) links.push({ pickup_id: mh.id, token: mh.token });
+    return links.slice(-20);
+  }
+  function pushState() { return !PUSH_OK ? "unsupported" : IS_IOS && !IS_STANDALONE ? "homescreen" : Notification.permission === "granted" && loadStored("rideup_push", null) ? "on" : Notification.permission === "denied" ? "blocked" : "off"; }
+  async function pushSave(sub, prefs) {
+    var j = sub.toJSON();
+    var r = await realSupabase.rpc("push_subscribe", { p_endpoint: j.endpoint, p_p256dh: j.keys.p256dh, p_auth: j.keys.auth, p_links: pushLinks(), p_prefs: prefs || null });
+    if (!r.error) saveStored("rideup_push", { endpoint: j.endpoint, prefs: prefs || (loadStored("rideup_push", {}) || {}).prefs || null });
+    return !r.error;
+  }
+  async function pushTurnOn() {
+    if (pushState() === "homescreen") { toast("On iPhone, notifications work once Ride Up is on your Home Screen."); openSheet("installOverlay"); return false; }
+    if (!PUSH_OK) { toast("This browser can't show notifications."); return false; }
+    var perm = await Notification.requestPermission();
+    if (perm !== "granted") { toast(perm === "denied" ? "Notifications are blocked for Ride Up in your phone's settings." : "Maybe later, then."); return false; }
+    try {
+      var reg = swReg || await navigator.serviceWorker.ready, key = await realSupabase.rpc("push_public_key");
+      if (!key.data) { toast("Notifications aren't ready yet — try again in a minute."); return false; }
+      var sub = await reg.pushManager.getSubscription() || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(key.data) });
+      if (await pushSave(sub)) { toast("Notifications on 🔔", "good"); logEvent("push", "on"); return true; }
+    } catch (e) { reportFail("push subscribe", e); }
+    toast("Couldn't turn notifications on — try again.", "bad"); return false;
+  }
+  // after any new ride or pickup: link it quietly (only if notifications are on)
+  async function pushRelink() {
+    if (!PUSH_OK || DEMO || Notification.permission !== "granted" || !loadStored("rideup_push", null)) return;
+    try { var reg = swReg || await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription(); if (sub) await pushSave(sub); } catch (e) {}
+  }
+  // the one-time question, after your first join / start / pickup
+  function askPush() {
+    pushRelink();
+    if (DEMO || loadStored("rideup_push_asked", false) || pushState() === "on" || pushState() === "unsupported" || pushState() === "blocked") return;
+    saveStored("rideup_push_asked", true);
+    setTimeout(function () { openSheet("pushAsk"); }, 1200);
+  }
+  $("paAllow").onclick = async function () { closeSheet("pushAsk"); await pushTurnOn(); renderNotify(); };
+  $("paLater").onclick = function () { closeSheet("pushAsk"); toast("You can turn them on any time in Settings → Notifications."); };
+  // Settings → Notifications
+  var PUSH_KINDS = [["join", "Someone joins or leaves my ride"], ["time", "My ride's time moves, or it's called off"], ["soon", "10 minutes before my ride"], ["pickup", "My pickup: someone is coming"], ["need", "Someone needs a pickup", "Off unless you turn it on"]];
+  function pushPrefs() { var p = (loadStored("rideup_push", {}) || {}).prefs; return p || { join: true, time: true, soon: true, pickup: true, need: false }; }
+  function renderNotify() {
+    var st = pushState(), pr = pushPrefs();
+    $("ntState").innerHTML = st === "on" ? "Notifications are <b>on</b> on this phone." : st === "homescreen" ? "On iPhone, notifications work only when Ride Up is opened from your <b>Home Screen</b>." :
+      st === "blocked" ? "Notifications are <b>blocked</b> for Ride Up in your phone's settings." : st === "unsupported" ? "This browser can't show notifications." : "Notifications are <b>off</b>.";
+    $("ntOn").hidden = st === "on" || st === "unsupported" || st === "blocked";
+    $("ntOn").textContent = st === "homescreen" ? "How to add it to the Home Screen" : "Turn notifications on";
+    $("ntList").innerHTML = PUSH_KINDS.map(function (k) { return '<label class="fp-t"><span>' + k[1] + (k[2] ? '<small>' + k[2] + '</small>' : '') + '</span><input type="checkbox" class="st-sw" data-k="' + k[0] + '"' + (pr[k[0]] ? " checked" : "") + (st === "on" ? "" : " disabled") + '></label>'; }).join("");
+  }
+  function openNotify() { renderNotify(); openSheet("notifyPop"); }
+  $("ntOn").onclick = async function () { if (pushState() === "homescreen") { closeSheet("notifyPop"); openSheet("installOverlay"); return; } await pushTurnOn(); renderNotify(); };
+  $("ntList").addEventListener("change", async function (e) {
+    var k = e.target.dataset.k; if (!k) return;
+    var pr = pushPrefs(); pr[k] = e.target.checked;
+    try { var reg = swReg || await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription(); if (sub && await pushSave(sub, pr)) toast("Saved"); } catch (x) { toast("Couldn't save — try again.", "bad"); }
+  });
 
   // ---------- START UP ----------
   applyColours();

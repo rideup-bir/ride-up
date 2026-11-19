@@ -720,6 +720,176 @@ begin
 end $$;
 
 
+-- ============ 2.0: NOTIFICATIONS (web push) ============
+-- A phone that allows notifications sends its push address once; it's linked to the rides / pickups it's part of (each
+-- link proven by that seat's or pickup's token). Changes put a message in push_queue; the push-send Edge Function sends the
+-- queue every minute (pg_cron + pg_net). The sender's keys are made by the Edge Function itself and kept in push_config.
+create table if not exists push_subs (
+  id         uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  endpoint   text not null unique,
+  p256dh     text not null,
+  auth       text not null,
+  prefs      jsonb not null default '{"join": true, "time": true, "soon": true, "pickup": true, "need": false}',
+  last_seen  timestamptz not null default now()
+);
+create table if not exists push_links (
+  id           bigserial primary key,
+  sub_id       uuid not null references push_subs (id) on delete cascade,
+  passenger_id uuid references cab_passengers (id) on delete cascade,
+  pickup_id    uuid references pickups (id) on delete cascade,
+  role         text not null default 'member' check (role in ('member', 'asker', 'helper'))
+);
+create unique index if not exists push_links_one on push_links (sub_id, coalesce(passenger_id, pickup_id), role);
+create table if not exists push_queue (
+  id         bigserial primary key,
+  created_at timestamptz not null default now(),
+  sub_id     uuid not null references push_subs (id) on delete cascade,
+  title      text not null,
+  body       text not null,
+  url        text,
+  sent_at    timestamptz,
+  tries      int not null default 0
+);
+create index if not exists push_queue_unsent on push_queue (sent_at) where sent_at is null;
+create table if not exists push_config (k text primary key, v text not null);
+alter table push_subs enable row level security;
+alter table push_links enable row level security;
+alter table push_queue enable row level security;
+alter table push_config enable row level security;
+revoke all on push_subs, push_links, push_queue, push_config from anon, authenticated;
+insert into push_config (k, v) values ('cron_secret', replace(gen_random_uuid()::text, '-', '') || replace(gen_random_uuid()::text, '-', '')) on conflict (k) do nothing;
+
+-- the public half of the sender's key (the app needs it to subscribe); null until the sender has run once
+create or replace function push_public_key() returns text language sql stable security definer set search_path = public as $$
+  select v from push_config where k = 'vapid_public'
+$$;
+
+-- subscribe (or refresh) and link to rides / pickups. p_links: [{"passenger_id": …, "token": …} | {"pickup_id": …, "token": …}]
+create or replace function push_subscribe(p_endpoint text, p_p256dh text, p_auth text, p_links jsonb default '[]', p_prefs jsonb default null)
+returns void language plpgsql security definer set search_path = public as $$
+declare v_sub uuid; l jsonb; v_pid uuid; v_tok uuid; k pickup_private%rowtype;
+begin
+  if coalesce(p_endpoint, '') !~ '^https://' or length(p_endpoint) > 600 or length(coalesce(p_p256dh, '')) not between 40 and 200
+     or length(coalesce(p_auth, '')) not between 10 and 60 then raise exception 'bad_push'; end if;
+  if not exists (select 1 from push_subs where endpoint = p_endpoint) then perform rideup_rate_limit('push_subs', 20); end if;
+  insert into push_subs (endpoint, p256dh, auth, prefs) values (p_endpoint, p_p256dh, p_auth, coalesce(p_prefs, '{"join": true, "time": true, "soon": true, "pickup": true, "need": false}'))
+  on conflict (endpoint) do update set p256dh = excluded.p256dh, auth = excluded.auth, last_seen = now(), prefs = coalesce(p_prefs, push_subs.prefs)
+  returning id into v_sub;
+  for l in select * from jsonb_array_elements(coalesce(p_links, '[]')) loop
+    begin
+      v_tok := (l->>'token')::uuid;
+      if l ? 'passenger_id' then
+        v_pid := (l->>'passenger_id')::uuid;
+        if exists (select 1 from cab_passenger_private where passenger_id = v_pid and token = v_tok) then
+          insert into push_links (sub_id, passenger_id, role) values (v_sub, v_pid, 'member') on conflict do nothing;
+        end if;
+      elsif l ? 'pickup_id' then
+        select * into k from pickup_private where pickup_id = (l->>'pickup_id')::uuid;
+        if k.token = v_tok then insert into push_links (sub_id, pickup_id, role) values (v_sub, k.pickup_id, 'asker') on conflict do nothing;
+        elsif k.helper_token = v_tok then insert into push_links (sub_id, pickup_id, role) values (v_sub, k.pickup_id, 'helper') on conflict do nothing;
+        end if;
+      end if;
+    exception when others then null;   -- a bad link is just skipped
+    end;
+  end loop;
+end $$;
+
+create or replace function push_unsubscribe(p_endpoint text) returns void language sql security definer set search_path = public as $$
+  delete from push_subs where endpoint = p_endpoint
+$$;
+
+-- (helper) queue one message for every phone linked to a ride, except the person who caused it
+create or replace function push_to_ride(p_session uuid, p_except uuid, p_kind text, p_title text, p_body text)
+returns void language sql security definer set search_path = public as $$
+  insert into push_queue (sub_id, title, body, url)
+  select distinct s.id, p_title, p_body, '/#ride-' || p_session
+    from push_links l join push_subs s on s.id = l.sub_id join cab_passengers p on p.id = l.passenger_id
+   where p.session_id = p_session and p.left_at is null and (p_except is null or p.id <> p_except)
+     and coalesce((s.prefs->>p_kind)::boolean, true)
+     and not exists (select 1 from push_links l2 where l2.sub_id = s.id and l2.passenger_id = p_except);
+$$;
+create or replace function push_bir_clock(t timestamptz) returns text language sql immutable as $$
+  select ltrim(to_char(t at time zone 'Asia/Kolkata', 'FMHH12:MI am'))
+$$;
+
+create or replace function push_on_passenger() returns trigger language plpgsql security definer set search_path = public as $$
+declare v_left int; v_cap int;
+begin
+  select capacity into v_cap from cab_sessions where id = new.session_id;
+  select v_cap - coalesce(sum(1 + extra), 0) into v_left from cab_passengers where session_id = new.session_id and left_at is null;
+  if tg_op = 'INSERT' then
+    perform push_to_ride(new.session_id, new.id, 'join', new.name || ' joined your ride', case when v_left > 0 then v_left || ' spot' || case when v_left = 1 then '' else 's' end || ' left' else 'The ride is full' end);
+  elsif old.left_at is null and new.left_at is not null then
+    perform push_to_ride(new.session_id, new.id, 'join', new.name || ' left your ride', v_left || ' spot' || case when v_left = 1 then '' else 's' end || ' open again');
+  end if;
+  return null;
+end $$;
+drop trigger if exists push_passenger on cab_passengers;
+create trigger push_passenger after insert or update of left_at on cab_passengers for each row execute function push_on_passenger();
+
+create or replace function push_on_session() returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if new.status = 'cancelled' and old.status is distinct from 'cancelled' then
+    perform push_to_ride(new.id, null, 'time', 'Your ride was called off', 'Start or join another one on Ride Up');
+  elsif new.leave_at is distinct from old.leave_at and new.status in ('waiting', 'full') then
+    perform push_to_ride(new.id, (select id from cab_passengers where session_id = new.id order by joined_at limit 1), 'time',
+      'Your ride moved to ' || coalesce(push_bir_clock(new.leave_at), 'now'), 'Open Ride Up to see it');
+  end if;
+  return null;
+end $$;
+drop trigger if exists push_session on cab_sessions;
+create trigger push_session after update of status, leave_at on cab_sessions for each row execute function push_on_session();
+
+create or replace function push_on_pickup() returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if tg_op = 'INSERT' then
+    insert into push_queue (sub_id, title, body, url)
+    select s.id, 'Someone needs a pickup', new.name || ' · ' || new.place || ' → ' || new.going_to, '/'
+      from push_subs s where coalesce((s.prefs->>'need')::boolean, false)
+       and not exists (select 1 from push_links l where l.sub_id = s.id and l.pickup_id = new.id);
+  elsif new.status = 'coming' and old.status = 'open' then
+    insert into push_queue (sub_id, title, body, url)
+    select l.sub_id, new.helper_name || ' is coming to pick you up', 'Open Ride Up to WhatsApp them', '/'
+      from push_links l join push_subs s on s.id = l.sub_id where l.pickup_id = new.id and l.role = 'asker' and coalesce((s.prefs->>'pickup')::boolean, true);
+  elsif new.status = 'open' and old.status = 'coming' then
+    insert into push_queue (sub_id, title, body, url)
+    select l.sub_id, old.helper_name || ' can''t come after all', 'Your pickup is open again for the others', '/'
+      from push_links l join push_subs s on s.id = l.sub_id where l.pickup_id = new.id and l.role = 'asker' and coalesce((s.prefs->>'pickup')::boolean, true);
+  end if;
+  return null;
+end $$;
+drop trigger if exists push_pickup on pickups;
+create trigger push_pickup after insert or update of status on pickups for each row execute function push_on_pickup();
+
+-- every minute: "your ride leaves in 10 minutes" (once per ride), then old queue rows go
+create or replace function push_tick() returns void language plpgsql security definer set search_path = public as $$
+declare r record;
+begin
+  for r in select id, leave_at from cab_sessions where status in ('waiting', 'full') and leave_at between now() + interval '9 minutes' and now() + interval '10 minutes' loop
+    if not exists (select 1 from push_queue q where q.url = '/#ride-' || r.id and q.title like 'Your ride leaves in 10 minutes%') then
+      perform push_to_ride(r.id, null, 'soon', 'Your ride leaves in 10 minutes', 'At ' || push_bir_clock(r.leave_at) || ' from the landing taxi stand');
+    end if;
+  end loop;
+  delete from push_queue where created_at < now() - interval '2 days';
+end $$;
+
+-- the sender (Edge Function push-send, source in supabase/functions/push-send) reads only these, as the server
+grant select, insert, update on push_config to service_role;
+grant select, update on push_queue to service_role;
+grant select, delete on push_subs to service_role;
+-- every minute: queue "leaves in 10 minutes", then wake the sender only if something is waiting
+create or replace function push_kick(p_force boolean default false) returns void language plpgsql security definer set search_path = public as $$
+begin
+  perform push_tick();
+  if p_force or exists (select 1 from push_queue where sent_at is null and tries < 3) then
+    perform net.http_post(url := 'https://ysmsvepwsortccnjkpdd.supabase.co/functions/v1/push-send',
+      headers := jsonb_build_object('Content-Type', 'application/json', 'x-cron', (select v from push_config where k = 'cron_secret')),
+      body := '{}'::jsonb, timeout_milliseconds := 20000);
+  end if;
+end $$;
+
+
 -- ============ PLAN AHEAD ============
 
 -- Add a plan (yesterday to a week ahead, any time of day). Also tidies away plans from before yesterday.
@@ -1003,7 +1173,8 @@ begin
               'set_my_note', 'set_my_friends', 'set_lift', 'add_plan', 'remove_plan', 'create_trip', 'join_trip',
               'leave_trip', 'remove_trip_member', 'get_trip_contacts', 'get_match_contacts', 'set_trip_phone',
               'report_sky', 'send_feedback', 'submit_review', 'log_event',
-              'send_note', 'ask_pickup', 'offer_pickup', 'get_pickup_contact', 'close_pickup']) loop
+              'send_note', 'ask_pickup', 'offer_pickup', 'get_pickup_contact', 'close_pickup',
+              'push_public_key', 'push_subscribe', 'push_unsubscribe']) loop
     execute format('grant execute on function %s to anon', f.sig);
   end loop;
 end $$;
@@ -1032,6 +1203,9 @@ begin
   execute 'create extension if not exists pg_cron';
   perform cron.unschedule(jobid) from cron.job where jobname = 'rideup-cleanup';
   perform cron.schedule('rideup-cleanup', '17 * * * *', 'select public.rideup_cleanup()');
+  execute 'create extension if not exists pg_net';
+  perform cron.unschedule(jobid) from cron.job where jobname = 'rideup-push';
+  perform cron.schedule('rideup-push', '* * * * *', 'select public.push_kick()');
 exception when others then
   raise notice 'pg_cron not available: the tidy-up runs on new rides and trips instead';
 end $$;
