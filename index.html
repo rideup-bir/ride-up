@@ -1815,6 +1815,21 @@
   .nt-list { display: flex; flex-direction: column; gap: 4px; margin: 10px 0; } .nt-list .fp-t { padding: 8px 2px; border-top: 1px solid var(--line); } .nt-list small { display: block; font-size: 11.5px; color: var(--ink-soft); }
   #ntOn[hidden] { display: none; }
   .a2-why { background: var(--green-bg); color: var(--ink); border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 5px; margin: 6px 0 10px; } .a2-why b { color: var(--green-ink); } .a2-why span { font-size: 13.5px; line-height: 1.35; }
+
+  /* "?" on every page: opens its Help & Guide page */
+  .hq { width: 26px; height: 26px; border-radius: 50%; background: none; border: 1.5px solid var(--line); color: var(--ink-soft); font-size: 13px; font-weight: 800; padding: 0; line-height: 1; flex: none; margin-left: auto; }
+  .hq-sp { flex: 1; } .pg-head .hq + .pg-gear { margin-left: 4px; } .wx2-upd + .hq { margin-left: 6px; }
+  .ru-hq { position: absolute; right: 52px; top: calc(14px + env(safe-area-inset-top, 0px)); z-index: 3; border-color: rgba(255,255,255,.6); color: #fff; background: rgba(14,22,32,.45); }
+  .ab-hq { position: absolute; right: 12px; top: calc(env(safe-area-inset-top, 0px) + 14px); z-index: 2; border-color: rgba(255,255,255,.6); color: #fff; background: rgba(14,22,32,.45); }
+  .sheet-head .hq { margin-right: 8px; }
+  body.art-view .ru-hq { display: none; }
+
+  /* 2.0: the SOS contacts and radio in the app's own colours (light and dark) */
+  .sos2 .help-row { background: var(--card); color: var(--ink); box-shadow: none; border: 1px solid var(--line); }
+  .sos2 .hr-tx b, .sos2 .hr-tx em { color: var(--ink); } .sos2 .hr-tx span { color: var(--ink-soft); }
+  .sos2 .hr-call { background: var(--green-bg); border-left: 1px solid var(--line); } .sos2 .hr-call svg { stroke: var(--green-ink); }
+  .sos2 .help-radio { background: var(--card); color: var(--ink); margin: 0; } .sos2 .help-radio span { color: var(--ink-soft); }
+  .sos2 .st-sec { color: var(--green-ink); }
 </style>
 </head>
 <body data-tab="now">
@@ -1827,7 +1842,7 @@
       <div class="ru-banner" id="stage">
         <div class="ru-canvas" id="stageScene"></div>
         <a class="ru-name" id="viewSpot" target="_blank" rel="noopener" aria-label="Landing Site, Bir: open in Google Maps">Landing Site - Bir</a>
-        <button class="ru-gear" type="button" data-menu aria-label="More"><span aria-hidden="true">⋮</span></button>
+        <button class="hq ru-hq" type="button" data-open="guide:app" aria-label="Help for this page">?</button><button class="ru-gear" type="button" data-menu aria-label="More"><span aria-hidden="true">⋮</span></button>
         <button class="ru-wx" id="wxUnit" type="button" aria-label="Open the Weather page"><span id="wxLine">Checking the weather…</span></button>
         <button class="ru-expand" id="ruExpand" type="button" aria-label="Show the whole painting">⤢</button>
         <div class="mood art-mood" id="moodLine"></div><button class="ru-artx" id="ruArtX" type="button" aria-label="Back" hidden>✕</button>
@@ -1873,7 +1888,7 @@
 
     <!-- WEATHER -->
     <section class="tab-page" id="tab-weather">
-      <header class="pg-head"><h1>Weather</h1><span class="wx2-upd" id="wx2Upd"></span><button class="pg-gear" type="button" data-menu aria-label="More"><span aria-hidden="true">⋮</span></button></header>
+      <header class="pg-head"><h1>Weather</h1><span class="wx2-upd" id="wx2Upd"></span><button class="hq" type="button" data-open="guide:weather" aria-label="Help for this page">?</button><button class="pg-gear" type="button" data-menu aria-label="More"><span aria-hidden="true">⋮</span></button></header>
       <div class="pad wx2">
         <div class="r2-seg wx2-seg" id="wx2Seg"><button type="button" data-t="now" class="on">Now</button><button type="button" data-t="today">Today</button><button type="button" data-t="later">Later</button></div>
         <div id="wx2Body"><p class="wx2-err">Loading the forecast…</p></div>
@@ -1899,7 +1914,7 @@
 
     <!-- TRIPS (opened from More) -->
     <section class="tab-page" id="tab-map">
-      <div class="ab-head" id="abHead"><button class="ab-back" type="button" id="abBack" aria-label="Back">‹</button><div class="ab-tt"><b>Around Bir</b><span>Places near the landing, checked by local pilots</span></div></div>
+      <div class="ab-head" id="abHead"><button class="ab-back" type="button" id="abBack" aria-label="Back">‹</button><button class="hq ab-hq" type="button" data-open="guide:map" aria-label="Help for this page">?</button><div class="ab-tt"><b>Around Bir</b><span>Places near the landing, checked by local pilots</span></div></div>
       <div class="ab-ghead" id="abGHead" hidden><button class="ab-back s" type="button" id="abGBack" aria-label="Back">‹</button><div><b id="abGTitle"></b><span id="abGSub"></span></div></div>
       <div class="pad ab-pad">
         <div class="r2-search ab-search"><div class="r2-sbrow"><span class="r2-ic" aria-hidden="true">⌕</span><input id="abQ" type="search" placeholder="Find a place: ATM, pharmacy, hostel…" autocomplete="off" aria-label="Find a place"></div></div>
@@ -1912,7 +1927,7 @@
     
     <!-- SOS (2.0): its own tab -->
     <section class="tab-page" id="tab-sos">
-      <header class="pg-head"><h1>SOS</h1><button class="pg-gear" type="button" data-menu aria-label="More"><span aria-hidden="true">⋮</span></button></header>
+      <header class="pg-head"><h1>SOS</h1><span class="hq-sp"></span><button class="hq" type="button" data-open="guide:safety" aria-label="Help for this page">?</button><button class="pg-gear" type="button" data-menu aria-label="More"><span aria-hidden="true">⋮</span></button></header>
       <div class="pad sos2">
         <p class="sos-sub">Ride Up is not a rescue service: call first.</p>
         <div class="sos-big"><a class="sos-112" href="tel:112"><i>📞</i><b>Call 112</b><span>Police · fire · ambulance</span></a><a class="sos-res" id="sosRescue" href="tel:"><i>🪂</i><b>Call Rescue</b><span>Billing Paragliding Association</span></a></div>
@@ -2032,7 +2047,7 @@
 <!-- Settings (⚙ on every page): WhatsApp's settings shape — you on top, then how the app behaves, then help -->
 <div class="overlay hidden" id="settingsOverlay">
   <div class="sheet">
-    <div class="sheet-head"><h2>Settings</h2><button class="sheet-x" data-close aria-label="Back">✕</button></div>
+    <div class="sheet-head"><h2>Settings</h2><button class="hq" type="button" data-open="guide:name" aria-label="Help for this page">?</button><button class="sheet-x" data-close aria-label="Back">✕</button></div>
     <div class="st-group">
       <button class="st-prof" type="button" data-open="details"><span class="st-av" id="stAv">?</span><span class="st-pt"><b id="stName">Add your name</b><small id="stPhone">Profile and Preferences</small></span><span class="chev">›</span></button>
       <label class="st-row" id="stShareRow" hidden><input type="checkbox" class="st-sw" id="stShare"></label>
@@ -2146,59 +2161,11 @@
 </div>
 <!-- Versions: opened from the version line at the bottom of Settings -->
 <!-- travel plan form: from, to, when, how, then the options for that way of travelling -->
-<div class="overlay hidden pop-ov" id="tripPop">
-  <div class="pop trip-form" role="dialog" aria-labelledby="tripPopT">
-    <button class="pop-x" type="button" data-close aria-label="Close">✕</button>
-    <h2 class="pop-t" id="tripPopT">Your travel plan</h2>
-    <div class="bk-box">
-      <div class="bk-f"><small>From</small><div class="bk-place"><input id="tripFrom" type="text" autocomplete="off" enterkeyhint="next" aria-label="From"><div class="bk-sug" id="tripFromSug" hidden></div></div></div>
-      <button type="button" class="bk-swap" id="tripSwap" aria-label="Swap from and to">⇅</button>
-      <div class="bk-f"><small>To</small><div class="bk-place"><input id="tripTo" type="text" autocomplete="off" enterkeyhint="done" placeholder="Where to? e.g. Delhi" aria-label="To"><div class="bk-sug" id="tripToSug" hidden></div></div></div>
-      <button type="button" class="bk-f bk-btn" id="bkWhen"><small>When</small><b id="bkWhenText">Tomorrow · 9:00 am</b></button>
-      <button type="button" class="bk-f bk-btn" id="bkHow"><small>How</small><b id="bkHowText">Looking to share a taxi</b><i>tap to change</i></button>
-    </div>
-    <div class="field-error" id="tripPlaceErr">Add where from and where to</div>
-    <details class="opt-fold trip-opts" id="tripMore"><summary>More options (optional)</summary>
-      <!-- one row each, like Display & units: tap for a small menu, or type your own -->
-      <div class="du-list trip-list">
-        <div class="du-row"><button type="button" class="du-btn" data-menu="tripCountMenu"><b id="tripCountLab">How many of you?</b><span id="tripCountVal">Just me</span></button>
-          <div class="du-menu" id="tripCountMenu" hidden></div>
-          <div class="trip-type" id="tripCountTypeRow" hidden><input id="tripCountType" type="number" inputmode="numeric" enterkeyhint="done" min="1" max="11" placeholder="Type a number (up to 11)" aria-label="Type a number"><button type="button" class="type-save" id="tripCountSave">Save</button></div></div>
-        <div class="du-row"><button type="button" class="du-btn" data-menu="tripStopMenu"><b id="tripStopsLabel">Part of the way?</b><span id="tripStopsVal">Whole way</span></button>
-          <div class="du-menu" id="tripStopMenu" hidden></div>
-          <div class="trip-type" id="tripStopsTypeRow" hidden><input id="tripStopsOther" type="text" enterkeyhint="done" maxlength="60" placeholder="Type the place" aria-label="Type the place"><button type="button" class="type-save" id="tripStopsSave">Save</button></div></div>
-        <div class="du-row" id="tripCarRow" hidden><label class="du-btn trip-carsw"><b>Share my car details</b><span id="tripCarVal">Not added</span><input type="checkbox" class="st-sw" id="tripCarSw"></label></div>
-      </div>
-      <div class="pf-sub">Note</div>
-      <input id="tripNote" type="text" placeholder="e.g. happy to split tolls, 2 wing bags" aria-label="Note" maxlength="120">
-    </details>
-    <div class="trip-warn" id="tripWarn" hidden></div>
-    <div class="pop-btns"><button type="button" class="soft-btn" data-close>Cancel</button><button type="button" class="submit-btn" id="tripSubmit">Save</button></div>
-  </div>
-</div>
+
 <!-- travel plan: which day, around what time -->
-<div class="overlay hidden pop-ov" id="tripWhenPop">
-  <div class="pop" role="dialog" aria-labelledby="twpT">
-    <button class="pop-x" type="button" data-close aria-label="Close">✕</button>
-    <h2 class="pop-t" id="twpT">When?</h2>
-    <div class="cal cal-pick" id="tripPickCal"></div>
-    <div class="pf-sub">Around</div>
-    <input id="tripTimeW" type="time" aria-label="Around what time">
-    <button class="submit-btn" id="twpDone" type="button">Done</button>
-  </div>
-</div>
+
 <!-- travel plan: how you're travelling -->
-<div class="overlay hidden pop-ov" id="tripHowPop">
-  <div class="pop" role="dialog" aria-labelledby="thpT">
-    <button class="pop-x" type="button" data-close aria-label="Close">✕</button>
-    <h2 class="pop-t" id="thpT">How are you travelling?</h2>
-    <div class="seg radio" id="tripHowSeg">
-      <button type="button" class="on" data-v="share"><span class="how-tx"><b>Looking to share a taxi</b><small>For the full route or part of the way</small></span></button>
-      <button type="button" data-v="booked"><span class="how-tx"><b>Booked a taxi, seats to fill</b><small>Others can join your taxi and share the fare</small></span></button>
-      <button type="button" data-v="car"><span class="how-tx"><b>Seats in my own car</b><small>Offer a lift, no fares</small></span></button>
-    </div>
-  </div>
-</div>
+
 <div class="overlay hidden pop-ov" id="versionPop">
   <div class="pop small" role="dialog" aria-labelledby="vpTitle">
     <button class="pop-x" type="button" data-close aria-label="Close">✕</button>
@@ -2377,21 +2344,7 @@
 <!-- Long ride to / from Bir: ONE form, asked in a natural order — where, when, how, how many — with the
      person posting filled in from Your details and everything else folded away. -->
 <!-- Join a shared ride -->
-<div class="overlay hidden pop-ov" id="tripJoinOverlay">
-  <div class="pop" role="dialog" aria-labelledby="tripJoinTitle">
-    <button class="pop-x" type="button" data-close aria-label="Close">✕</button>
-    <h2 class="pop-t" id="tripJoinTitle">Join this plan</h2>
-    <p class="pop-sub" id="tripJoinWhat"></p>
-    <p class="join-how" id="tripJoinHow"></p>
-    <div class="me-line" id="tripJoinMe"></div>
-    <div id="tripJoinFields" hidden>
-      <input id="tripJoinName" type="text" placeholder="Your name" autocomplete="name" aria-label="Your name">
-      <input id="tripJoinPhone" type="tel" inputmode="tel" placeholder="Your WhatsApp number" aria-label="Your WhatsApp number" style="margin-top:8px;">
-    </div>
-    <div class="field-error" id="tripJoinErr">Add your name and WhatsApp number</div>
-    <div class="pop-btns"><button type="button" class="soft-btn" data-close>Cancel</button><button type="button" class="submit-btn" id="tripJoinSubmit">Join &amp; share numbers</button></div>
-  </div>
-</div>
+
 
 <!-- Units -->
 <!-- The "Rate Ride Up" questionnaire -->
@@ -2541,196 +2494,126 @@
     <div class="g-main">
       <div class="g-pages" id="guidePages">
 
-      <section data-sec="App Features">
-        <article class="g-page" id="help-app" data-kw="home page painting art scene weather start join who's planned what is ride up sideways full screen">
-          <h3>The Home Page</h3>
-          <ol><li><b>Start a ride</b>: share a taxi from the landing up to take-off.</li><li><b>Join</b>: hop into a ride that's going.</li><li>The weather now. Tap it for the full Weather page.</li><li>Bottom bar: <b>Plan</b>, the green home button (it also starts a ride), <b>Menu</b>.</li></ol>
-          <p>The painting is the Bir landing, live. Tap ⤢ or turn your phone sideways to see it full screen.</p>
-          <img class="g-shot" loading="lazy" width="600" height="1298" src="help/home-rides.webp" alt="The home page: Start a ride, a ride with Join, the weather and the bottom bar">
+      <section data-sec="Ride">
+        <article class="g-page" id="help-app" data-kw="ride tab home page painting list rides what is ride up going up search" data-shot="ride-home">
+          <h3>The Ride Tab</h3>
+          <ol><li>The rides going up from the Bir landing, soonest first. Tap one to open it right there.</li><li><b>＋ Going up?</b> at the bottom: pick your time, join someone, or start your own.</li><li>Tabs: <b>Ride · Weather · SOS</b>. More (Around Bir, Settings, Help) is under <b>⋮</b>.</li></ol>
+          <p>The painting is the Bir landing, live. Tap it to see it full screen.</p>
         </article>
-        <article class="g-page" id="help-plan-intro" data-kw="plan ahead tab flying days">
-          <h3>Plan</h3>
-          <ol><li>Each coming day: the forecast and who's going up. Tap a day to add your plan.</li></ol>
-          <img class="g-shot" loading="lazy" width="600" height="1298" src="help/plan-page.webp" alt="The Plan page with the next days">
+        <article class="g-page" id="help-search" data-kw="search find time pilot name 930 tray quick times" data-shot="ride-search">
+          <h3>Find a Ride</h3>
+          <ol><li>Tap the search box. Quick times show how many rides go around then.</li><li>Type a time any way (930, 9.30, 10am): you see the rides 45 min either side.</li><li>Type letters to find a pilot's rides. ✕ clears the search.</li></ol>
         </article>
-        <article class="g-page" id="help-menu-intro" data-kw="menu weather safety travel map settings tiles">
-          <h3>Menu</h3>
-          <ol><li>Weather, Safety &amp; Contacts, Plan your travel, Getting Around Bir.</li></ol>
-          <p>⚙ at the top right of every page: your name, settings, Help &amp; Guide, Feedback.</p>
-          <img class="g-shot" loading="lazy" width="600" height="1298" src="help/menu.webp" alt="The Menu page with its four tiles">
+        <article class="g-page" id="help-going" data-kw="going up time wheel start my own join near time" data-shot="ride-going">
+          <h3>＋ Going Up?</h3>
+          <ol><li>Tap <b>＋ Going up?</b> and turn the wheel to your time (today or tomorrow).</li><li>Rides around that time show under it: tap <b>Join</b>.</li><li>Nobody then? <b>Start my own</b>: the time is already set.</li></ol>
         </article>
-      </section>
-
-      <section data-sec="Getting Started">
-        <article class="g-page" id="help-name" data-kw="name number whatsapp private privacy who sees profile change name">
-          <h3>Your Name and WhatsApp Number</h3>
-          <ol><li>⚙ → tap your name at the top.</li><li>Change your name, add your number, or turn "Share my number" off.</li></ol>
-          <p>Your name shows on your rides. Your number is private: only people in the same ride see it, and it's wiped after the ride. Keep it out of the name box.</p>
-          <img class="g-shot" loading="lazy" width="600" height="1298" src="help/profile.webp" alt="The Profile page: name, WhatsApp number, Display &amp; units">
-        </article>
-        <article class="g-page" id="help-home-screen" data-kw="add to home screen app icon install iphone android">
-          <h3>Put Ride Up on Your Home Screen</h3>
-          <ol><li>⚙ → <b>Add to Home Screen</b>.</li><li>iPhone (Safari): Share → Add to Home Screen. Android (Chrome): ⋮ → Add to Home Screen.</li></ol>
-          <p>It then opens full screen, like an app. No app store.</p>
-          <img class="g-shot" loading="lazy" width="600" height="1298" src="help/install.webp" alt="Add to Home Screen steps for iPhone and Android">
-        </article>
-        <article class="g-page" id="help-bots" data-kw="bot rides try practice demo pretend test">
-          <h3>Try It First with Bot Rides</h3>
-          <ol><li>Home page → <b>Try it with bot rides 🤖</b>. Join one, or start your own and watch the bots join.</li></ol>
-          <p>Pretend rides, only on your phone. They go away when you reload or tap Remove bots.</p>
-          <img class="g-shot" loading="lazy" width="600" height="1298" src="help/bots.webp" alt="Bot rides on the home page, marked with a robot">
-        </article>
-      </section>
-
-      <section data-sec="Sharing a Ride Up">
-        <article class="g-page" id="help-start" data-kw="start a ride taxi alto eeco seats friends landing zone lz taxi stand time spots">
+        <article class="g-page" id="help-start" data-kw="start a ride taxi alto bolero eeco other seats friends time car" data-shot="ride-start">
           <h3>Start a Ride</h3>
-          <p>Tap <b>Start a ride</b> on the home page.</p>
-          <ol><li>The car: Alto, 4 seats. Tap <b>change?</b> for another.</li><li>The seats. Yours is the first.</li><li>Friends with you? Tap +1, +2 or +3.</li><li>When: <b>Leaving now</b>, or tap <b>change?</b> for a later time.</li><li>Tap <b>Share</b>: the ride is posted, and WhatsApp opens so you can send it to the group.</li><li>Driving your own car? <b>Offer a lift</b> instead.</li></ol>
-          <p>It leaves from the LZ taxi stand. Picking up somewhere else? Add a note.</p>
-          <img class="g-shot" loading="lazy" width="600" height="1298" src="help/start-pop.webp" alt="The Start a ride pop-up: change the car, seats, friends, Start ride, Offer a lift">
+          <ol><li>The car: ALTO (up to 4), BOLERO (5), EECO (6) or OTHER (7–8).</li><li>Friends with you? Tap +1, +2… They take seats too.</li><li>Tap <b>Share</b>: your ride is posted, and WhatsApp opens so you can tell your group.</li></ol>
+          <p>It leaves from the landing taxi stand. A note can say where you'll be.</p>
         </article>
-        <article class="g-page" id="help-car" data-kw="change car type cab alto eeco bolero other seats swift innova">
-          <h3>Change the Car</h3>
-          <ol><li>Pick Alto, Eeco, Bolero, or Other: type the car, set the seats, tap ✓.</li></ol>
-          <p>Starting a ride: tap <b>change?</b>. Already started: <b>⋯</b> on your ride → <b>Change car</b>. Only the person who started it can.</p>
-          <div class="g-pair"><img class="g-shot" loading="lazy" width="600" height="1298" src="help/start-cars.webp" alt="The car choices when starting a ride"><img class="g-shot" loading="lazy" width="600" height="1298" src="help/car-pop.webp" alt="Changing the car on a ride that has started"></div>
-        </article>
-        <article class="g-page" id="help-notes" data-kw="note leaving time pick up pickup point meeting point charlie cafe leaving in 15 minutes where on the way">
-          <h3>Leaving Time or Pick-up: Add a Note</h3>
-          <p><b>⋯</b> on your ride → <b>Add a note</b>.</p>
-          <ol><li>Tap a quick pick ("At the taxi stand", "Leaving in 5 min"…).</li><li>Or type your own: "Leaving at 10:30", "Pick me up at Charlie's". Tap <b>Save</b>.</li></ol>
-          <p>Everyone in the ride sees it. Joining and want a pick-up on the way? Join, then add your own note.</p>
-          <img class="g-shot" loading="lazy" width="600" height="1298" src="help/note-pop.webp" alt="The note pop-up with quick picks">
-        </article>
-        <article class="g-page" id="help-share" data-kw="share whatsapp group link send ride">
-          <h3>Your Ride: Share It to the Group</h3>
-          <ol><li>WhatsApp the people in your ride.</li><li><b>Share to group</b>: WhatsApp opens with a link. Pick the group, send.</li><li><b>⋯</b>: more (see the next point).</li><li><b>We've driven off</b>: tap it when the taxi leaves.</li></ol>
-          <p>Whoever taps the link lands on your ride and can join.</p>
-          <img class="g-shot" loading="lazy" width="600" height="800" src="help/mine.webp" alt="Your ride with Share to group and the ⋯ menu">
-        </article>
-        <article class="g-page" id="help-join" data-kw="join a ride seat friends hop in whatsapp call spots">
+        <article class="g-page" id="help-join" data-kw="join a ride in place friends name number whatsapp joining as" data-shot="ride-join">
           <h3>Join a Ride</h3>
-          <p>Tap <b>Join</b> on a ride.</p>
-          <ol><li>The seats. Yours fills in.</li><li>Friends with you? Tap +1, +2 or +3.</li><li>Tap <b>Join</b>. Your seat fills on everyone's phone.</li></ol>
-          <p>Reach the others with the WhatsApp or call buttons on the ride.</p>
-          <img class="g-shot" loading="lazy" width="600" height="1298" src="help/join-pop.webp" alt="The Join pop-up with seats and friends">
+          <ol><li>Tap a ride: it opens in place with who's in.</li><li>Friends coming? Pick +1, +2…</li><li>Tap <b>Join</b>. The first time, add your name and WhatsApp number.</li></ol>
+          <p>Only the people in your ride see your number, and it's wiped an hour after.</p>
         </article>
-        <article class="g-page" id="help-inside" data-kw="menu dots inside your ride leave with fewer friend cancel seat share my number">
-          <h3>Inside Your Ride: the ⋯ Menu</h3>
-          <ol><li><b>Add a friend</b>.</li><li><b>Add a note</b>: leaving time, pick-up.</li><li><b>Change car</b>.</li><li><b>We've driven off</b>.</li><li><b>Cancel my seat</b>. The last one out ends the ride.</li></ol>
-          <p>Also there: <b>Change leaving time</b> (if you started the ride), <b>Share my number</b> with this ride, and <b>Happy to leave with fewer</b> (you'll go even if seats stay empty).</p>
-          <img class="g-shot" loading="lazy" width="600" height="837" src="help/mine-menu.webp" alt="The ⋯ menu on your ride">
+        <article class="g-page" id="help-inside" data-kw="your ride bar open share change time change car friends leave cancel seat menu" data-shot="ride-mine">
+          <h3>Your Ride</h3>
+          <ol><li>Your ride sits in the green bar at the bottom: tap <b>Open</b>.</li><li>WhatsApp anyone in it, or <b>Share to WhatsApp</b> to fill the seats.</li><li>⋯ : change the time or the car (if you started it), friends, or leave.</li></ol>
         </article>
-        <article class="g-page" id="help-full" data-kw="full ride disappeared gone listing vanished waiting for taxi">
-          <h3>When the Ride Is Full</h3>
-          <ol><li>Your full ride stays on screen until someone taps <b>We've driven off</b> (2 hours at most).</li></ol>
-          <p>Everyone else sees it as Full for 30 min.</p>
-          <img class="g-shot" loading="lazy" width="600" height="800" src="help/full.webp" alt="A full ride with the We've driven off button">
+        <article class="g-page" id="help-notes" data-kw="notes chat message meeting point late send 200" data-shot="ride-notes">
+          <h3>Notes</h3>
+          <ol><li>Open your ride and type a note: where you are, running late…</li><li>Tap <b>Send</b>. Everyone in the ride sees it, with the time.</li><li>Up to 10 notes each, 200 letters each. Notes can't be deleted.</li></ol>
         </article>
-        <article class="g-page" id="help-gone" data-kw="we've driven off left didn't go mistake undo">
-          <h3>We've Driven Off, or I Didn't Go</h3>
-          <ol><li>When the taxi leaves, one of you taps <b>We've driven off</b>. The ride moves to "Left in the last 30 min".</li><li>Tapped it by mistake, or left behind? Start or join another ride, then tap <b>I didn't go</b>.</li></ol>
+        <article class="g-page" id="help-gone" data-kw="we've driven off left didn't go mistake late may have left" data-shot="ride-gone">
+          <h3>When It's Time</h3>
+          <ol><li>Tap <b>We've driven off</b> when the taxi leaves: the ride leaves the list.</li><li>Not in it after all? <b>I didn't go</b> puts you back.</li><li>A ride past its time shows <b>may have left</b>.</li></ol>
         </article>
-        <article class="g-page" id="help-lift" data-kw="lift own car driving offer seats pick up">
-          <h3>Offer a Lift in Your Own Car</h3>
-          <ol><li>Start a ride → <b>Offer a lift</b> (at the bottom).</li><li>Room for 1, 2 or 3. Tap <b>Offer the lift</b>.</li><li>Change the pick-up place or time later from <b>⋯</b>.</li></ol>
-          <p>For sharing a ride, not for paid rides.</p>
-          <img class="g-shot" loading="lazy" width="600" height="1298" src="help/lift-pop.webp" alt="The Offer a lift pop-up">
+        <article class="g-page" id="help-filter" data-kw="sort filter soonest latest most spots car spots i need clear" data-shot="ride-filter">
+          <h3>Sort and Filter</h3>
+          <ol><li><b>⇅</b>: soonest, latest, most or fewest spots.</li><li><b>Filter</b>: when, spots you need, the car, full or late rides.</li><li>Your filters show in one line with <b>Clear</b>.</li></ol>
         </article>
       </section>
-
-      <section data-sec="Planning Ahead">
-        <article class="g-page" id="help-plan" data-kw="plan flying day tomorrow who is flying going up when plan ahead">
-          <h3>Plan Your Flying Day</h3>
-          <ol><li>Tap <b>Plan</b>, then a day: the forecast, and who's going up when.</li><li><b>+ Add my plan</b> → pick a time → <b>Add my plan</b>.</li><li>Share the day to the WhatsApp group when it asks.</li></ol>
-          <div class="g-pair"><img class="g-shot" loading="lazy" width="600" height="1298" src="help/plan-page.webp" alt="The Plan page with the next days"><img class="g-shot" loading="lazy" width="600" height="1298" src="help/plan-day.webp" alt="A day opened: who's flying and when"></div>
+      <section data-sec="Weather">
+        <article class="g-page" id="help-weather" data-kw="weather now take-off billing landing wind gusts verdict go fly careful avoid" data-shot="wx-now">
+          <h3>Weather · Now</h3>
+          <ol><li>The view from Billing take-off with the weather on it.</li><li><b>Go Fly · Careful · Avoid</b>, with the reason in a sentence below.</li><li>Wind at take-off and landing, cloud base, the next hours.</li></ol>
+          <p>It's a quick reading of forecasts, not a flying briefing. You decide.</p>
         </article>
-        <article class="g-page" id="help-later" data-kw="later today 3pm afternoon tomorrow morning schedule time leaving departure future book slot spots">
-          <h3>Leaving Later? Pick a Time</h3>
-          <p>Start a ride → next to <b>Leaving now</b>, tap <b>change?</b></p>
-          <ol><li><b>In 30 min</b>, <b>In 1 h</b>, or <b>Pick a time</b>: today until 5:30 pm. After 5:30 pm it's <b>Tomorrow morning</b>, until 12 noon.</li><li>Turn the wheel to the time, tap ✓, then <b>Share</b>.</li></ol>
-          <p>The ride shows "Leaves 10:30" and stays up until 30 min after that, or until someone taps "We've driven off". Changed plans? ⋯ on your ride → <b>Change leaving time</b>.</p>
-          <img class="g-shot" loading="lazy" width="600" height="1298" src="help/start-when.webp" alt="Start a ride with the leaving time picker open">
+        <article class="g-page" id="help-compass" data-kw="compass arrow windsock head wind cross tail wind direction north" data-shot="wx-compass">
+          <h3>The Compass and Windsock</h3>
+          <ol><li>The compasses lie flat on the ground, N to true north: green at take-off, yellow at the landing.</li><li>The arrow points where the wind blows; the number is its speed (g = gusts).</li><li>The windsock flies with the wind, like the real one.</li></ol>
         </article>
-      </section>
-
-      <section data-sec="Checking the Weather">
-        <article class="g-page" id="help-weather" data-kw="weather wind gusts forecast take-off billing landing hours windy">
-          <h3>Weather at Take-off and the Landing</h3>
-          <ol><li>Tap TAKE-OFF or LANDING to switch; swipe the hours.</li></ol>
-          <p>Open it from the home page weather, or Menu → Weather. It's a forecast, not a briefing: watch the sky, ask local pilots.</p>
-          <img class="g-shot" loading="lazy" width="600" height="1298" src="help/weather-page.webp" alt="The Weather page: take-off, landing and the hours">
+        <article class="g-page" id="help-today" data-kw="today radar rain best time peaks storm cloud base chart report" data-shot="wx-today">
+          <h3>Weather · Today</h3>
+          <ol><li>Rain radar over the valley, and the day hour by hour in colour.</li><li><b>Best time to fly</b>, and the day's peaks: rain, storms, wind.</li><li>Cloud base through the day, with pilots' reports. Up there? <b>Report what you see</b>.</li></ol>
         </article>
-        <article class="g-page" id="help-sightline" data-kw="sightline cloud clouding clouds rolling see the landing from take-off visibility base">
-          <h3>Sightline: See the Landing from Take-off?</h3>
-          <ol><li><b>Sightline to the landing</b>: the forecast cloud between take-off and the landing. Tap an hour to see it then.</li><li><b>Report</b>: tell others what you see.</li></ol>
-          <p>Ticks and crosses are pilots' reports. Tap the title for what it means, and a Windy link.</p>
-          <img class="g-shot" loading="lazy" width="600" height="1298" src="help/weather-sightline.webp" alt="The Sightline picture with the hours and the Report button">
+        <article class="g-page" id="help-later" data-kw="later days ahead forecast agree models 5 days" data-shot="wx-later">
+          <h3>Weather · Later</h3>
+          <ol><li>The next 5 days. Tap a day to open its picture.</li><li><b>2 of 3 forecasts agree</b>: how sure it is.</li><li>No verdicts this far ahead: check again on the day.</li></ol>
         </article>
-        <article class="g-page" id="help-report" data-kw="report clouds clear visible sky tell others take-off landing">
-          <h3>Report What You See</h3>
-          <ol><li>Pick where you are: TAKE-OFF or LANDING.</li><li>Tap clear if you can see across, foggy if you can't.</li></ol>
-          <p>Your name shows; your number stays private.</p>
-          <img class="g-shot" loading="lazy" width="600" height="1298" src="help/report-pop.webp" alt="Report: take-off or landing">
+        <article class="g-page" id="help-disagree" data-kw="forecasts disagree red outline safer models ecmwf gfs icon" data-shot="">
+          <h3>When Forecasts Disagree</h3>
+          <ol><li>A number with a red outline: the forecasts don't agree on it.</li><li>We show the safer (stronger) one. Tap it to see each forecast.</li><li>More in Settings → <b>About the forecasts</b>.</li></ol>
         </article>
       </section>
-
-      <section data-sec="In Case of Emergency">
-        <article class="g-page" id="help-safety" data-kw="safety emergency rescue 112 hospital ambulance radio 144.500 accident">
-          <h3>Safety and Contacts</h3>
-          <ol><li>Menu → <b>Safety &amp; Contacts</b>.</li><li>Tap a number to call: 112, rescue, hospitals, helplines. Radio: 144.500 MHz.</li></ol>
-          <p>Ride Up isn't a rescue service: call first.</p>
-          <img class="g-shot" loading="lazy" width="600" height="1298" src="help/safety.webp" alt="Safety &amp; Contacts with call buttons">
+      <section data-sec="SOS">
+        <article class="g-page" id="help-safety" data-kw="sos emergency call 112 rescue hospital ambulance radio 144.500" data-shot="sos">
+          <h3>SOS: Call First</h3>
+          <ol><li><b>Call 112</b> (police, fire, ambulance) or <b>Call Rescue</b>.</li><li>Hospitals and helplines are below, each with a call button.</li><li>Keep your radio on <b>144.500 MHz</b> while flying.</li></ol>
+          <p>Ride Up isn't a rescue service.</p>
+        </article>
+        <article class="g-page" id="help-location" data-kw="my location gps share coordinates read out whatsapp text message sms" data-shot="sos-location">
+          <h3>My Location</h3>
+          <ol><li>Tap <b>Find me</b>: your exact position, from GPS (works without internet).</li><li>Read the numbers out on a call or the radio.</li><li><b>Share</b>: a ready message by WhatsApp or text message, and to your ride.</li></ol>
+        </article>
+        <article class="g-page" id="help-emergency-info" data-kw="emergency info blood group allergies wing colour contact insurance" data-shot="sos-info">
+          <h3>My Emergency Info</h3>
+          <ol><li>Blood group, allergies, wing colour, a contact.</li><li>Kept only on this phone, shown on the SOS tab for rescuers.</li><li>If you allow, added to your location message.</li></ol>
+        </article>
+        <article class="g-page" id="help-pickup" data-kw="landed out pickup ride back pick up i can pick up village" data-shot="sos-pickup">
+          <h3>Landed Out? Ask for a Pickup</h3>
+          <ol><li>SOS → What to do → <b>Landed out</b> → <b>Ask for a pickup</b>.</li><li>Everyone sees the village; your exact spot goes only to the pilot who says <b>I can pick up</b>.</li><li>WhatsApp them, then tap <b>I'm back</b>. It ends by itself after 2 hours.</li></ol>
         </article>
       </section>
-
-      <section data-sec="Planning a Trip to or from Bir">
-        <article class="g-page" id="help-travel" data-kw="travel find search delhi chandigarh gaggal airport dharamshala manali coming leaving bir trip seats calendar">
-          <h3>Find Travel Plans</h3>
-          <p>Menu → <b>Plan your travel</b>.</p>
-          <ol><li>The calendar: a green dot = seats on offer, an orange dot = people asking. Tap a day.</li><li>Everyone else's plans for that day.</li></ol>
-          <img class="g-shot" loading="lazy" width="600" height="1298" src="help/travel-page.webp" alt="Plan your travel: the month calendar">
+      <section data-sec="Around Bir">
+        <article class="g-page" id="help-map" data-kw="around bir map atm medical groceries stay hostel taxi bus vacation monastery waterfall" data-shot="around">
+          <h3>Around Bir</h3>
+          <ol><li>⋮ → <b>Around Bir</b>: places in eight groups, from flying to vacation.</li><li>Tap a group: places nearest first, with the walk from the landing.</li><li>Tap a place: <b>Directions</b> opens your phone's maps app.</li></ol>
         </article>
-        <article class="g-page" id="help-travel-join" data-kw="join travel plan trip seats share numbers whatsapp taxi team up leave">
-          <h3>Join Someone's Travel Plan</h3>
-          <ol><li>Tap a plan to see who's going, the seats and the stops.</li><li>Tap <b>Join this plan</b>, then <b>Join &amp; share numbers</b>.</li></ol>
-          <p>You both see each other's numbers: sort out the rest on WhatsApp. Changed your mind? Open it → <b>Leave this trip</b>.</p>
-          <div class="g-pair"><img class="g-shot" loading="lazy" width="600" height="1298" src="help/travel-day.webp" alt="Plans on a day, with Join"><img class="g-shot" loading="lazy" width="600" height="1298" src="help/travel-join.webp" alt="Join and share numbers"></div>
-        </article>
-        <article class="g-page" id="help-travel-add" data-kw="add travel plan own car booked taxi pick-ups stops save">
-          <h3>Add Your Travel Plan</h3>
-          <ol><li>Tap <b>Add your travel plan</b>.</li><li>From, To, When, How: share a taxi, a booked taxi with seats, or your own car.</li><li>More options: how many, pick-ups on the way (type one, tap Save), your car.</li><li>Tap <b>Save</b>.</li></ol>
-          <img class="g-shot" loading="lazy" width="600" height="1298" src="help/travel-form.webp" alt="Adding a travel plan">
+        <article class="g-page" id="help-map-find" data-kw="find a place search glider repair pharmacy atm on the map missing" data-shot="around-search">
+          <h3>Find a Place</h3>
+          <ol><li>Type what you need: atm, pharmacy, glider repair…</li><li><b>Show these on a map</b> shows that group only.</li><li>Something missing or wrong? <b>Report a change</b>.</li></ol>
         </article>
       </section>
-
-      <section data-sec="Getting Around Bir">
-        <article class="g-page" id="help-map" data-kw="map getting around atm medical cafe stays bus taxi grocery zoom satellite">
-          <h3>Map of Bir</h3>
-          <ol><li>Menu → <b>Getting Around Bir</b>.</li><li>Pick a list: Key places, Medical, ATMs…</li><li>Zoom with − / + or the slider. The layers button (top right) switches map and satellite.</li><li>Tap a pin to open it in Google Maps.</li></ol>
-          <img class="g-shot" loading="lazy" width="600" height="1298" src="help/map.webp" alt="The map of Bir with pins">
-        </article>
-      </section>
-
       <section data-sec="Settings">
-        <article class="g-page" id="help-menu" data-kw="menu settings units knots fahrenheit dark mode colour delete data feedback newest version update reload refresh">
-          <h3>Your Settings</h3>
-          <ol><li>⚙ → your name: name, colour, number, your car.</li><li>Display &amp; units: light or dark, km/h or knots, °C or °F, 12 h or 24 h.</li><li>Newest version: pull down from the top of a page and let go.</li></ol>
-          <img class="g-shot" loading="lazy" width="600" height="1298" src="help/menu.webp" alt="The Menu page">
+        <article class="g-page" id="help-name" data-kw="profile name number whatsapp who sees privacy change" data-shot="settings">
+          <h3>Your Name and Number</h3>
+          <ol><li>⋮ → Settings → your name.</li><li>Your WhatsApp number is needed to start or join a ride.</li><li>Only your ride sees it; it's wiped an hour after the ride.</li></ol>
+        </article>
+        <article class="g-page" id="help-menu" data-kw="display units dark light knots fahrenheit feet 24 hour clock" data-shot="settings-display">
+          <h3>Display and Units</h3>
+          <ol><li>Light, dark or automatic.</li><li>12 or 24 h; km/h, m/s or knots; °C or °F; metres or feet.</li><li>Bir time is used for everyone, wherever your phone is set.</li></ol>
+        </article>
+        <article class="g-page" id="help-home-screen" data-kw="notifications ping add to home screen iphone android app icon" data-shot="settings-notify">
+          <h3>Notifications and the Home Screen</h3>
+          <ol><li>Get a ping when someone joins, the time moves, or your pickup is coming.</li><li>Settings → <b>Notifications</b> chooses which.</li><li>On iPhone they work once Ride Up is on your Home Screen: Share → <b>Add to Home Screen</b>.</li></ol>
+        </article>
+        <article class="g-page" id="help-data" data-kw="delete saved data privacy terms feedback reach out" data-shot="">
+          <h3>Your Data</h3>
+          <ol><li>No account: your name and number live on this phone.</li><li>Settings → <b>Delete saved data</b> clears them.</li><li>Terms &amp; Privacy says what's kept and for how long.</li></ol>
         </article>
       </section>
-
       <section data-sec="Questions">
-        <article class="g-page g-faq" id="help-faq" data-kw="questions faq account free disappear latest version update reload weather unavailable group signal">
+        <article class="g-page g-faq" id="help-faq" data-kw="questions faq account free disappear update reload weather unavailable group signal" data-shot="">
           <h3>Common Questions</h3>
-          <p><b>Account?</b> None. Your name is kept on this phone.</p>
-          <p><b>Free?</b> Yes, no ads. By flyers, for flyers.</p>
-          <p><b>A ride vanished?</b> A ride leaving now closes 30 min after the last join; a ride with a later time stays until 30 min after that time. Rides that left show at the bottom for 30 min.</p>
+          <p><b>Account?</b> None. Your name and number are kept on this phone.</p>
+          <p><b>Free?</b> Yes, no ads. A community tool, by flyers, for flyers.</p>
+          <p><b>A ride vanished?</b> It drove off, or its time passed by 30 minutes. A ride for "now" waits 30 minutes after the last join.</p>
           <p><b>Still need the WhatsApp group?</b> Yes: chat there, keep the seats here.</p>
           <p><b>"No signal" or "Weather unavailable"?</b> Weak signal or a busy service. Try again in a moment.</p>
-          <p><b>Knots or °F?</b> ⚙ → your name → Display &amp; units.</p>
-          <p><b>Something broken?</b> ⚙ → Feedback. We read every message.</p>
+          <p><b>Something broken?</b> ⋮ → Feedback. We read every message.</p>
         </article>
       </section>
 
@@ -2919,6 +2802,11 @@ if (window.CW_FRAME) {
     "rpc:set_trip_phone": "F9", "open:tripWhenPop": "F10", "open:tripHowPop": "F11",
     // G weather · H map
     "tab:weather": "G1", "rpc:report_sky": "G2", "open:skyRepPop": "G3", "open:lvInfoPop": "G4", "tab:map": "H1",
+    // 2.0: J going up / search / filter · K notes · L SOS + pickups · M notifications · N Around Bir · O Weather 2.0
+    "open:goSheet": "J1", "open:filterPanel": "J2", "rpc:send_note": "K1",
+    "tab:sos": "L1", "open:shareLocPop": "L2", "open:emPop": "L3", "open:whatPop": "L4", "open:pickupPop": "L5", "rpc:ask_pickup": "L6",
+    "rpc:offer_pickup": "L7", "rpc:get_pickup_contact": "L8", "rpc:close_pickup": "L9",
+    "open:pushAsk": "M1", "open:notifyPop": "M2", "rpc:push_subscribe": "M3",
     // I feedback
     "open:fbPop": "I1", "open:chatOverlay": "I2", "rpc:send_feedback": "I3", "open:reviewOverlay": "I4", "rpc:submit_review": "I5",
     "open:feedbackOverlay": "I6",
@@ -4998,12 +4886,6 @@ if (window.CW_FRAME) {
     if (a === "flex-cab" && session) toggleFlexCab(session, b);
     if (a === "call") callPerson(b.dataset.pid, b.dataset.pname);
     if (a === "wa") openWhatsApp(b.dataset.pid, b.dataset.pname, b.dataset.gid, b.dataset.gname);
-    if (a === "trip-join") openTripJoin(b.dataset.id);
-    if (a === "trip-open") { openTripId = openTripId === b.dataset.id ? null : b.dataset.id; renderTrips(); }
-    if (a === "trip-close") { openTripId = null; renderTrips(); }
-    if (a === "ride-ask" || a === "ride-offer") openTripForm(a === "ride-ask" ? "request" : "offer", { date: b.dataset.date || "", from: b.dataset.from || "", to: b.dataset.to || "" });
-    if (a === "trip-leave") leaveTrip(b.dataset.id, b);
-    if (a === "trip-remove") removeFromTrip(b.dataset.id, b.dataset.pid, b.dataset.pname, b);
     if (a === "plan-remove") removePlan(b.dataset.id, b);
     if (a === "share-cab-wa" && session) shareCabToWhatsApp(session);
     if (a === "share-plan") sharePlanToWhatsApp(b.dataset.id);
@@ -6671,524 +6553,8 @@ if (window.CW_FRAME) {
   });
   $("weatherLink").href = WEATHER_URL;
 
-  // ---------- SHARED RIDES TO / FROM BIR ----------
-  // Two kinds of post: "offer" (I have seats; others join) and "request" (I need a ride). Posts on the
-  // same route and day are "matches": a ride's host and the people asking for it can WhatsApp each other,
-  // and requests happy to team up are grouped so they can book a taxi together.
-  // Plan your travel: a month calendar (filter All / Leaving / Coming; dots = days with rides), the list for the chosen
-  // day (or every day), and one big "I'm travelling / need a seat, or have seats" button that stays on screen. Most people LOOK for a
-  // ride, so asking is the default; the form opens on the page over the calendar, booking-style (from ⇅ to, date, time).
-  var travelDay = todayStr(), calOffset = 0, pickOffset = 0, tripKind = "request", tripVehicle = "taxi", openTripId = null;
-  async function fetchTrips() {
-    if (!$("tripList")) return;   // 2.0: Plan your travel is gone
-    var result = await supabase.from("trips").select("*, trip_members(*)").gte("trip_date", addDays(todayStr(), -1)).neq("status", "cancelled")
-      .order("trip_date", { ascending: true }).order("trip_time", { ascending: true });
-    flowStep("load:rides");
-    if (result.error) { reportFail("load rides", result.error); $("tripList").innerHTML = '<p class="page-sub">Couldn\'t load rides — check your connection.</p>'; return; }
-    allTrips = result.data || [];
-    noticeRemovals();
-    noticeTripJoiners();
-    renderTrips();
-    loadTripContacts();
-  }
-  function myTripPlace(trip) {
-    var m = getTripMemberships().filter(function (x) { return x.trip_id === trip.id; })[0];
-    if (!m) return null;
-    return (trip.trip_members || []).some(function (p) { return p.id === m.member_id && !p.left_at; }) ? m : null;
-  }
-  // if the host took you off a ride, say so once, kindly
-  function noticeRemovals() {
-    var keep = getTripMemberships().filter(function (m) {
-      var t = allTrips.filter(function (x) { return x.id === m.trip_id; })[0];
-      var me = t && (t.trip_members || []).filter(function (p) { return p.id === m.member_id; })[0];
-      if (me && me.removed) { toast("The host of " + t.from_place + " → " + t.to_place + " has made other plans for their seats. Have a look for another ride!"); return false; }
-      return true;
-    });
-    if (keep.length !== getTripMemberships().length) saveStored("rideup_trip_memberships", keep);
-  }
-  function tripVisible(t) {
-    var today = todayStr();
-    if (t.trip_date < today) return false;
-    if (t.trip_date > today) return true;
-    var last = slotToMins(t.flexible && t.time_to ? t.time_to : t.trip_time);
-    return last === null || last + 60 >= nowMins();
-  }
-  function tripWhen(t) {
-    var when = dayLabel(t.trip_date) + " · " + slotLabel(t.trip_time);
-    if (t.time_window != null) return when + (t.time_window ? " ± " + t.time_window + " min" : "");
-    if (t.flexible) when += t.time_from && t.time_to ? " · flexible, " + slotLabel(t.time_from) + "–" + slotLabel(t.time_to) : " · flexible";
-    return when;
-  }
-  function onDay(ds) { var l = dayLabel(ds); return l === "Today" || l === "Tomorrow" ? l.toLowerCase() : "on " + l; }
-  function isBir(place) { return /^bir$/i.test((place || "").trim()); }
-  function rideDir(t) { return isBir(t.to_place) ? "to" : "from"; }
-  function routeKey(t) { return (t.from_place + "|" + t.to_place).toLowerCase() + "|" + t.trip_date; }
-  function tripSeatsUsed(t) { return tripMembers(t).reduce(function (n, p) { return n + 1 + (p.extra || 0); }, 0); }
-  function tripMembers(t) { return (t.trip_members || []).filter(function (p) { return !p.left_at; }).sort(function (a, b) { return new Date(a.joined_at) - new Date(b.joined_at); }); }
-  function vehicleLabel(t) { return t.vehicle === "own" ? "🚗 Lift in own car" : (t.taxi_booked ? "🚕 Taxi booked" : "🚕 Taxi, not booked yet"); }
-  function travelTrips() {
-    return allTrips.filter(function (t) { return tripVisible(t) && (t.kind || "offer") !== "cancelled"; });
-  }
-  function shortDay(ds) { return new Date(ds + "T00:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }); }
-  // the page: the trimmed calendar, then your own plans (whatever the day), then everyone else's on the chosen day
-  function myTrips() { return travelTrips().filter(function (t) { return myTripPlace(t); }).sort(function (a, b) { return (a.trip_date + a.trip_time).localeCompare(b.trip_date + b.trip_time); }); }
-  function myTripCard(t) {
-    var host = myTripPlace(t).member_id === t.host_member;
-    var how = t.kind === "request" ? "looking to share a taxi" : t.vehicle === "own" ? "seats in my car" : "booked taxi";
-    var free = Math.max(0, t.capacity - tripSeatsUsed(t));
-    var bits = [shortDay(t.trip_date), "~ " + slotLabel(t.trip_time), host ? how : "you've joined"];
-    if (t.kind !== "request") bits.push(free ? free + " " + plural(free, "seat", "seats") + " free" : "full");
-    return '<button type="button" class="my-trip" data-action="trip-open" data-id="' + t.id + '"><span class="mt-tag">Your plan</span><b>' + escapeHtml(t.from_place) + ' → ' + escapeHtml(t.to_place) + '</b><small>' + escapeHtml(bits.join(" · ")) + '</small><span class="mt-open">' + (openTripId === t.id ? "Close" : "Open") + '</span></button>' +
-      (openTripId === t.id ? '<div class="ride-open">' + (t.kind === "request" ? requestCard(t) : offerCard(t)) + '</div>' : '');
-  }
-  function renderTrips() {
-    var base = travelTrips(), mine = myTrips(), list = $("tripList");
-    renderTravelMonth(base);
-    $("myTrips").innerHTML = mine.length
-      ? mine.map(myTripCard).join("") + '<button type="button" class="tiny-link add-more-trip" data-action="ride-ask" data-date="' + travelDay + '">+ Add another plan</button>'
-      : '<button type="button" class="add-trip" data-action="ride-ask" data-date="' + travelDay + '">＋ Add your travel plan</button>';
-    var trips = base.filter(function (t) { return t.trip_date === travelDay && !myTripPlace(t); });
-    var html = '<div class="section-label">' + (travelDay === todayStr() ? "Others today" : "Others on " + escapeHtml(shortDay(travelDay))) + '</div>';
-    // team-up banners: 2+ people asking for the same route and day who are happy to share a taxi
-    var groups = {};
-    base.filter(function (t) { return t.trip_date === travelDay; }).forEach(function (t) { if (t.kind === "request" && t.team_up) (groups[routeKey(t)] = groups[routeKey(t)] || []).push(t); });
-    Object.keys(groups).forEach(function (k) {
-      var g = groups[k]; if (g.length < 2) return;
-      var people = g.reduce(function (n, t) { return n + (t.capacity || 1); }, 0), t0 = g[0];
-      var mineIn = g.some(function (t) { return myTripPlace(t); });
-      html += '<div class="team-up"><b>' + people + ' people going ' + escapeHtml(t0.from_place) + ' → ' + escapeHtml(t0.to_place) + ' ' + escapeHtml(onDay(t0.trip_date)) + ': team up and book a taxi</b>' +
-        '<div class="meta">' + (mineIn ? "Join each other's plan to swap numbers and book a taxi together." : "Going too? Join one of their plans to swap numbers.") + '</div></div>';
-    });
-    if (!trips.length) { list.innerHTML = html + '<p class="page-sub others-empty">No one else has shared a plan for this day yet.</p>'; return; }
-    trips.sort(function (a, b) { return a.trip_time.localeCompare(b.trip_time); });
-    trips.forEach(function (t) { html += t.id === openTripId ? '<div class="ride-open">' + (t.kind === "request" ? requestCard(t) : offerCard(t)) + '</div>' : rideRow(t); });
-    list.innerHTML = html;
-    fillIcons(list);
-    trips.forEach(function (t) { (t.trip_members || []).forEach(function (p) { seenPeople[p.id] = true; }); });
-  }
-  // month calendar: shared by the page (dots, filter a day) and the form (pick a date)
-  function ymd(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
-  function calHtml(offset, selected, dots, navAttr) {
-    var now = birDate(), first = new Date(now.getFullYear(), now.getMonth() + offset, 1), today = todayStr(), last = addDays(today, 90);
-    var days = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate(), lead = (first.getDay() + 6) % 7;
-    var h = '<div class="cal-head"><button type="button" ' + navAttr + '="-1" aria-label="Previous month"' + (offset <= 0 ? " disabled" : "") + '>‹</button><b>' +
-      first.toLocaleDateString("en-GB", { month: "long", year: "numeric" }) + '</b><button type="button" ' + navAttr + '="1" aria-label="Next month"' + (offset >= 3 ? " disabled" : "") + '>›</button></div><div class="cal-grid">';
-    ["M", "T", "W", "T", "F", "S", "S"].forEach(function (x) { h += '<span class="dow">' + x + '</span>'; });
-    var from = 1;   // the whole month; days gone by stay greyed out and can't be picked
-    for (var i = 0; i < lead; i++) h += '<span></span>';
-    for (var dd = from; dd <= days; dd++) {
-      var ds = ymd(new Date(first.getFullYear(), first.getMonth(), dd)), past = ds < today || ds > last, k = dots && dots[ds];
-      h += '<button type="button" class="cal-day' + (past ? " past" : "") + (ds === today ? " today" : "") + (ds === selected ? " on" : "") + '" data-day="' + ds + '"' + (past ? " disabled" : "") + ' aria-label="' + shortDay(ds) + (k ? ", has posts" : "") + '">' + dd +
-        '<span class="cal-dots">' + (k && k.offer ? '<i></i>' : '') + (k && k.ask ? '<i class="ask"></i>' : '') + '</span></button>';
-    }
-    return h + '</div>';
-  }
-  function dayDots(trips) {
-    var m = {};
-    trips.forEach(function (t) { var k = m[t.trip_date] = m[t.trip_date] || {}; if (t.kind === "request") k.ask = true; else k.offer = true; });
-    return m;
-  }
-  function renderTravelMonth(trips) {
-    if (!$("travelMonth")) return;
-    $("travelMonth").innerHTML = calHtml(calOffset, travelDay, dayDots(trips), "data-cal-nav") +
-      '<div class="cal-key"><span><i></i>Seats on offer</span><span><i class="ask"></i>People asking</span></div>';
-  }
-  if ($("travelMonth")) $("travelMonth").onclick = function (e) {
-    var nav = e.target.closest("[data-cal-nav]");
-    if (nav) { stepTravelMonth(parseInt(nav.dataset.calNav, 10)); return; }
-    var d = e.target.closest(".cal-day"); if (!d || d.disabled) return;
-    travelDay = d.dataset.day;
-    openTripId = null;
-    renderTrips();
-  };
-  function stepTravelMonth(d) { var o = Math.max(0, Math.min(3, calOffset + d)); if (o !== calOffset) { calOffset = o; renderTrips(); } }
-  (function () {
-    var sx = 0, sy = 0, el = $("travelMonth"); if (!el) return;
-    el.addEventListener("touchstart", function (e) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
-    el.addEventListener("touchend", function (e) {
-      var t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
-      if (Math.abs(dx) > 50 && Math.abs(dy) < Math.abs(dx) * 0.6) stepTravelMonth(dx < 0 ? 1 : -1);
-    }, { passive: true });
-  })();
-  function rideRow(t) {
-    var mine = !!myTripPlace(t);
-    var free = Math.max(0, t.capacity - tripSeatsUsed(t)), req = t.kind === "request";
-    var bits = ["~ " + slotLabel(t.trip_time)];
-    if (t.stops) bits.push("via " + t.stops);
-    bits.push(req ? "looking to share a taxi" : t.vehicle === "own" ? "own car" : "booked taxi");
-    var pill = mine ? '<span class="ride-pill me">You\'re on it</span>' : req ? '<span class="ride-pill join" data-action="trip-join" data-id="' + t.id + '">Join</span>' : free === 0 ? '<span class="ride-pill full">Full</span>' : '<span class="ride-pill join" data-action="trip-join" data-id="' + t.id + '">Join · ' + free + ' ' + plural(free, "seat", "seats") + '</span>';
-    return '<button type="button" class="ride-row" data-action="trip-open" data-id="' + t.id + '"><span class="ride-main"><b>' + (t.vehicle === "own" ? "🚗 " : "🚕 ") + escapeHtml(t.from_place) + ' → ' + escapeHtml(t.to_place) + '</b>' +
-      '<small>' + escapeHtml(bits.join(" · ")) + '</small></span>' + pill + '</button>';
-  }
-  function waBtn(p, t) {
-    return contactCache[p.id] ? '<button class="wa-btn" data-action="wa" data-pid="' + p.id + '" data-pname="' + escapeHtml(p.name) + '" data-gid="' + t.id + '" data-gname="' + escapeHtml(t.from_place + " → " + t.to_place) + '">WhatsApp</button>' : '';
-  }
-  function offerCard(t) {
-    var members = tripMembers(t), mine = myTripPlace(t), free = Math.max(0, t.capacity - tripSeatsUsed(t));
-    var iAmHost = mine && mine.member_id === t.host_member;
-    var facts = [vehicleLabel(t)];
-    if (t.bags) facts.push(t.vehicle === "own" ? "🎒 Room for " + t.bags + " wing " + plural(t.bags, "bag", "bags") : "🎒 " + t.bags + " wing " + plural(t.bags, "bag", "bags"));
-    if (t.stops) facts.push((t.vehicle === "own" ? "On the way: " : "Can share part of the way: ") + t.stops);
-    var riders = members.map(function (p) {
-      var isMe = mine && p.id === mine.member_id;
-      var right = isMe ? '<span class="you-tag">you</span>' : waBtn(p, t) + (iAmHost ? '<button class="rm-btn" data-action="trip-remove" data-id="' + t.id + '" data-pid="' + p.id + '" data-pname="' + escapeHtml(p.name) + '">Remove</button>' : '');
-      var note = [p.id === t.host_member ? "posted it" : "", p.pickup ? p.pickup : "", p.notes || ""].filter(Boolean).join(" · ");
-      return '<div class="person"><span>' + escapeHtml(p.name) + (p.extra ? ' <span class="friends">+ ' + p.extra + ' ' + plural(p.extra, "friend", "friends") + '</span>' : '') + (note ? ' <span class="note">— ' + escapeHtml(note) + '</span>' : '') + '</span><span class="right">' + right + '</span></div>';
-    }).join("");
-    return '<div class="card' + (free === 0 ? " full" : "") + '"><div class="ride-kind">' + (t.vehicle === "own" ? "Offering a lift" : "Sharing a taxi") + '</div>' +
-      '<div class="row"><button type="button" class="trip-route" data-action="trip-close" aria-label="Close this ride">' + escapeHtml(t.from_place) + ' → ' + escapeHtml(t.to_place) + ' <span class="ride-x">▴</span></button>' +
-      (free === 0 ? '<span class="badge ready">Full</span>' : '<span class="badge">' + free + ' free ' + plural(free, "seat", "seats") + '</span>') + '</div>' +
-      '<div class="meta">' + escapeHtml(tripWhen(t)) + '</div>' +
-      '<div class="ride-facts">' + facts.map(function (f) { return '<span>' + escapeHtml(f) + '</span>'; }).join("") + '</div>' +
-      seatsHtml(members, t.capacity, mine && mine.member_id) +
-      '<div class="people">' + riders + '</div>' +
-      (mine ? '<div class="member-actions"><button class="soft-btn" data-action="trip-leave" data-id="' + t.id + '">' + (iAmHost ? "Cancel my trip" : "Leave this trip") + '</button></div>'
-            : (free > 0 ? '<button class="join-btn" data-action="trip-join" data-id="' + t.id + '">Join this plan</button>' : '')) +
-      '</div>';
-  }
-  function requestCard(t) {
-    var members = tripMembers(t), mine = myTripPlace(t), host = mine && mine.member_id === t.host_member;
-    // everyone in it: the poster's party plus each person who joined and their friends
-    var count = Math.max(t.capacity || 1, 0) + members.filter(function (p) { return p.id !== t.host_member; }).reduce(function (n, p) { return n + 1 + (p.extra || 0); }, 0);
-    var facts = [count + " " + plural(count, "person", "people") + " looking to share a taxi"];
-    if (t.stops) facts.push("Part of the way: " + t.stops);
-    if (t.bags) facts.push("🎒 " + t.bags + " wing " + plural(t.bags, "bag", "bags"));
-    var people = members.map(function (p) {
-      var isMe = mine && p.id === mine.member_id;
-      return '<div class="person"><span>' + escapeHtml(p.name) + (p.id === t.host_member ? ' <span class="note">— shared this plan</span>' : '') + (p.notes ? ' <span class="note">— ' + escapeHtml(p.notes) + '</span>' : '') + '</span><span class="right">' + (isMe ? '<span class="you-tag">you</span>' : waBtn(p, t)) + '</span></div>';
-    }).join("");
-    return '<div class="card request"><div class="ride-kind looking">Looking to share a taxi</div>' +
-      '<div class="row"><button type="button" class="trip-route" data-action="trip-close" aria-label="Close this plan">' + escapeHtml(t.from_place) + ' → ' + escapeHtml(t.to_place) + ' <span class="ride-x">▴</span></button></div>' +
-      '<div class="meta">' + escapeHtml(shortDay(t.trip_date) + " · ~ " + slotLabel(t.trip_time)) + '</div>' +
-      '<div class="ride-facts">' + facts.map(function (f) { return '<span>' + escapeHtml(f) + '</span>'; }).join("") + '</div>' +
-      '<div class="people">' + people + '</div>' +
-      (mine ? '<div class="member-actions"><button class="soft-btn" data-action="trip-leave" data-id="' + t.id + '">' + (host ? "Remove my plan" : "Leave this plan") + '</button></div>'
-            : '<button type="button" class="join-btn" data-action="trip-join" data-id="' + t.id + '">Join this plan</button>') +
-      '</div>';
-  }
-  // numbers: everyone on the plans I share or joined
-  async function loadTripContacts() {
-    var changed = false;
-    for (var i = 0; i < allTrips.length; i++) {
-      var m = myTripPlace(allTrips[i]); if (!m) continue;
-      var calls = [supabase.rpc("get_trip_contacts", { p_member: m.member_id, p_token: m.token })];
-      var res = await Promise.all(calls);
-      res.forEach(function (r) {
-        if (r.error) return;
-        (r.data || []).forEach(function (row) {
-          if (contactCache[row.member_id] !== row.phone) changed = true;
-          contactCache[row.member_id] = row.phone;
-          if (row.trip_id && !contactsLoaded[row.trip_id]) { contactsLoaded[row.trip_id] = true; changed = true; }
-        });
-      });
-      if (!contactsLoaded[allTrips[i].id]) changed = true;
-      contactsLoaded[allTrips[i].id] = true;
-    }
-    if (changed) renderTrips();
-  }
-  // The travel plan form (a pop-up): From and To typed with suggestions (From starts as Bir), When, How, then the
-  // options for that way of travelling. Your saved name and number are used; the number must be shared to save.
-  var TRIP_PLACES = ["Bir", "Delhi", "Chandigarh", "Manali", "Dharamshala", "Gaggal airport", "McLeod Ganj", "Pathankot", "Amritsar", "Mandi",
-    "Kullu", "Shimla", "Palampur", "Kangra", "Baijnath", "Bilaspur", "Ambala", "Jogindernagar", "Dehradun", "Rishikesh"];
-  var TRIP_STOPS = { "Chandigarh": ["Mandi", "Bilaspur", "Kiratpur"], "Delhi": ["Mandi", "Chandigarh", "Ambala"], "Manali": ["Mandi", "Kullu"],
-    "Dharamshala": ["Palampur", "Kangra"], "Gaggal airport": ["Palampur", "Kangra"], "McLeod Ganj": ["Palampur", "Kangra"], "Pathankot": ["Kangra"],
-    "Amritsar": ["Kangra", "Pathankot"], "Shimla": ["Mandi", "Bilaspur"], "Kullu": ["Mandi"] };
-  var tripNeed = 2, tripRoom = 1, tripStopPicks = [], tripParty = 1, tripHow = "share", tripDate = "", tripTime = "09:00";
-  // suggestions under a place box: everything that contains what's typed (all of them when it's empty)
-  function placeSuggest(input, box) {
-    var v = input.value.trim().toLowerCase();
-    var list = TRIP_PLACES.filter(function (p) { return !v || p.toLowerCase().indexOf(v) >= 0; });
-    if (v && list.length === 1 && list[0].toLowerCase() === v) list = [];
-    box.innerHTML = list.slice(0, 6).map(function (p) { return '<button type="button">' + escapeHtml(p) + '</button>'; }).join("");
-    box.hidden = !list.length || document.activeElement !== input;
-  }
-  ["tripFrom", "tripTo"].forEach(function (id) {
-    var input = $(id), box = $(id + "Sug");
-    input.addEventListener("focus", function () { placeSuggest(input, box); });
-    input.addEventListener("input", function () { $("tripPlaceErr").classList.remove("show"); placeSuggest(input, box); tripStopPicks = []; renderTripStops(); });
-    input.addEventListener("blur", function () { setTimeout(function () { box.hidden = true; }, 150); });
-    input.addEventListener("keydown", function (e) { if (e.key === "Enter") this.blur(); });
-    box.addEventListener("pointerdown", function (e) {
-      var b = e.target.closest("button"); if (!b) return;
-      e.preventDefault();
-      input.value = b.textContent; input.blur(); box.hidden = true;
-      $("tripPlaceErr").classList.remove("show"); tripStopPicks = []; renderTripStops();
-    });
-  });
-  $("tripSwap").onclick = function () { var f = $("tripFrom").value; $("tripFrom").value = $("tripTo").value; $("tripTo").value = f; tripStopPicks = []; renderTripStops(); };
-  // stops on the way, for sharing part of the route: a menu of the places on that road (the far end decides them),
-  // several can be ticked, or type your own
-  function tripFarEnd() { var f = $("tripFrom").value.trim(), t = $("tripTo").value.trim(); return isBir(f) ? t : f; }
-  function tripStopList() {
-    var far = tripFarEnd().toLowerCase(), key = Object.keys(TRIP_STOPS).filter(function (k) { return k.toLowerCase() === far; })[0];
-    var list = (TRIP_STOPS[key] || []).slice();
-    if (isBir($("tripTo").value)) list.reverse();
-    return list;
-  }
-  var tripStopTyped = "";   // a place typed and saved with the box's Save button (or Enter)
-  function renderTripStops() {
-    var list = tripStopList(), typed = !$("tripStopsTypeRow").hidden || !!tripStopTyped;
-    $("tripStopMenu").innerHTML = '<button type="button" data-v=""' + (!tripStopPicks.length && !typed ? ' class="on"' : '') + '>' + (tripHow === "share" ? "Whole way" : "None") + '</button>' +
-      list.map(function (p) { return '<button type="button" data-v="' + escapeHtml(p) + '"' + (tripStopPicks.indexOf(p) !== -1 ? ' class="on"' : '') + '>' + escapeHtml(p) + '</button>'; }).join("") +
-      '<button type="button" class="du-type" data-v="__type">Type a place…</button>';
-    tripStopsShow();
-  }
-  $("tripStopMenu").onclick = function (e) {
-    var b = e.target.closest("button"); if (!b) return;
-    var v = b.dataset.v;
-    if (v === "__type") { closeDuMenus(); $("tripStopsOther").value = tripStopTyped; $("tripStopsTypeRow").hidden = false; $("tripStopsOther").focus(); renderTripStops(); return; }
-    if (!v) { tripStopPicks = []; tripStopTyped = ""; $("tripStopsTypeRow").hidden = true; $("tripStopsOther").value = ""; closeDuMenus(); renderTripStops(); return; }
-    var i = tripStopPicks.indexOf(v); if (i === -1) tripStopPicks.push(v); else tripStopPicks.splice(i, 1);
-    b.classList.toggle("on", i === -1);   // ticked in place, so the menu stays open: several can be ticked
-    $("tripStopMenu").querySelector('[data-v=""]').classList.toggle("on", !tripStopPicks.length && !tripStopTyped && $("tripStopsTypeRow").hidden);
-    tripStopsShow();
-  };
-  function tripStopsShow() { $("tripStopsVal").textContent = tripStopsValue() || (tripHow === "share" ? "Whole way" : "None"); }
-  $("tripStopsOther").addEventListener("input", tripStopsShow);
-  function saveTypedStop() {
-    tripStopTyped = $("tripStopsOther").value.trim();
-    $("tripStopsTypeRow").hidden = true; $("tripStopsOther").blur();
-    renderTripStops();
-  }
-  $("tripStopsSave").onclick = saveTypedStop;
-  $("tripStopsOther").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); saveTypedStop(); } });
-  function tripStopsValue() {
-    var other = !$("tripStopsTypeRow").hidden ? $("tripStopsOther").value.trim() : tripStopTyped;
-    return tripStopPicks.concat(other ? [other] : []).join(", ") || null;
-  }
-  // your own car: its details (type · number, from your profile) can go with the plan; no details saved yet →
-  // the switch opens the car pop-up first, and turns on once they're there
-  function carLine() { var p = getProfile(); return [p.car_type, p.car_number].filter(Boolean).join(" · "); }
-  function renderTripCar() { var c = carLine(); $("tripCarVal").textContent = c || "Not added"; if (!c) $("tripCarSw").checked = false; }
-  $("tripCarSw").onchange = function () {
-    if (this.checked && !carLine()) { this.checked = false; openMyCarPop(function () { renderTripCar(); if (carLine()) $("tripCarSw").checked = true; }); return; }
-    renderTripCar();
-  };
-  // how many of you / seats to fill / room for: a menu of 1–6, or type a number up to 11
-  function tripCount() { return tripHow === "share" ? tripParty : tripHow === "car" ? tripRoom : tripNeed; }
-  function setTripCount(n) {
-    n = Math.max(1, Math.min(11, parseInt(n, 10) || 1));
-    if (tripHow === "share") tripParty = n; else if (tripHow === "car") tripRoom = n; else tripNeed = n;
-    renderTripCount();
-  }
-  function renderTripCount() {
-    var n = tripCount(), word = function (k) { return tripHow === "share" && k === 1 ? "Just me" : String(k); };
-    $("tripCountLab").textContent = tripHow === "share" ? "How many of you?" : tripHow === "car" ? "Room for" : "Seats to fill";
-    $("tripCountVal").textContent = word(n);
-    $("tripCountMenu").innerHTML = [1, 2, 3, 4, 5, 6].map(function (k) { return '<button type="button" data-v="' + k + '"' + (k === n ? ' class="on"' : '') + '>' + word(k) + '</button>'; }).join("") +
-      '<button type="button" class="du-type" data-v="__type">Type a number…</button>';
-  }
-  $("tripCountMenu").onclick = function (e) {
-    var b = e.target.closest("button"); if (!b) return;
-    closeDuMenus();
-    if (b.dataset.v === "__type") { $("tripCountTypeRow").hidden = false; $("tripCountType").value = tripCount(); $("tripCountType").focus(); $("tripCountType").select(); return; }
-    $("tripCountTypeRow").hidden = true; setTripCount(b.dataset.v);
-  };
-  $("tripCountType").addEventListener("input", function () { if (this.value) setTripCount(this.value); });
-  $("tripCountType").addEventListener("blur", function () { this.value = tripCount(); });
-  function saveTypedCount() { $("tripCountTypeRow").hidden = true; $("tripCountType").blur(); }
-  $("tripCountSave").onclick = saveTypedCount;
-  $("tripCountType").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); saveTypedCount(); } });
-  // When: the month calendar (days gone by can't be picked) and the same time wheel as the Plan page
-  function renderTripWhenText() {
-    var d = dayLabel(tripDate) === "Today" || dayLabel(tripDate) === "Tomorrow" ? dayLabel(tripDate) : shortDay(tripDate);
-    $("bkWhenText").textContent = d + " · " + slotLabel(tripTime);
-  }
-  function renderPickCal() { $("tripPickCal").innerHTML = calHtml(pickOffset, tripDate, dayDots(travelTrips()), "data-pick-nav"); }
-  makeWheel("tripTimeW", { step: 15, min: function () { return tripDate === todayStr() ? Math.ceil(nowMins() / 15) * 15 : 0; } });
-  initWhenWheels();   // the leaving-time wheels of Start a ride and Change leaving time
-  $("tripTimeW").addEventListener("change", function () { if (this.value) { tripTime = this.value; renderTripWhenText(); } });
-  $("bkWhen").onclick = function () {
-    var now = birDate(), d = new Date(tripDate + "T00:00:00");
-    pickOffset = Math.max(0, Math.min(3, (d.getFullYear() - now.getFullYear()) * 12 + d.getMonth() - now.getMonth()));
-    renderPickCal(); $("tripTimeW").value = tripTime;
-    openSheet("tripWhenPop");
-  };
-  $("tripPickCal").onclick = function (e) {
-    var nav = e.target.closest("[data-pick-nav]");
-    if (nav) { pickOffset = Math.max(0, Math.min(3, pickOffset + parseInt(nav.dataset.pickNav, 10))); renderPickCal(); return; }
-    var d = e.target.closest(".cal-day"); if (!d || d.disabled) return;
-    tripDate = d.dataset.day; renderPickCal(); renderTripWhenText();
-    if (tripDate === todayStr() && slotToMins(tripTime) < nowMins()) { tripTime = minsToSlot(Math.ceil(nowMins() / 15) * 15 % 1440); $("tripTimeW").value = tripTime; WHEELS.tripTimeW.show(); renderTripWhenText(); }
-  };
-  $("twpDone").onclick = function () { closeSheet("tripWhenPop"); };
-  // How: share a taxi (looking for company), a booked taxi with seats to fill, or seats in your own car;
-  // the options below change with it
-  var HOW_LABEL = { share: "Looking to share a taxi", booked: "Booked a taxi, seats to fill", car: "Seats in my own car" };
-  function setTripHow(v) {
-    tripHow = HOW_LABEL[v] ? v : "share";
-    segSet("tripHowSeg", tripHow);
-    $("bkHowText").textContent = HOW_LABEL[tripHow];
-    $("tripCountTypeRow").hidden = true;
-    renderTripCount();
-    $("tripCarRow").hidden = tripHow !== "car"; renderTripCar();
-    $("tripStopsLabel").textContent = tripHow === "share" ? "Part of the way?" : tripHow === "car" ? "Pick-ups on the way" : "Stops on the way";
-    renderTripStops();
-    $("tripNote").placeholder = tripHow === "car" ? "e.g. no smoking, room for 1 wing bag" : tripHow === "booked" ? "e.g. leaving early, 2 wing bags" : "e.g. happy to split tolls, 2 wing bags";
-  }
-  $("bkHow").onclick = function () { segSet("tripHowSeg", tripHow); openSheet("tripHowPop"); };
-  segPick("tripHowSeg", function (v) { setTripHow(v); setTimeout(function () { closeSheet("tripHowPop"); }, 150); });
-  function segPick(id, onPick) {
-    $(id).onclick = function (e) {
-      var b = e.target.closest("button"); if (!b) return;
-      this.querySelectorAll("button").forEach(function (x) { x.classList.toggle("on", x === b); });
-      onPick(b.dataset.v);
-    };
-  }
-  function segSet(id, v) { $(id).querySelectorAll("button").forEach(function (x) { x.classList.toggle("on", x.dataset.v === String(v)); }); }
-  // kind: "request" (share a taxi) or "offer" (booked taxi); opts: { date, from, to }
-  function openTripForm(kind, opts) {
-    opts = opts || {};
-    tripNeed = 2; tripRoom = 1; tripStopPicks = []; tripStopTyped = ""; tripParty = 1; tripTime = "09:00";
-    tripDate = opts.date && opts.date >= todayStr() ? opts.date : (travelDay && travelDay >= todayStr() ? travelDay : todayStr());
-    if (tripDate === todayStr() && slotToMins(tripTime) < nowMins()) tripTime = minsToSlot(Math.ceil(nowMins() / 15) * 15 % 1440);   // today: not a time already gone
-    $("tripFrom").value = opts.from || "Bir"; $("tripTo").value = opts.to || ""; $("tripStopsOther").value = ""; $("tripStopsTypeRow").hidden = true;
-    setTripHow(kind === "offer" ? "booked" : "share");
-    renderTripStops(); renderTripWhenText();
-    $("tripNote").value = ""; $("tripMore").open = false; closeDuMenus();
-    $("tripCarSw").checked = !!carLine() && getProfile().showCar !== false; renderTripCar();
-    $("tripWarn").hidden = true;
-    document.querySelectorAll("#tripPop .field-error").forEach(function (e) { e.classList.remove("show"); });
-    openSheet("tripPop");
-    flowStep("open:tripOverlay");
-  }
-  // your saved name and number are used; without them (or with the number hidden) the plan can't be saved yet
-  function tripWarn() {
-    var p = getProfile(), w = $("tripWarn");
-    if (p.name && p.phone && p.share !== false) { w.hidden = true; return null; }
-    if (p.name && p.phone) {
-      w.innerHTML = '<b>Turn on "Share my number" to save your plan.</b>People going your way need it to reach you. <button type="button" class="tiny-link" id="tripShareOn">Turn it on and save</button>';
-      w.hidden = false;
-      $("tripShareOn").onclick = function () { saveProfile(p.name, p.phone, true); $("tripSubmit").click(); };
-      return "share";
-    }
-    w.innerHTML = '<b>Add your name and WhatsApp number to save your plan.</b>People going your way need them to reach you.' +
-      '<input id="tripWarnName" type="text" placeholder="Your name" value="' + escapeHtml(p.name || "") + '" autocomplete="name">' +
-      '<input id="tripWarnPhone" type="tel" inputmode="tel" placeholder="Your WhatsApp number" value="' + escapeHtml(p.phone || "") + '">';
-    w.hidden = false;
-    return "details";
-  }
-  $("tripSubmit").onclick = async function () {
-    if (!$("tripWarn").hidden && $("tripWarnName")) {   // name / number typed into the prompt: keep them, sharing on
-      var n = $("tripWarnName").value.trim(), ph = $("tripWarnPhone").value.trim();
-      if (n && normalizePhone(ph)) saveProfile(n, ph, true);
-    }
-    var from = $("tripFrom").value.trim(), to = $("tripTo").value.trim();
-    var bad = !from || !to || from.toLowerCase() === to.toLowerCase();
-    $("tripPlaceErr").classList.toggle("show", bad);
-    if (bad) return;
-    var already = myPlanOn(tripDate);
-    if (already) { toast("You already have a plan on " + shortDay(tripDate) + ". Open it to remove it first: one plan a day.", "bad"); return; }
-    if (!DEMO && tripWarn()) { $("tripWarn").scrollIntoView({ block: "nearest", behavior: "smooth" }); return; }
-    var p = getProfile(), phone = normalizePhone(p.phone || "") || (DEMO ? "910000000000" : "");
-    var btn = this, ask = tripHow === "share", lift = tripHow === "car";
-    setBusy(btn, true, "Saving…");
-    var common = {
-      p_from: from, p_to: to, p_date: tripDate, p_time: tripTime, p_flexible: false, p_time_from: null, p_time_to: null,
-      p_name: p.name, p_phone: phone, p_notes: [tripHow === "car" && $("tripCarSw").checked && carLine() ? "Car: " + carLine() : "", $("tripNote").value.trim()].filter(Boolean).join(" · ").slice(0, 120) || null,
-      p_bags: 0, p_stops: tripStopsValue(), p_window: 0
-    };
-    var args = ask
-      ? Object.assign({ p_kind: "request", p_seats: tripParty, p_vehicle: "taxi", p_taxi_booked: false, p_team_up: true, p_extra: 0 }, common)
-      : Object.assign({ p_kind: "offer", p_seats: lift ? tripRoom : tripNeed, p_vehicle: lift ? "own" : "taxi", p_taxi_booked: !lift, p_team_up: false, p_extra: 0 }, common);
-    var result = await supabase.rpc("create_trip", args);
-    setBusy(btn, false);
-    if (result.error) { toast(friendlyError(result.error, "Couldn't save it — try again."), "bad"); return; }
-    saveTripMembership({ trip_id: result.data.trip_id, member_id: result.data.member_id, token: result.data.token });
-    var seen = loadStored("rideup_trip_seen", {}); seen[result.data.trip_id] = [result.data.member_id]; saveStored("rideup_trip_seen", seen);
-    contactCache[result.data.member_id] = phone;
-    closeSheet("tripPop");
-    travelDay = tripDate; calOffset = 0;
-    openTripId = null;
-    toast("Plan saved — people going your way can find you", "good");
-    logEvent("ride_post", ask ? "request" : lift ? "own" : "taxi");
-    setTimeout(function () { showThumbs("ride_post", "travelThumbs"); }, 1500);
-    fetchTrips();
-  };
-  // Joining someone's plan: one confirmation. Your name and number go to the person who shared it (and theirs to
-  // you), so you can sort out the rest together on WhatsApp. One plan a day: joining replaces your own plan that day.
-  function myPlanOn(ds, except) { return myTrips().filter(function (t) { return t.trip_date === ds && t.id !== except; })[0]; }
-  function openTripJoin(tripId) {
-    var t = allTrips.filter(function (x) { return x.id === tripId; })[0];
-    if (!t) return;
-    tripTarget = t;
-    var host = tripMembers(t).filter(function (p) { return p.id === t.host_member; })[0] || tripMembers(t)[0], hn = host ? host.name : "them";
-    $("tripJoinTitle").textContent = "Join " + hn + "'s plan?";
-    $("tripJoinWhat").textContent = t.from_place + " → " + t.to_place + " · " + shortDay(t.trip_date) + " · ~ " + slotLabel(t.trip_time);
-    var mine = myPlanOn(t.trip_date);
-    $("tripJoinHow").textContent = "You'll share your name and WhatsApp number with " + hn + ", and get theirs, to sort out the rest together." +
-      (mine ? " Your own plan for that day (" + mine.from_place + " → " + mine.to_place + ") will be removed: one plan a day." : "");
-    var p = getProfile(), known = !!(p.name && normalizePhone(p.phone || ""));
-    $("tripJoinMe").hidden = !known; $("tripJoinFields").hidden = known;
-    if (known) $("tripJoinMe").innerHTML = 'Joining as <b>' + escapeHtml(p.name) + '</b> · ' + escapeHtml(p.phone);
-    $("tripJoinName").value = p.name || ""; $("tripJoinPhone").value = p.phone || "";
-    $("tripJoinErr").classList.remove("show");
-    openSheet("tripJoinOverlay");
-  }
-  $("tripJoinSubmit").onclick = async function () {
-    var name = $("tripJoinName").value.trim(), raw = $("tripJoinPhone").value.trim(), phone = normalizePhone(raw);
-    if (DEMO && !phone) phone = "910000000000";
-    $("tripJoinErr").classList.toggle("show", !name || !phone);
-    if (!name || !phone || !tripTarget) return;
-    var btn = this, t = tripTarget;
-    setBusy(btn, true, "Joining…");
-    var mine = myPlanOn(t.trip_date), m = mine && myTripPlace(mine);
-    if (m) await supabase.rpc("leave_trip", { p_member: m.member_id, p_token: m.token });
-    var result = await supabase.rpc("join_trip", { p_trip: t.id, p_name: name, p_notes: null, p_phone: phone, p_pickup: null, p_extra: 0 });
-    setBusy(btn, false);
-    if (result.error) { toast(friendlyError(result.error, "Couldn't join — try again."), "bad"); closeSheet("tripJoinOverlay"); fetchTrips(); return; }
-    saveTripMembership({ trip_id: result.data.trip_id, member_id: result.data.member_id, token: result.data.token });
-    saveProfile(name, raw, true);
-    contactCache[result.data.member_id] = phone;
-    closeSheet("tripJoinOverlay");
-    openTripId = t.id;
-    toast("You're in! WhatsApp them below to sort out the details.", "good");
-    logEvent("ride_join");
-    setTimeout(function () { showThumbs("ride_join", "travelThumbs"); }, 1500);
-    fetchTrips();
-  };
-  // the person who shared a plan hears about each new joiner once (when Ride Up is open, or the next time it is)
-  function noticeTripJoiners() {
-    var seen = loadStored("rideup_trip_seen", {}), changed = false;
-    allTrips.forEach(function (t) {
-      var m = myTripPlace(t); if (!m || m.member_id !== t.host_member) return;
-      var known = seen[t.id];
-      tripMembers(t).forEach(function (p) {
-        if (p.id === t.host_member) return;
-        if (!known) return;   // first look at this plan: nothing to announce
-        if (known.indexOf(p.id) === -1) {
-          toast(p.name + " wants to travel with you: " + t.from_place + " → " + t.to_place + ", " + shortDay(t.trip_date) + ". Numbers shared, WhatsApp them.", "good");
-          try { if (navigator.vibrate && (!navigator.userActivation || navigator.userActivation.hasBeenActive)) navigator.vibrate([60, 40, 60]); } catch (e) {}
-        }
-      });
-      var ids = tripMembers(t).map(function (p) { return p.id; });
-      if (!known || ids.join() !== known.join()) { seen[t.id] = ids; changed = true; }
-    });
-    if (changed) saveStored("rideup_trip_seen", seen);
-  }
-  async function leaveTrip(tripId, btn) {
-    var t = allTrips.filter(function (x) { return x.id === tripId; })[0], m = t && myTripPlace(t);
-    if (!m) return;
-    var host = m.member_id === t.host_member;
-    var title = host ? "Remove your plan?" : "Leave this plan?";
-    if (!(await ask(title, t.from_place + " → " + t.to_place + ", " + shortDay(t.trip_date) + " · ~ " + slotLabel(t.trip_time), host ? "Remove" : "Leave", true))) return;
-    setBusy(btn, true, "One moment…");
-    var r = await supabase.rpc("leave_trip", { p_member: m.member_id, p_token: m.token });
-    setBusy(btn, false);
-    if (r.error) toast(friendlyError(r.error, "Couldn't do that — try again."), "bad"); else toast(host ? "Your plan is removed" : "You left the plan");
-    fetchTrips();
-  }
-  async function removeFromTrip(tripId, personId, personName, btn) {
-    var t = allTrips.filter(function (x) { return x.id === tripId; })[0], m = t && myTripPlace(t);
-    if (!m) return;
-    if (!(await ask("Remove " + personName + "?", "Their seat opens up again, and they get a polite note that you've made other plans.", "Remove", true))) return;
-    setBusy(btn, true, "…");
-    var r = await supabase.rpc("remove_trip_member", { p_host: m.member_id, p_token: m.token, p_member: personId });
-    setBusy(btn, false);
-    if (r.error) toast(friendlyError(r.error, "Couldn't remove — try again."), "bad"); else toast(personName + " is off the ride");
-    fetchTrips();
-  }
-
+  // (2.0: Plan your travel was removed; a Feedback question asks whether people want rides to / from Bir back)
+  function onDay(d) { return "on " + d; }
   // ---------- MAP OF BIR ----------
   // Hand-picked places from OpenStreetMap (© OpenStreetMap contributors, ODbL), checked by local pilots.
   // [category, name, note, lat, lon]
@@ -7352,16 +6718,16 @@ if (window.CW_FRAME) {
   var REVIEW_INTENT = "<p>Tell us what would make Ride Up better at the landing ground.</p>";
   // The questionnaire: a few questions about what pilots actually do with the app
   var REVIEW_TOPICS = [
-    ["start", "Starting or joining a ride", "At the landing, was it quicker than asking in the WhatsApp group?"],
-    ["lift", "Offering or taking a lift", "Was it clear who picks you up, where and when?"],
-    ["plan", "Plan ahead", "Did seeing who's heading up help you plan your flying day?"],
-    ["weather", "Weather and the landing view", "Do the hours and reports help your go / no-go call?"]
+    ["start", "Finding or starting a ride", "At the landing, was it quicker than asking in the WhatsApp group?"],
+    ["going", "＋ Going up?", "Did picking your time first make it easy to join or start?"],
+    ["weather", "Weather", "Do Now, Today and Later help your go / no-go call?"],
+    ["sos", "SOS and pickups", "Would you trust it on a bad day: the calls, your location, a pickup?"]
   ];
   // Ideas we're weighing for later versions: would pilots want them? (yes 100 / maybe 50 / no 0)
   var REVIEW_IDEAS = [
-    ["idea_sos", "An SOS alert", "Alert Ride Up users nearby if a pilot needs help."],
-    ["idea_xc", "Rides back after a cross-country flight", "Find or share a taxi back to Bir from wherever you landed."],
-    ["idea_offline", "Works on the road up", "Keeps working where the network drops on the way to take-off."],
+    ["idea_trips", "Rides to and from Bir", "Share a taxi or car to Delhi, Chandigarh, the airport… (it was in 1.0 as Plan your travel)."],
+    ["idea_offline", "SOS without internet", "The SOS tab keeps working with no signal at all, even if the app wasn't open."],
+    ["idea_xc", "Rides back after a cross-country flight", "A pickup from wherever you landed, further than the valley."],
     ["idea_solo", "Solo clearance steps", "The steps to get cleared for solo flying at Bir, in the app."]
   ];
   var reviewScores = {};
@@ -8416,6 +7782,7 @@ if (window.CW_FRAME) {
     // keep what's being typed (name, number, a note) and where the cursor was, across live redraws
     var keep = {}, foc = document.activeElement, focId = foc && foc.closest && foc.closest("#r2List") ? foc.id : null, sel = focId ? [foc.selectionStart, foc.selectionEnd] : null;
     document.querySelectorAll("#r2List input").forEach(function (el) { if (el.id && el.value) keep[el.id] = el.value; });
+    if (r2.gone) html = '<div class="r2-emp"><b>This ride has already left</b><span>' + escapeHtml(r2.gone) + '</span><button class="r2-eb" data-r2="gone-go">＋ Going up? Find another</button></div>' + html;
     $("r2List").innerHTML = html;
     Object.keys(keep).forEach(function (id) { var el = $(id); if (el) el.value = keep[id]; });
     if (focId && $(focId)) { var fe = $(focId); fe.focus({ preventScroll: true }); try { fe.setSelectionRange(sel[0], sel[1]); } catch (e) {} }
@@ -8518,6 +7885,7 @@ if (window.CW_FRAME) {
     if (k === "join" && session) { join2(session, b); return; }
     if (k === "send" && session) { sendNote(session, b); return; }
     if (k === "go") { openGoing(); return; }
+    if (k === "gone-go") { r2.gone = null; renderSessions(); openGoing(); return; }
     if (k === "start-at") { startAt(r2.day, r2.at); return; }
     if (k === "start-tmrw") { startAt("tomorrow", 9 * 60); return; }
   });
@@ -9286,8 +8654,6 @@ if (window.CW_FRAME) {
     .on("postgres_changes", { event: "*", schema: "public", table: "cab_passengers" }, fetchSessions)
     .on("postgres_changes", { event: "*", schema: "public", table: "cab_notes" }, function () { fetchNotes(); })
     .on("postgres_changes", { event: "*", schema: "public", table: "pickups" }, function () { fetchPickups(); })
-    .on("postgres_changes", { event: "*", schema: "public", table: "trips" }, fetchTrips)
-    .on("postgres_changes", { event: "*", schema: "public", table: "trip_members" }, fetchTrips)
     .on("postgres_changes", { event: "*", schema: "public", table: "sky_reports" }, function () { if (currentTab === "weather") fetchSky(); })
     .subscribe();
 
@@ -9396,8 +8762,9 @@ if (window.CW_FRAME) {
   (function () {
     var m = /^#plan(?:-(\d{4}-\d{2}-\d{2}))?$/.exec(location.hash || "");
     if (!m) return;
-    if (m[1]) openPlanDay = m[1];
-    showTab("plan");
+    // 2.0: Plan is gone; an old plan link opens Weather · Later (the days ahead)
+    wx2Tab = "later";
+    showTab("weather");
     try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
     logEvent("open_link", "plan");
   })();
@@ -9415,9 +8782,10 @@ if (window.CW_FRAME) {
     if (!linkRide) return;
     var id = linkRide; linkRide = null;
     var s = allSessions.filter(function (x) { return x.id === id; })[0], c = s && describeCab(s);
-    if (!c || c.hasLeft || c.s.status === "cancelled") { toast("That ride has already left. Start your own, or join another below."); return; }
+    if (!c || c.hasLeft || c.s.status === "cancelled") { r2.gone = c && c.hasLeft ? (r2Starter(c).name || "That") + "'s ride left at " + clock(c.doneAt || r2When(c)) + "." : "That ride is over."; renderSessions(); return; }
     if (c.isFull) toast("That ride just filled up.");
-    openRows[id] = true; renderSessions();
+    r2.day = r2Day(r2When(c)); r2.q = ""; r2.at = null; r2.open = id; r2.join.n = 0; renderSessions();
+    setTimeout(function () { var el = $("r2c-" + id); if (el) el.scrollIntoView({ behavior: "smooth", block: "center" }); }, 80);
     var row = document.querySelector('.rr[data-id="' + id + '"]');
     if (row) { row.scrollIntoView({ block: "center" }); row.classList.add("linked"); setTimeout(function () { row.classList.remove("linked"); }, 2400); }
   }
@@ -9427,7 +8795,7 @@ if (window.CW_FRAME) {
   fetchPlans();
   loadWeather();
   loadWx2();
-  setInterval(function () { fetchSessions(); fetchPlans(); if (currentTab === "trips") fetchTrips(); }, 30000);
+  setInterval(function () { fetchSessions(); }, 30000);
   setInterval(function () { renderScenes(); loadWeather(); renderMood(); }, 60000);
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState === "visible") {
