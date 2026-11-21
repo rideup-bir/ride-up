@@ -1,10 +1,10 @@
 # Security rules Cloudflare Pages sends with every page (see SECURITY.md).
 # Content-Security-Policy lists the only places the app may load from or talk to:
-#   jsdelivr (Supabase + Leaflet scripts, pinned with integrity fingerprints),
+#   jsdelivr (Supabase + Leaflet scripts, pinned with integrity fingerprints; the offline copy in sw.js fetches the Supabase one),
 #   the Ride Up database (Supabase), Open-Meteo (weather), map tiles (OSM France, Esri backup).
 # Anything else is blocked. If you add a new service, add it here too, or it won't load.
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self'; img-src 'self' data: blob: https://*.tile.openstreetmap.fr https://server.arcgisonline.com https://tilecache.rainviewer.com; connect-src 'self' https://ysmsvepwsortccnjkpdd.supabase.co wss://ysmsvepwsortccnjkpdd.supabase.co https://api.open-meteo.com https://api.rainviewer.com; frame-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; manifest-src 'self'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self'; img-src 'self' data: blob: https://*.tile.openstreetmap.fr https://server.arcgisonline.com https://tilecache.rainviewer.com; connect-src 'self' https://cdn.jsdelivr.net https://ysmsvepwsortccnjkpdd.supabase.co wss://ysmsvepwsortccnjkpdd.supabase.co https://api.open-meteo.com https://api.rainviewer.com; frame-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; manifest-src 'self'
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(self), payment=(), usb=()

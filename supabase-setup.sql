@@ -733,6 +733,8 @@ create table if not exists push_subs (
   prefs      jsonb not null default '{"join": true, "time": true, "soon": true, "pickup": true, "need": false}',
   last_seen  timestamptz not null default now()
 );
+-- 2.0 (sheet 65): "Morning sky" joins the choices, off unless turned on
+alter table push_subs alter column prefs set default '{"join": true, "time": true, "soon": true, "pickup": true, "need": false, "morning": false}';
 create table if not exists push_links (
   id           bigserial primary key,
   sub_id       uuid not null references push_subs (id) on delete cascade,
@@ -773,7 +775,7 @@ begin
   if coalesce(p_endpoint, '') !~ '^https://' or length(p_endpoint) > 600 or length(coalesce(p_p256dh, '')) not between 40 and 200
      or length(coalesce(p_auth, '')) not between 10 and 60 then raise exception 'bad_push'; end if;
   if not exists (select 1 from push_subs where endpoint = p_endpoint) then perform rideup_rate_limit('push_subs', 20); end if;
-  insert into push_subs (endpoint, p256dh, auth, prefs) values (p_endpoint, p_p256dh, p_auth, coalesce(p_prefs, '{"join": true, "time": true, "soon": true, "pickup": true, "need": false}'))
+  insert into push_subs (endpoint, p256dh, auth, prefs) values (p_endpoint, p_p256dh, p_auth, coalesce(p_prefs, '{"join": true, "time": true, "soon": true, "pickup": true, "need": false, "morning": false}'))
   on conflict (endpoint) do update set p256dh = excluded.p256dh, auth = excluded.auth, last_seen = now(), prefs = coalesce(p_prefs, push_subs.prefs)
   returning id into v_sub;
   for l in select * from jsonb_array_elements(coalesce(p_links, '[]')) loop
@@ -812,6 +814,13 @@ $$;
 create or replace function push_bir_clock(t timestamptz) returns text language sql immutable as $$
   select ltrim(to_char(t at time zone 'Asia/Kolkata', 'FMHH12:MI am'))
 $$;
+-- (helper) "your 10:30 ride" / "your ride" (a ride for now has no time)
+create or replace function push_ride_label(p_session uuid) returns text language sql stable security definer set search_path = public as $$
+  select coalesce(push_bir_clock(leave_at) || ' ride', 'ride') from cab_sessions where id = p_session
+$$;
+create or replace function push_spots(n int) returns text language sql immutable as $$
+  select n || ' spot' || case when n = 1 then '' else 's' end
+$$;
 
 create or replace function push_on_passenger() returns trigger language plpgsql security definer set search_path = public as $$
 declare v_left int; v_cap int;
@@ -819,9 +828,12 @@ begin
   select capacity into v_cap from cab_sessions where id = new.session_id;
   select v_cap - coalesce(sum(1 + extra), 0) into v_left from cab_passengers where session_id = new.session_id and left_at is null;
   if tg_op = 'INSERT' then
-    perform push_to_ride(new.session_id, new.id, 'join', new.name || ' joined your ride', case when v_left > 0 then v_left || ' spot' || case when v_left = 1 then '' else 's' end || ' left' else 'The ride is full' end);
+    perform push_to_ride(new.session_id, new.id, 'join', new.name || case when new.extra > 0 then ' +' || new.extra else '' end || ' joined your ' || push_ride_label(new.session_id),
+      case when v_left > 1 then push_spots(v_left) || ' left'
+           when v_left = 1 then '1 spot left, then it''s full'
+           else 'Your ride is full' || coalesce(' · leaving ' || (select push_bir_clock(leave_at) from cab_sessions where id = new.session_id), '') end);
   elsif old.left_at is null and new.left_at is not null then
-    perform push_to_ride(new.session_id, new.id, 'join', new.name || ' left your ride', v_left || ' spot' || case when v_left = 1 then '' else 's' end || ' open again');
+    perform push_to_ride(new.session_id, new.id, 'join', new.name || ' left your ' || push_ride_label(new.session_id), push_spots(v_left) || ' open again');
   end if;
   return null;
 end $$;
@@ -831,10 +843,13 @@ create trigger push_passenger after insert or update of left_at on cab_passenger
 create or replace function push_on_session() returns trigger language plpgsql security definer set search_path = public as $$
 begin
   if new.status = 'cancelled' and old.status is distinct from 'cancelled' then
-    perform push_to_ride(new.id, null, 'time', 'Your ride was called off', 'Start or join another one on Ride Up');
+    perform push_to_ride(new.id, null, 'time', 'Your ' || coalesce(push_bir_clock(old.leave_at) || ' ride', 'ride') || ' was called off', 'Start or join another ride on Ride Up');
   elsif new.leave_at is distinct from old.leave_at and new.status in ('waiting', 'full') then
     perform push_to_ride(new.id, (select id from cab_passengers where session_id = new.id order by joined_at limit 1), 'time',
-      'Your ride moved to ' || coalesce(push_bir_clock(new.leave_at), 'now'), 'Open Ride Up to see it');
+      coalesce((select name from cab_passengers where session_id = new.id order by joined_at limit 1), 'The starter') || ' moved your ride to ' || coalesce(push_bir_clock(new.leave_at), 'now'),
+      case when new.leave_at is null then 'It''s leaving now from the landing taxi stand'
+           when old.leave_at is null then 'From the landing taxi stand'
+           else round(abs(extract(epoch from new.leave_at - old.leave_at)) / 60) || ' min ' || case when new.leave_at > old.leave_at then 'later' else 'earlier' end || ' · from the landing taxi stand' end);
   end if;
   return null;
 end $$;
@@ -850,7 +865,7 @@ begin
        and not exists (select 1 from push_links l where l.sub_id = s.id and l.pickup_id = new.id);
   elsif new.status = 'coming' and old.status = 'open' then
     insert into push_queue (sub_id, title, body, url)
-    select l.sub_id, new.helper_name || ' is coming to pick you up', 'Open Ride Up to WhatsApp them', '/'
+    select l.sub_id, new.helper_name || ' is on the way to pick you up', 'Tap to WhatsApp ' || new.helper_name, '/'
       from push_links l join push_subs s on s.id = l.sub_id where l.pickup_id = new.id and l.role = 'asker' and coalesce((s.prefs->>'pickup')::boolean, true);
   elsif new.status = 'open' and old.status = 'coming' then
     insert into push_queue (sub_id, title, body, url)
@@ -867,8 +882,9 @@ create or replace function push_tick() returns void language plpgsql security de
 declare r record;
 begin
   for r in select id, leave_at from cab_sessions where status in ('waiting', 'full') and leave_at between now() + interval '9 minutes' and now() + interval '10 minutes' loop
-    if not exists (select 1 from push_queue q where q.url = '/#ride-' || r.id and q.title like 'Your ride leaves in 10 minutes%') then
-      perform push_to_ride(r.id, null, 'soon', 'Your ride leaves in 10 minutes', 'At ' || push_bir_clock(r.leave_at) || ' from the landing taxi stand');
+    if not exists (select 1 from push_queue q where q.url = '/#ride-' || r.id and (q.title like 'Your ride leaves in 10 minutes%' or q.title like 'Your taxi leaves in 10 minutes%')) then
+      perform push_to_ride(r.id, null, 'soon', 'Your taxi leaves in 10 minutes', 'At ' || push_bir_clock(r.leave_at) || ' from the landing taxi stand · ' ||
+        (select coalesce(sum(1 + extra), 0) from cab_passengers where session_id = r.id and left_at is null) || ' going');
     end if;
   end loop;
   delete from push_queue where created_at < now() - interval '2 days';
@@ -878,6 +894,32 @@ end $$;
 grant select, insert, update on push_config to service_role;
 grant select, update on push_queue to service_role;
 grant select, delete on push_subs to service_role;
+-- 2.0 (sheet 65): Morning sky. At 8:30 am Bir time the morning-sky Edge Function reads the forecast for Billing; on a
+-- flyable day it calls this, which queues one message for every phone that turned Morning sky on (once a day).
+create or replace function push_morning(p_from text) returns int language plpgsql security definer set search_path = public as $$
+declare v_today date := (now() at time zone 'Asia/Kolkata')::date; v_rides int; v_n int;
+begin
+  if coalesce(p_from, '') !~ '^[0-9]{1,2}(:[0-9]{2})? ?(am|pm)$' then raise exception 'bad_time'; end if;
+  if (select v from push_config where k = 'morning_last') = v_today::text then return 0; end if;
+  insert into push_config (k, v) values ('morning_last', v_today::text) on conflict (k) do update set v = excluded.v;
+  select count(*) into v_rides from cab_sessions
+   where status in ('waiting', 'full') and vehicle <> 'own' and (coalesce(leave_at, created_at) at time zone 'Asia/Kolkata')::date = v_today;
+  insert into push_queue (sub_id, title, body, url)
+  select s.id, '☀ Billing looks flyable from ' || p_from,
+         case when v_rides = 0 then 'Nobody is going up yet: start the first ride' when v_rides = 1 then '1 ride going up today' else v_rides || ' rides going up today' end, '/'
+    from push_subs s where coalesce((s.prefs->>'morning')::boolean, false);
+  get diagnostics v_n = row_count;
+  return v_n;
+end $$;
+revoke all on function push_morning(text) from public, anon, authenticated;
+grant execute on function push_morning(text) to service_role;
+create or replace function push_morning_kick() returns void language plpgsql security definer set search_path = public as $$
+begin
+  perform net.http_post(url := 'https://ysmsvepwsortccnjkpdd.supabase.co/functions/v1/morning-sky',
+    headers := jsonb_build_object('Content-Type', 'application/json', 'x-cron', (select v from push_config where k = 'cron_secret')),
+    body := '{}'::jsonb, timeout_milliseconds := 20000);
+end $$;
+
 -- every minute: queue "leaves in 10 minutes", then wake the sender only if something is waiting
 create or replace function push_kick(p_force boolean default false) returns void language plpgsql security definer set search_path = public as $$
 begin
@@ -1206,6 +1248,9 @@ begin
   execute 'create extension if not exists pg_net';
   perform cron.unschedule(jobid) from cron.job where jobname = 'rideup-push';
   perform cron.schedule('rideup-push', '* * * * *', 'select public.push_kick()');
+  -- Morning sky: 8:30 am in Bir = 03:00 UTC
+  perform cron.unschedule(jobid) from cron.job where jobname = 'rideup-morning';
+  perform cron.schedule('rideup-morning', '0 3 * * *', 'select public.push_morning_kick()');
 exception when others then
   raise notice 'pg_cron not available: the tidy-up runs on new rides and trips instead';
 end $$;

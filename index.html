@@ -1028,8 +1028,8 @@
   @media (orientation: landscape) and (max-height: 520px) {
     .turn-upright { display: flex; position: fixed; inset: 0; z-index: 9999; background: var(--bg); color: var(--ink); align-items: center; justify-content: center; flex-direction: column; gap: 10px; font-size: 16px; font-weight: 600; text-align: center; padding: 24px; }
     .turn-upright span { font-size: 40px; }
-    /* ...except the full-screen painting and Help & Guide, which work sideways too */
-    body.art-view .turn-upright, body:has(#guideOverlay:not(.hidden)) .turn-upright { display: none !important; }
+    /* ...except the full-screen painting, the Bir Road game and Help & Guide, which work sideways too */
+    body.art-view .turn-upright, body.game-on .turn-upright, body:has(#guideOverlay:not(.hidden)) .turn-upright { display: none !important; }
     body.art-view .stage { display: block; min-height: 0; }
   }
   /* pull to refresh: the page itself slides down, uncovering a quiet turning arrow in the gap above it; pulled far
@@ -1051,6 +1051,24 @@
   .ru-gear svg, .pg-gear svg, .ru-slim svg { width: 20px; height: 20px; }
   .ru-wx { position: absolute; left: 12px; bottom: 12px; z-index: 3; max-width: calc(100% - 70px); background: rgba(11,20,26,.42); color: #fff; font-size: 12.5px; font-weight: 600; border-radius: 999px; padding: 5px 11px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ru-wx svg { width: 16px !important; height: 16px !important; vertical-align: -3px; margin-right: 5px; display: inline-block; }
+  /* Up the Bir Road (sheet 65) */
+  .game-ov { position: fixed; inset: 0; z-index: 90; background: #9cc3e6; touch-action: none; -webkit-user-select: none; user-select: none; }
+  .game-ov[hidden] { display: none !important; }
+  .game-ov canvas { position: absolute; inset: 0; display: block; }
+  .game-ov:not(.playing) .g-hud, .game-ov:not(.playing) .g-x { display: none; }
+  .g-hud { position: absolute; left: 12px; right: 56px; top: calc(12px + env(safe-area-inset-top, 0px)); display: flex; gap: 8px; align-items: flex-start; pointer-events: none; }
+  .g-alt { background: rgba(14,22,32,.74); color: #fff; border-radius: 12px; padding: 7px 10px; display: flex; flex-direction: column; gap: 4px; width: 200px; max-width: 60%; }
+  .g-alt b { font-size: 18px; color: #F3C77A; font-variant-numeric: tabular-nums; } .g-alt small { font-size: 10.5px; color: #dfe6ec; }
+  .g-alt i { height: 6px; border-radius: 6px; background: #5b6f86; display: block; overflow: hidden; } .g-alt em { display: block; height: 100%; width: 0; background: #3fd38f; }
+  .g-seat { background: rgba(14,22,32,.74); color: #fff; border-radius: 12px; padding: 0 12px; height: 56px; display: flex; align-items: center; font-weight: 800; font-size: 14px; white-space: nowrap; }
+  .g-x { position: absolute; right: 10px; top: calc(10px + env(safe-area-inset-top, 0px)); width: 40px; height: 40px; border-radius: 50%; background: rgba(14,22,32,.74); color: #fff; font-size: 17px; }
+  .g-card { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); width: min(340px, calc(100% - 32px)); background: rgba(18,24,33,.92); color: #F2EEE8; border-radius: 20px; padding: 18px 16px; display: flex; flex-direction: column; gap: 10px; text-align: center; }
+  .g-card[hidden] { display: none; }
+  .g-card > b { font-size: 22px; color: #F3C77A; } .g-card > span { font-size: 16px; line-height: 1.45; color: #eef2f5; } .g-card small { font-size: 15px; color: #dfe6ec; }
+  .game-ov .g-card .g-go { display: block; width: 100%; background: #21A67A; color: #fff; border: 0; border-radius: 999px; padding: 12px; font-weight: 800; font-size: 16px; min-height: 46px; }
+  .game-ov .g-card .g-back { display: block; width: 100%; background: rgba(255,255,255,.1); border: 0; border-radius: 999px; color: #eef2f5; font-size: 15px; font-weight: 700; padding: 10px; min-height: 46px; }
+  body.game-on { overflow: hidden; }
+  .ru-expand.play { width: auto; height: 30px; padding: 0 10px; font-size: 13px; font-weight: 800; border-radius: 999px; background: rgba(14,22,32,.62); text-shadow: none; }
   .ru-expand { position: absolute; right: 10px; bottom: 10px; z-index: 3; width: 34px; height: 34px; background: none; color: #fff; font-size: 20px; font-weight: 700; padding: 0; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
   .ru-grab { position: absolute; left: 50%; bottom: 5px; transform: translateX(-50%); width: 34px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.7); z-index: 3; }
   .ru-artx { position: absolute; right: 14px; top: calc(14px + env(safe-area-inset-top, 0px)); z-index: 5; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.9); color: #111b21; font-size: 18px; }
@@ -1521,7 +1539,7 @@
   .radio-ico { width: 30px; height: 30px; flex: none; color: #1E6FB8; }
 
   /* ===== 2.0 ===== the bottom bar: Ride · Weather · SOS, a floating bar with icon + word */
-  .tabbar { left: 14px; right: 14px; transform: none; width: auto; max-width: 492px; margin: 0 auto; padding: 5px; border-radius: 24px; background: color-mix(in srgb, var(--card) 94%, transparent); box-shadow: 0 6px 22px rgba(0,0,0,.22); }
+  .tabbar { left: 14px; right: 14px; transform: none; width: auto; max-width: 492px; margin: 0 auto; padding: 5px; border-radius: 24px; background: var(--card); box-shadow: 0 6px 22px rgba(0,0,0,.22); }
   .tabbar-inner { height: 52px; gap: 0; }
   .tab-btn { flex: 1; flex-direction: column; gap: 2px; padding: 0; height: 52px; border-radius: 18px; font-size: 11px; font-weight: 600; }
   .tab-btn svg { width: 24px; height: 24px; }
@@ -1582,6 +1600,8 @@
   .r2-active span { flex: 1; } .r2-active button { background: none; color: var(--ink); text-decoration: underline; font-size: 12.5px; padding: 0; }
   .r2-h { font-size: 11px; font-weight: 800; letter-spacing: .07em; color: var(--green-ink); margin: 6px 2px 0; }
   .r2-none { text-align: center; padding: 14px 6px; font-size: 14px; font-weight: 700; color: var(--ink); }
+  #r2List { display: flex; flex-direction: column; gap: 10px; }
+  #r2List .r2-start { display: block; width: 100%; margin-top: 4px; min-height: 46px; }
   .r2-start, .r2-go2, .r2-eb { background: var(--green); color: #fff; border-radius: 999px; font-weight: 800; font-size: 14px; padding: 11px 16px; }
   .r2c { background: color-mix(in srgb, var(--amber) 8%, var(--card)); border: 1px solid color-mix(in srgb, var(--amber) 30%, transparent); border-radius: 16px; padding: 10px 12px; cursor: pointer; }
   .r2c.mine { border: 1.5px solid var(--green); }
@@ -1623,6 +1643,51 @@
   .r2-eart { width: 130px; height: 60px; background: url(art/car-taxi.webp) center / contain no-repeat; }
   .r2-qa { display: flex; flex-wrap: wrap; gap: 6px; }
   .r2-qa button { background: none; border: 1px solid var(--line); border-radius: 999px; padding: 6px 11px; font-size: 13px; color: var(--ink); }
+  /* sheets 65 + 66: quick join near your usual time, rode together, no dead ends, the ride-full moment, your season */
+  .r2c.qj { border-color: color-mix(in srgb, var(--green) 55%, transparent); background: color-mix(in srgb, var(--green) 7%, var(--card)); }
+  .r2-qj { background: var(--green); color: #fff; border-radius: 999px; padding: 8px 16px; font-weight: 800; font-size: 14px; white-space: nowrap; min-height: 44px; }
+  .r2-qrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; padding-top: 8px; border-top: 1px solid color-mix(in srgb, var(--green) 25%, transparent); }
+  .r2-ut { font-size: 12px; color: var(--green-ink); font-weight: 600; }
+  .r2-rw { font-style: normal; font-size: 11.5px; color: var(--ink-soft); font-weight: 600; white-space: nowrap; margin-left: 8px; vertical-align: 3px; } .r2-rw::first-letter { color: #D9922B; }
+  .r2-sug2 { display: block; width: 100%; text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 13.5px; color: var(--ink); }
+  .r2-sug2 b { color: var(--green-ink); }
+  .r2-nr { display: flex; flex-direction: column; gap: 2px; padding: 4px 2px; } .r2-nr b { font-size: 15px; } .r2-nr span { font-size: 12.5px; color: var(--ink-soft); }
+  .r2-fly { position: relative; background: color-mix(in srgb, var(--green) 12%, var(--card)); border: 1px solid color-mix(in srgb, var(--green) 40%, transparent); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 7px; }
+  .r2-fly > b { font-size: 16px; padding-right: 30px; } .r2-fly > span { font-size: 13px; color: var(--ink-soft); }
+  .r2-fly .r2-fx { position: absolute; right: 2px; top: 2px; width: 44px; height: 44px; border-radius: 50%; background: transparent; border: 0; color: var(--ink-soft); font-size: 15px; }
+  .r2-fr { display: grid; grid-template-columns: 26px 1fr; gap: 8px; align-items: center; text-align: left; background: none; border: 0; border-top: 1px solid color-mix(in srgb, var(--green) 22%, transparent); border-radius: 0; padding: 9px 2px; min-height: 48px; width: 100%; }
+  .r2-fr i { font-style: normal; display: grid; place-items: center; color: var(--ink); } .r2-fr i svg { width: 20px; height: 20px; } .r2-fr b { display: block; font-size: 13.5px; color: var(--ink); } .r2-fr small { font-size: 12px; color: var(--green-ink); font-weight: 600; }
+  .r2-off { background: color-mix(in srgb, var(--amber) 10%, var(--card)); border: 1px solid color-mix(in srgb, var(--amber) 40%, transparent); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 5px; }
+  .r2-off b { font-size: 15px; color: color-mix(in srgb, #D9922B 70%, var(--ink)); } .r2-off span { font-size: 13px; color: var(--ink-soft); }
+  .r2-offb { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; } .r2-offb button { min-height: 44px; }
+  .r2-b2 { border: 1px solid var(--line); border-radius: 999px; padding: 10px 14px; font-weight: 700; font-size: 13.5px; color: var(--ink); background: var(--card); }
+  #r2List.stale .r2c { opacity: .8; } #r2List.stale .r2-time b, #r2List.stale .r2-l1 b { color: var(--ink-soft); }
+  body.r2-none-at .r2-gobtn { display: none; }
+  .r2c.fx-full { border-color: var(--green); background: color-mix(in srgb, var(--green) 10%, var(--card)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 25%, transparent); transition: box-shadow .3s ease-out, background .3s ease-out; }
+  .r2c.fx-full .r2d:not(.empty):last-of-type { animation: r2pop .25s cubic-bezier(.34, 1.56, .64, 1); }
+  .r2c.fx-full.dim { opacity: 1; }
+  @keyframes r2pop { from { transform: scale(.4); } to { transform: scale(1); } }
+  @media (prefers-reduced-motion: reduce) { .r2c.fx-full, .r2c.fx-full .r2d { animation: none !important; transition: none !important; } }
+  .go-usual { font-size: 12.5px; color: var(--green-ink); text-align: center; margin: 2px 0 0; }
+  .r2-week { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .r2-week > b { font-size: 15px; } .r2-week > span { font-size: 13px; color: var(--ink-soft); } .r2-week em { font-style: normal; color: var(--amber); font-weight: 700; }
+  .r2-wsky { position: relative; height: 48px; border-radius: 10px; background: url(art/bg2-autumn-day.webp) 30% 22% / 300% auto; }
+  .ss-page { max-height: 100vh; height: 100%; border-radius: 0; display: flex; flex-direction: column; gap: 10px; }
+  .ss-sky { position: relative; height: 190px; flex: none; border-radius: 16px; overflow: hidden; background: url(art/bg2-autumn-day.webp) 32% 24% / 260% auto; }
+  .ss-w { position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; padding: 0; background: none; border: 0; border-radius: 50%; display: grid; place-items: center; line-height: 0; }
+  .ss-w img { height: auto; display: block; filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
+  .ss-w.on { box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(14,22,32,.45); background: rgba(255,255,255,.25); }
+  .r2-wsky .ss-w { pointer-events: none; width: 26px; height: 26px; margin: -13px 0 0 -13px; }
+  .ss-tip { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); background: rgba(14,22,32,.88); color: #F2EEE8; border-radius: 10px; padding: 6px 10px; display: flex; flex-direction: column; max-width: 90%; white-space: nowrap; }
+  .ss-tip b { font-size: 12.5px; color: #F3C77A; } .ss-tip span { font-size: 12px; }
+  .ss-empty { position: absolute; inset: auto 10px 10px; text-align: center; font-size: 13px; color: #1E2A33; background: rgba(255,255,255,.8); border-radius: 10px; padding: 8px; }
+  .ss-note { margin: 0; font-size: 13px; color: var(--ink-soft); line-height: 1.4; }
+  .ss-tiles { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .ss-tiles > div { background: color-mix(in srgb, #D9922B 9%, var(--card)); border: 0; border-radius: 14px; padding: 12px 6px; text-align: center; min-height: 76px; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+  .ss-tiles b { display: block; font-size: 24px; font-weight: 800; color: #D9922B; font-variant-numeric: tabular-nums; } .ss-tiles small { font-size: 12px; color: var(--ink-soft); }
+  .ss-farerow { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 48px; padding: 0 4px; border: 0; border-bottom: 1px solid var(--line); background: none; font-size: 14px; color: var(--ink); text-align: left; }
+  .ss-farerow b { color: var(--green-ink); white-space: nowrap; text-decoration: underline; text-underline-offset: 3px; padding: 12px 4px; }
+  .ss-fed { display: flex; flex-direction: column; gap: 6px; } .ss-fed label { font-size: 12.5px; color: var(--ink-soft); } .ss-fed > div { display: flex; gap: 6px; } .ss-fed input { flex: 1; }
   .r2-gobtn, .r2-minebar { position: fixed; left: 50%; transform: translateX(-50%); width: calc(100% - 28px); max-width: 492px; bottom: calc(env(safe-area-inset-bottom, 0px) + 82px); z-index: 6;
     border-radius: 999px; display: flex; align-items: center; gap: 9px; padding: 13px 18px; box-shadow: 0 8px 20px rgba(0,0,0,.28); box-sizing: border-box; }
   .r2-gobtn { background: var(--green); color: #fff; font-size: 17px; font-weight: 800; }
@@ -1659,8 +1724,9 @@
   .fp-btns { margin-top: auto; display: flex; gap: 8px; } .fp-btns > * { flex: 1; }
   .fp-clear { background: none; border: 1px solid var(--line); border-radius: 999px; font-weight: 700; color: var(--ink); }
   /* A7: a small dot on what's new, until it's tapped once */
+  .ru-foot { padding-bottom: 150px; }
   .r2-gobtn.new::after, [data-menu].new::after, .tab-btn.new::after { content: ""; position: absolute; width: 9px; height: 9px; border-radius: 50%; background: #F3C77A; box-shadow: 0 0 0 2px var(--card); }
-  .r2-gobtn.new::after { right: 12px; top: 8px; }
+  .r2-gobtn.new::after { right: 10px; top: 7px; }
   [data-menu].new { position: relative; } [data-menu].new::after { right: 2px; top: 2px; }
   .ru-gear[data-menu].new { position: absolute; }
   .tab-btn { position: relative; } .tab-btn.new::after { right: calc(50% - 18px); top: 4px; }
@@ -1844,7 +1910,7 @@
         <a class="ru-name" id="viewSpot" target="_blank" rel="noopener" aria-label="Landing Site, Bir: open in Google Maps">Landing Site - Bir</a>
         <button class="hq ru-hq" type="button" data-open="guide:app" aria-label="Help for this page">?</button><button class="ru-gear" type="button" data-menu aria-label="More"><span aria-hidden="true">⋮</span></button>
         <button class="ru-wx" id="wxUnit" type="button" aria-label="Open the Weather page"><span id="wxLine">Checking the weather…</span></button>
-        <button class="ru-expand" id="ruExpand" type="button" aria-label="Show the whole painting">⤢</button>
+        <button class="ru-expand play" id="ruExpand" type="button" aria-label="Play Up the Bir Road">▶ Play</button>
         <div class="mood art-mood" id="moodLine"></div><button class="ru-artx" id="ruArtX" type="button" aria-label="Back" hidden>✕</button>
         <div class="ru-grab" aria-hidden="true"></div>
       </div>
@@ -1945,13 +2011,20 @@
   <div class="bot-hint" id="botHint" hidden></div>
   <nav class="tabbar" id="dock" aria-label="Sections">
     <div class="tabbar-inner">
-      <button class="tab-btn" data-tab="now"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15l1.6-5.2A2 2 0 0 1 7.5 8.4h9a2 2 0 0 1 1.9 1.4L20 15v3a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H7v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="7.5" cy="14.2" r="1.2" fill="currentColor"/><circle cx="16.5" cy="14.2" r="1.2" fill="currentColor"/></svg><span class="tab-label">Ride</span></button>
+      <button class="tab-btn active" data-tab="now"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15l1.6-5.2A2 2 0 0 1 7.5 8.4h9a2 2 0 0 1 1.9 1.4L20 15v3a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H7v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="7.5" cy="14.2" r="1.2" fill="currentColor"/><circle cx="16.5" cy="14.2" r="1.2" fill="currentColor"/></svg><span class="tab-label">Ride</span></button>
       <button class="tab-btn" data-tab="weather"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="9" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9 2.5v1.5M3.5 9H2M4.6 4.6l1 1M13.4 4.6l-1 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 19h9.5a3.5 3.5 0 0 0 0-7 5 5 0 0 0-9.4 1.6A2.7 2.7 0 0 0 8 19z" fill="var(--dock-bg, #fff)" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span class="tab-label">Weather</span></button>
       <button class="tab-btn tab-sos" data-tab="sos"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><text x="12" y="15" font-size="7" font-weight="900" text-anchor="middle" fill="currentColor" font-family="sans-serif">SOS</text></svg><span class="tab-label">SOS</span></button>
     </div>
   </nav>
 </div>
 
+<!-- Up the Bir Road (sheet 65): the game that replaced the full-screen painting -->
+<div class="game-ov" id="gameOv" hidden>
+  <canvas id="gameCv" aria-label="Up the Bir Road game: tap to hop"></canvas>
+  <div class="g-hud"><div class="g-alt"><b id="gAlt">1,400 m</b><i><em id="gAltBar"></em></i><small>Bir 1,400 · Billing 2,400</small></div><div class="g-seat" id="gSeat">🪂 1 / 4</div></div>
+  <button class="g-x" id="gX" type="button" aria-label="Close the game">✕</button>
+  <div class="g-card" id="gCard" hidden></div>
+</div>
 <!-- ＋ Going up? (2.0): the time first, then who is going then -->
 <div class="overlay hidden pop-ov" id="goSheet">
   <div class="pop go-pop" role="dialog" aria-labelledby="goTitle">
@@ -1959,6 +2032,7 @@
     <h2 class="pop-t" id="goTitle">When are you going up?</h2>
     <div class="r2-seg" id="goDays"></div>
     <input id="goTime" type="time" aria-label="Going up at">
+    <p class="go-usual" id="goUsual" hidden></p>
     <div id="goList"></div>
     <button class="submit-btn" id="goStart" type="button">＋ Start my own</button>
   </div>
@@ -2025,6 +2099,18 @@
   <button class="submit-btn" id="paAllow" type="button">Allow</button>
   <button class="rp-cancel" id="paLater" type="button">Not now</button>
 </div></div>
+<div class="overlay hidden" id="seasonPop">
+  <div class="sheet ss-page" role="dialog" aria-labelledby="ssTitle">
+    <div class="sheet-head"><h2 id="ssTitle">Your season</h2><button class="hq" type="button" data-open="guide:season" aria-label="Help for this page">?</button><button class="sheet-x" data-close aria-label="Back">✕</button></div>
+    <div class="ss-sky" id="ssSky"></div>
+    <p class="ss-note">One wing for every flying day you shared a taxi. Tap a wing to see the day.</p>
+    <div class="ss-tiles"><div><b id="ssDays">0</b><small>flying days</small></div><div><b id="ssRides">0</b><small>rides shared</small></div>
+      <div><b id="ssSaved">₹0</b><small>saved</small></div></div>
+    <button type="button" class="ss-farerow" id="ssFareBtn"><span>Taxi fare (the whole car): <span id="ssFare">₹1,000</span></span><b>Change</b></button>
+    <div class="ss-fed" id="ssFareEd" hidden><label for="ssFareIn">Taxi fare, the whole car (₹)</label><div><input id="ssFareIn" class="r2-in" inputmode="numeric" maxlength="6"><button type="button" class="r2-send" id="ssFareSave">Save</button></div></div>
+    <p class="ss-note">Kept only on this phone. Settings › Delete saved data clears it.</p>
+  </div>
+</div>
 <div class="overlay hidden pop-ov" id="notifyPop"><div class="pop" role="dialog" aria-label="Notifications">
   <button class="pop-x" type="button" data-close aria-label="Close">✕</button>
   <h2 class="pop-t">Notifications</h2>
@@ -2054,6 +2140,7 @@
     </div>
     <div class="st-gt">YOU</div>
     <div class="st-group">
+      <button class="st-row" type="button" data-open="season"><span class="st-ic">🪂</span><span class="st-tx"><b>Your season</b><small>Your flying days, the pilots you rode with, money saved</small></span><span class="chev">›</span></button>
       <button class="st-row" type="button" data-open="emergency"><span class="st-ic">🩺</span><span class="st-tx"><b>My emergency info</b><small>Blood group, allergies, wing colour, a contact</small></span><span class="chev">›</span></button>
     </div>
     <div class="st-gn">Kept only on this phone. Shown on the SOS tab and, if you allow, added to your location message.</div>
@@ -2530,6 +2617,14 @@
           <h3>When It's Time</h3>
           <ol><li>Tap <b>We've driven off</b> when the taxi leaves: the ride leaves the list.</li><li>Not in it after all? <b>I didn't go</b> puts you back.</li><li>A ride past its time shows <b>may have left</b>.</li></ol>
         </article>
+        <article class="g-page" id="help-usual" data-kw="usual time join one tap like last time quick join" data-shot="ride-usual">
+          <h3>Your Usual Time</h3>
+          <ol><li>After 3 rides, Ride Up knows the time you usually go up (worked out on this phone).</li><li>The ride nearest it gets a <b>Join</b> button right on its card, with your friends like last time.</li><li><b>＋ Going up?</b> starts at that time, and Start my own picks your last car and friends.</li></ol>
+        </article>
+        <article class="g-page" id="help-game" data-kw="game play bir road cows potholes offline no signal" data-shot="game">
+          <h3>Up the Bir Road</h3>
+          <ol><li>Tap <b>▶ Play</b> on the painting (or turn your phone sideways).</li><li>Tap to hop over cows and potholes; drive past pilots to pick them up.</li><li>Reach Billing at 2,400 m. It works with no signal too.</li></ol>
+        </article>
         <article class="g-page" id="help-filter" data-kw="sort filter soonest latest most spots car spots i need clear" data-shot="ride-filter">
           <h3>Sort and Filter</h3>
           <ol><li><b>⇅</b>: soonest, latest, most or fewest spots.</li><li><b>Filter</b>: when, spots you need, the car, full or late rides.</li><li>Your filters show in one line with <b>Clear</b>.</li></ol>
@@ -2599,6 +2694,10 @@
         <article class="g-page" id="help-home-screen" data-kw="notifications ping add to home screen iphone android app icon" data-shot="settings-notify">
           <h3>Notifications and the Home Screen</h3>
           <ol><li>Get a ping when someone joins, the time moves, or your pickup is coming.</li><li>Settings → <b>Notifications</b> chooses which.</li><li>On iPhone they work once Ride Up is on your Home Screen: Share → <b>Add to Home Screen</b>.</li></ol>
+        </article>
+        <article class="g-page" id="help-season" data-kw="your season wings flying days money saved rode with" data-shot="season">
+          <h3>Your Season</h3>
+          <ol><li>Settings → <b>Your season</b>: a wing in your sky for every flying day you shared a taxi.</li><li>Tap a wing to see the day and who you rode with.</li><li>Money saved uses a taxi fare you can change. All of it stays on this phone.</li></ol>
         </article>
         <article class="g-page" id="help-data" data-kw="delete saved data privacy terms feedback reach out" data-shot="">
           <h3>Your Data</h3>
@@ -2678,7 +2777,8 @@
       <p>• <b>Sky reports</b> show your name. Your number goes with a report only so one number can't send more than 3 an hour; nobody sees it, and it's deleted within 2 hours.</p>
       <p>• <b>Everything else</b> — rides, names, ride notes, pickups and sky reports — is <b>deleted automatically a week after it's over</b>. While it's live, names, notes and a pickup's village are visible to anyone using Ride Up.</p>
       <p>• <b>Feedback</b> is kept so the team can read it, and only the team can see it. A name or number you add to it is removed after 90 days.</p>
-      <p>• <b>No cookies.</b> The only thing kept on your device is your own name, number, friends' names, emergency info and settings, and the rides and pickups you're part of — "Delete saved data" (Settings) clears it.</p>
+      <p>• <b>No cookies.</b> The only things kept on your device are your own name, number, friends' names, emergency info and settings, the rides and pickups you're part of, <b>Your season</b> (the rides you've shared: day, time, car and who was in them, which also gives your usual time), the last rides seen (for when there's no signal) and your best Bir Road game. None of it is sent to Ride Up. "Delete saved data" (Settings) clears it.</p>
+      <p>• <b>Morning sky</b> (only if you turn it on): at 8:30 am the server reads the forecast for Billing and, on a flyable day, sends one notification. It uses no location and nothing about you.</p>
       <p>• <b>Anonymous usage counts.</b> To see what's useful, the app notes things like "the map was opened" or "a ride was started", with the app's version, and a short note if something breaks. Never your name, number, location or anything that points to you or your device. These counts are deleted after six months.</p>
       <p>• <b>Want something deleted sooner?</b> Send a note through Settings → Feedback, or email us (Settings → Reach Out).</p>
     </details>
@@ -4561,8 +4661,16 @@ if (window.CW_FRAME) {
     var result = await client.from("cab_sessions").select("*, cab_passengers(*)").gte("created_at", cutoff).order("created_at", { ascending: true });
     if (client !== supabase) return;   // bots were switched on / off while this was loading
     flowStep("load:cabs");
-    if (result.error) { reportFail("load cabs", result.error); $("othersLabel").textContent = "Couldn't load rides — check your connection"; return; }
-    allSessions = result.data || [];
+    if (result.error) {
+      reportFail("load cabs", result.error);
+      // no signal: keep what we had, or the last rides saved on this phone (sheet 65 · fix 1)
+      var last = loadStored("rideup_last_rides", null);
+      if (!allSessions.length && last && last.data) allSessions = last.data;
+      r2Offline = { at: allSessions.length ? (r2LastOk || (last && last.at) || null) : null };
+      renderSessions(); return;
+    }
+    allSessions = result.data || []; r2Offline = null; r2LastOk = Date.now();
+    recordRides(); saveLastRides();
     checkMyCabAlerts();
     renderSessions();
     renderScenes();
@@ -4598,7 +4706,7 @@ if (window.CW_FRAME) {
     });
     var gone = prev.ids.filter(function (id) { return ids.indexOf(id) === -1; });
     if (gone.length) toast(gone.length === 1 ? "Someone left " + cur.c.team : gone.length + " people left " + cur.c.team);
-    if (cur.c.isFull && !prev.full) { toast(capFirst(cur.c.team) + " is full. Have a great flight! 🪂", "good"); chime(); }
+    if (cur.c.isFull && !prev.full) { toast(capFirst(cur.c.team) + " is full. Have a great flight! 🪂", "good"); chime(); rideFullMoment(cur.c.s.id); }
   }
   async function loadContacts() {
     var mine = myVisibleCab();
@@ -5053,6 +5161,12 @@ if (window.CW_FRAME) {
     rp = { mode: mode, session: session || null, car: { type: "ALTO", cap: 4 }, carOpen: false, n: 0, friends: [], when: { leave: null, open: false, pick: false } };
     var mem = loadStored("rideup_friends", []);
     rp.again = mem.length && !loadStored("rideup_friend_again_off", false) && mem.length <= friendsMax() ? mem : null;
+    // the car and friends you picked last time (sheet 65 · fix 2); "Bringing Rohan again?" still asks for named friends
+    if (mode === "start") {
+      var lc = loadStored("rideup_car", null), lp = loadStored("rideup_party", 0) || 0;
+      if (lc && lc.type && lc.cap) { rp.car = { type: lc.type, cap: lc.cap, ask: !!lc.ask, other: !!lc.other }; rp.last = true; }
+      if (!rp.again && lp) { rp.n = lp; rp.last = true; }
+    }
     var p = getProfile();
     $("rpName").value = ""; $("rpNameErr").classList.remove("show");
     $("rpPhone").value = ""; $("rpPhoneRow").hidden = true; $("rpPhoneErr").classList.remove("show");
@@ -5069,7 +5183,7 @@ if (window.CW_FRAME) {
     rp.n = Math.min(rp.n, max);
     while (rp.friends.length < rp.n) rp.friends.push({ name: "", colour: friendColour(rp.friends.length), rand: true });
     $("rpTitle").textContent = start ? "Start a ride" : "Join " + c.team;
-    $("rpCar").textContent = start ? (rp.car.type || "Car") + " · " + rp.car.cap + " seats" : carName(c) + " · " + c.needed + " " + plural(c.needed, "seat", "seats") + " left" +
+    $("rpCar").textContent = start ? (rp.car.type || "Car") + " · " + rp.car.cap + " seats" + (rp.last && !rp.carOpen ? " · like last time" : "") : carName(c) + " · " + c.needed + " " + plural(c.needed, "seat", "seats") + " left" +
       (c.leaveAt && c.s.vehicle !== "own" ? " · leaves " + leaveWords(c.leaveAt) : "");
     $("rpWhen").hidden = !start; if (start) whenRender("rp", rp.when);
     $("rpChange").hidden = !start;
@@ -5280,7 +5394,7 @@ if (window.CW_FRAME) {
     setBusy(btn, false);
     if (result.error) { toast(friendlyError(result.error, start ? "Couldn't start the ride — try again." : "Couldn't join — try again."), "bad"); if (!start) { closeSheet("rideOverlay"); fetchSessions(); } return; }
     saveMembership({ session_id: result.data.session_id, passenger_id: result.data.passenger_id, token: result.data.token, started: start });
-    saveStored("rideup_party", rp.n);
+    saveStored("rideup_party", rp.n); if (start) saveStored("rideup_car", rp.car);
     saveProfile(name, raw || undefined, raw ? true : undefined);
     var named = rp.friends.slice(0, rp.n).filter(function (f) { return f.name; });
     if (named.length) saveStored("rideup_friends", named);
@@ -6140,7 +6254,7 @@ if (window.CW_FRAME) {
   // review hook, off the live site like ?t=: ?cam=1800 (or ?cam=1800,1.6) opens full screen held on that spot of the painting
   var CAM_HOLD = !IS_LIVE && /[?&]cam=(\d{3,4})(?:,([\d.]+))?/.exec(location.search);
   if (CAM_HOLD) setTimeout(function () { openArtView(); cam.hold = +CAM_HOLD[1]; cam.s = +(CAM_HOLD[2] || 1); camApply(); }, 1500);
-  $("ruExpand").onclick = function (e) { e.stopPropagation(); openArtView(); };
+  $("ruExpand").onclick = function (e) { e.stopPropagation(); openGame(); };   // 2.0: the game replaced the full-screen painting
   // Sideways only the full-screen painting (and Help & Guide) work: turning the phone on the home page opens the
   // painting, turning it upright again closes it (only when turning opened it). While a phone turns it reports its new
   // size in steps, so the painting is placed again once the turn has settled.
@@ -6148,9 +6262,10 @@ if (window.CW_FRAME) {
   function onTurn() {
     var art = document.body.classList.contains("art-view");
     if (SIDEWAYS.matches) {
-      if (!art && currentTab === "now" && !openOverlayIds().length) { openArtView(); artByTurn = true; }
+      if (!art && currentTab === "now" && !openOverlayIds().length && $("gameOv").hidden) { openGame(); artByTurn = true; }
     } else if (artByTurn) {
       artByTurn = false;
+      if (!$("gameOv").hidden) { closeGame(); return; }
       if (art) { if (history.state && history.state.ru) history.back(); else closeArtView(); }   // Back closes it, history stays tidy
     }
     [120, 400, 900].forEach(function (ms) { setTimeout(placeStageCard, ms); });
@@ -6220,7 +6335,7 @@ if (window.CW_FRAME) {
         if (dy > 12 && Math.abs(dx) < dy) ptrEnd(dy);
         else { ptrShow(0); if (e.touches.length === 0 && !(SIDEWAYS && SIDEWAYS.matches) && (dy < -50 && Math.abs(dx) < -dy || (Math.abs(dy) < 8 && Math.abs(dx) < 8))) goBack(); }   // sideways only ✕ closes it
       }
-      else if (dy > 90 && Math.abs(dx) < dy) openArtView();
+      else if (false && dy > 90 && Math.abs(dx) < dy) openArtView();   // 2.0: pulling the painting no longer opens a full-screen view
       y0 = null;
     });
     st.addEventListener("click", function (e) {   // mouse / desktop: a click in the art view returns
@@ -7427,6 +7542,7 @@ if (window.CW_FRAME) {
       if (what === "details") openDetails();
       if (what === "emergency") $("sosEmBtn").onclick();
       if (what === "notify") openNotify();
+      if (what === "season") openSeason();
       if (what === "share") shareApp();
     };
   });
@@ -7658,10 +7774,13 @@ if (window.CW_FRAME) {
   function r2FilterCount() { var f = r2.f; return (f.from !== null || f.to !== null ? 1 : 0) + (f.spots ? 1 : 0) + (f.car !== "any" ? 1 : 0) + (f.full ? 1 : 0) + (!f.late ? 1 : 0); }
   function r2CardHtml(c) {
     var mine = myPlaceIn(c.s), open = r2.open === c.s.id, st = r2Starter(c), d = r2When(c);
-    var cls = "r2c" + (open ? " open" : "") + (mine ? " mine" : "") + (c.isFull || r2Late(c) ? " dim" : "");
+    var qj = r2.qj === c.s.id && !open, rw = !mine ? rodeWith(st.name) : 0, party = Math.min(loadStored("rideup_party", 0) || 0, Math.max(0, c.needed - 1));
+    var cls = "r2c" + (open ? " open" : "") + (mine ? " mine" : "") + (c.isFull || r2Late(c) ? " dim" : "") + (qj ? " qj" : "") + (r2FullFx === c.s.id ? " fx-full" : "");
     var html = '<div class="' + cls + '" id="r2c-' + c.s.id + '" data-r2="row" data-id="' + c.s.id + '">' +
       '<div class="r2-top"><div class="r2-time"><b>' + clock(d) + '</b><span>' + r2Sub(c) + '</span></div>' +
-      '<div class="r2-mid"><div class="r2-l1">' + (mine ? (mine.passenger_id === c.starterId ? "Your ride" : "You're in " + escapeHtml(st.name) + "'s ride") : escapeHtml(st.name) + "'s ride") + ' · <b>' + r2Spots(c) + '</b></div>' + r2Dots(c, mine && mine.passenger_id) + '</div></div>';
+      '<div class="r2-mid"><div class="r2-l1">' + (mine ? (mine.passenger_id === c.starterId ? "Your ride" : "You're in " + escapeHtml(st.name) + "'s ride") : escapeHtml(st.name) + "'s ride") + '<span class="r2-sep"> · </span><b>' + r2Spots(c) + '</b></div>' + r2Dots(c, mine && mine.passenger_id) + (rw ? '<em class="r2-rw">★ rode together ' + rw + '×</em>' : '') + '</div>' +
+      '</div>' +
+      (qj ? '<div class="r2-qrow"><small class="r2-ut">Your usual time' + (party ? " · with your +" + party + " like last time" : "") + '</small><button type="button" class="r2-qj" data-r2="qjoin" data-id="' + c.s.id + '">Join' + (party ? " +" + party : "") + '</button></div>' : '');
     if (open) html += r2OpenHtml(c, mine);
     return html + '</div>';
   }
@@ -7752,6 +7871,14 @@ if (window.CW_FRAME) {
   }
   function render2() {
     var rides = r2Rides(), mineV = myVisibleCab(), mine = mineV && !mineV.c.hasLeft ? mineV : null;
+    // one tap: the ride nearest your usual time gets Join right on its card (sheet 65 · fix 2)
+    var um = usualMins(), pf = getProfile(); r2.qj = null;
+    var flown = loadStored("rideup_flight", null), flewNow = flown && Date.now() - flown.at < 3 * 3600000;
+    if (um !== null && !currentCab() && pf.name && normalizePhone(pf.phone || "") && !r2Offline && r2.at === null && !r2.q && !flewNow) {
+      var best = null, bd = 31;
+      rides.forEach(function (c) { if (myPlaceIn(c.s) || c.isFull || c.hasLeft || r2Late(c)) return; var dd = Math.abs(birMins(r2When(c)) - um); if (dd < bd) { bd = dd; best = c; } });
+      if (best) r2.qj = best.s.id;
+    }
     if (r2.open && !allSessions.some(function (s) { return s.id === r2.open; })) r2.open = null;
     // chips
     var fc = r2FilterCount();
@@ -7772,16 +7899,21 @@ if (window.CW_FRAME) {
     // the list
     var html = "";
     if (r2.at !== null) {
-      var near = rides.filter(function (c) { return Math.abs(birMins(r2When(c)) - r2.at) <= R2_NEAR; }), rest = rides.filter(function (c) { return near.indexOf(c) < 0; });
-      html += '<div class="r2-h">AROUND ' + minsLabel(r2.at).toUpperCase() + ' · ' + r2.day.toUpperCase() + '</div>' +
-        (near.length ? near.map(r2CardHtml).join("") : '<div class="r2-none">Nobody is going up around ' + minsLabel(r2.at) + '.</div>') +
+      var near = rides.filter(function (c) { return Math.abs(birMins(r2When(c)) - r2.at) <= R2_NEAR; }), alt = near.length ? [] : r2Closest(rides);
+      var rest = rides.filter(function (c) { return near.indexOf(c) < 0 && alt.indexOf(c) < 0; });
+      html += (near.length ? '<div class="r2-h">AROUND ' + minsLabel(r2.at).toUpperCase() + ' · ' + r2.day.toUpperCase() + '</div>' : '') +
+        (near.length ? near.map(r2CardHtml).join("") : r2NoneAt(alt)) +
         '<button class="r2-start" data-r2="start-at">＋ ' + (near.length ? "None of these? " : "") + 'Start a ride at ' + minsLabel(r2.at) + '</button>' +
         (rest.length ? '<div class="r2-h">REST OF ' + r2.day.toUpperCase() + '</div>' + rest.map(r2CardHtml).join("") : "");
     } else if (rides.length) html = rides.map(r2CardHtml).join("");
-    else if (r2.q) html = '<div class="r2-none">No rides with a pilot called “' + escapeHtml(r2.q) + '”.</div>';
+    else if (r2.q) html = '<div class="r2-nr"><b>No rides with a pilot called “' + escapeHtml(r2.q) + '”</b><span>Names are as people typed them. Try the first letters.</span></div>' +
+      '<button type="button" class="r2-sug2" data-r2="clear-q">Show all rides ' + (r2.day === "today" ? "today" : "tomorrow") + ' ›</button><button class="r2-start" data-r2="go">＋ Going up? Find or start a ride</button>';
     // keep what's being typed (name, number, a note) and where the cursor was, across live redraws
     var keep = {}, foc = document.activeElement, focId = foc && foc.closest && foc.closest("#r2List") ? foc.id : null, sel = focId ? [foc.selectionStart, foc.selectionEnd] : null;
     document.querySelectorAll("#r2List input").forEach(function (el) { if (el.id && el.value) keep[el.id] = el.value; });
+    html = offlineCardHtml() + flightCardHtml() + html;
+    $("r2List").classList.toggle("stale", !!r2Offline);
+    document.body.classList.toggle("r2-none-at", r2.at !== null && !rides.some(function (c) { return Math.abs(birMins(r2When(c)) - r2.at) <= R2_NEAR; }));
     if (r2.gone) html = '<div class="r2-emp"><b>This ride has already left</b><span>' + escapeHtml(r2.gone) + '</span><button class="r2-eb" data-r2="gone-go">＋ Going up? Find another</button></div>' + html;
     $("r2List").innerHTML = html;
     Object.keys(keep).forEach(function (id) { var el = $(id); if (el) el.value = keep[id]; });
@@ -7796,9 +7928,21 @@ if (window.CW_FRAME) {
     allSessions.forEach(function (s) { (s.cab_passengers || []).forEach(function (p) { seenPeople[p.id] = true; }); });
     placeStageCard(); syncDockPlus(); renderPickups();
   }
+  // a time search that finds nobody: the closest rides that day, the same time tomorrow, or start one (sheet 65 · fix 1)
+  function r2Closest(rides) {
+    return rides.filter(function (c) { return !c.isFull && !c.hasLeft && !r2Late(c); })
+      .sort(function (a, b) { return Math.abs(birMins(r2When(a)) - r2.at) - Math.abs(birMins(r2When(b)) - r2.at); }).slice(0, 2);
+  }
+  function r2Gap(m) { m = Math.abs(m); return m < 60 ? m + " min" : Math.floor(m / 60) + " h" + (m % 60 ? " " + m % 60 + " min" : ""); }   // the same words as "in 1 h 2 min"
+  function r2NoneAt(close) {
+    var tm = r2.day === "today" ? r2Count("tomorrow", r2.at) : 0;
+    return '<div class="r2-nr"><b>Nobody at ' + minsLabel(r2.at) + ' yet</b>' + (close.length ? '<span>Closest rides:</span>' : '') + '</div>' +
+      close.map(function (c) { var d = birMins(r2When(c)) - r2.at; return r2CardHtml(c).replace(/<span>[^<]*<\/span><\/div><div class="r2-mid">/, '<span>' + r2Gap(d) + ' ' + (d < 0 ? "earlier" : "later") + '</span></div><div class="r2-mid">'); }).join("") +
+      (tm ? '<button type="button" class="r2-sug2" data-r2="at" data-m="' + r2.at + '" data-d="tomorrow">Tomorrow ' + minsLabel(r2.at) + ' · <b>' + tm + ' ' + plural(tm, "ride", "rides") + '</b> ›</button>' : '');
+  }
   function r2EmptyHtml() {
     var m = nowMins(), wk = typeof weatherMood === "function" ? weatherMood() : "clear";
-    if (r2.day === "tomorrow" || m >= 17 * 60) return '<div class="r2-emp"><b>Nobody is going up ' + (r2.day === "tomorrow" ? "tomorrow" : "tomorrow") + ' yet</b><span>Post your time tonight and wake up to a full taxi.</span><button class="r2-eb" data-r2="start-tmrw">＋ Start a ride for tomorrow</button></div>';
+    if (r2.day === "tomorrow" || m >= 17 * 60) return (r2.day === "today" ? weekCardHtml() : "") + '<div class="r2-emp"><b>Nobody is going up ' + (r2.day === "tomorrow" ? "tomorrow" : "tomorrow") + ' yet</b><span>Post your time tonight and wake up to a full taxi.</span><button class="r2-eb" data-r2="start-tmrw">＋ Start a ride for tomorrow</button></div>';
     if (wk === "rain" || wk === "storm") return '<div class="r2-emp bad"><b>Not a flying day</b><span>Nobody is going up. A day off in Bir?</span><button class="r2-link" data-open="map">Ideas in Around Bir ›</button></div>';
     return '<div class="r2-emp"><div class="r2-eart"></div><b>No rides yet today</b><span>Be the first: post your time and others join you.</span><button class="r2-eb" data-r2="go">＋ Start the first ride</button></div>' +
       '<div class="r2-h">ON THE WAY TO THE TAXI</div><div class="r2-qa"><button data-open="map">🚕 Taxi stand</button><button data-open="map">₹ ATM</button><button data-open="map">✚ Pharmacy</button></div>';
@@ -7888,6 +8032,13 @@ if (window.CW_FRAME) {
     if (k === "gone-go") { r2.gone = null; renderSessions(); openGoing(); return; }
     if (k === "start-at") { startAt(r2.day, r2.at); return; }
     if (k === "start-tmrw") { startAt("tomorrow", 9 * 60); return; }
+    if (k === "qjoin" && session) { r2.join.n = Math.min(loadStored("rideup_party", 0) || 0, Math.max(0, describeCab(session).needed - 1)); logEvent("quick_join"); join2(session, b); return; }
+    if (k === "clear-q") { r2.q = ""; r2.at = null; $("r2Q").value = ""; renderSessions(); return; }
+    if (k === "fl-x") { var fl = loadStored("rideup_flight", null); if (fl) { fl.closed = true; saveStored("rideup_flight", fl); } renderSessions(); return; }
+    if (k === "fl-pickup") { showTab("sos"); if (typeof openAskPickup === "function") setTimeout(openAskPickup, 200); return; }
+    if (k === "fl-report") { wx2Tab = "today"; showTab("weather"); setTimeout(function () { var r = $("lvReport"); if (r) r.click(); }, 400); return; }
+    if (k === "retry") { b.textContent = "Trying…"; fetchSessions(); return; }
+    if (k === "play") { if (typeof openGame === "function") openGame(); return; }
   });
   $("r2Mine").onclick = function () {
     var mv = myVisibleCab(); if (!mv) return;
@@ -7902,6 +8053,10 @@ if (window.CW_FRAME) {
   function openGoing() {
     go2.day = nowMins() >= 18 * 60 ? "tomorrow" : "today";
     var first = go2.day === "today" ? Math.min(goMax(), Math.max(goMin(), Math.ceil((nowMins() + 30) / 15) * 15)) : 9 * 60;
+    // starts at your usual time when it's still ahead today (or tomorrow) (sheet 65 · fix 2)
+    var um = usualMins(), useU = um !== null && um >= goMin() && um <= goMax();
+    if (useU) first = um;
+    $("goUsual").hidden = !useU; if (useU) $("goUsual").textContent = "Starts at your usual time (" + minsLabel(um) + "). Turn it for another.";
     $("goTime").value = minsToSlot(first); openSheet("goSheet"); goRender(true);
   }
   function goRender(rebuild) {
@@ -7969,6 +8124,281 @@ if (window.CW_FRAME) {
   syncNewDots();
   makeWheel("goTime", { step: 15, min: goMin, max: goMax });
   $("goTime").addEventListener("change", function () { goRender(); });
+
+  // ---------- 2.0 YOUR SEASON · USUAL TIME · NO DEAD ENDS (sheets 65 + 66) ----------
+  // Kept only on this phone (rideup_history): one line per ride you were really in, once it drove off or its time passed
+  // by 20 min with you still in it. Feeds the usual time (the wheel, Join on a card), ★ rode together and Your season.
+  function rideHistory() { return loadStored("rideup_history", []); }
+  function recordRides() {
+    if (DEMO) return;
+    var h = rideHistory(), have = {}, changed = false;
+    h.forEach(function (x) { have[x.sid] = 1; });
+    allSessions.forEach(function (s) {
+      if (have[s.id] || s.vehicle === "own") return;
+      var m = myPlaceIn(s); if (!m) return;
+      var c = describeCab(s); if (c.cancelled) return;
+      var when = r2When(c), past = Date.now() - when.getTime() > 20 * 60000;
+      if (!c.hasLeft && !past) return;
+      if (c.passengers.some(function (p) { return isBot(p.name); })) return;
+      var me = c.passengers.filter(function (p) { return p.id === m.passenger_id; })[0] || {};
+      h.push({ sid: s.id, d: dateToStr(birDate(when)), m: birMins(when), car: String(s.car_type || "TAXI").toUpperCase(), cap: s.capacity, n: me.extra || 0, ppl: c.seatsUsed,
+        with: c.passengers.filter(function (p) { return p.id !== m.passenger_id; }).map(function (p) { return p.name; }).slice(0, 7) });
+      changed = true;
+      // the taxi just left with you in it: the "have a good flight" card (sheet 65 · fix 1)
+      if (c.hasLeft && c.doneAt && Date.now() - c.doneAt.getTime() < 3 * 3600000 && (loadStored("rideup_flight", {}) || {}).sid !== s.id)
+        saveStored("rideup_flight", { sid: s.id, at: c.doneAt.getTime(), n: c.seatsUsed });
+    });
+    if (changed) saveStored("rideup_history", h.slice(-300));
+  }
+  // the time you go up most often (after 3 rides), to the quarter hour
+  function usualMins() {
+    var h = rideHistory().slice(-20); if (h.length < 3) return null;
+    var ms = h.map(function (x) { return x.m; }).sort(function (a, b) { return a - b; });
+    return Math.round(ms[Math.floor(ms.length / 2)] / 15) * 15;
+  }
+  function rodeWith(name) {
+    var k = String(name || "").trim().toLowerCase(), n = 0; if (!k) return 0;
+    rideHistory().forEach(function (x) { if ((x.with || []).some(function (w) { return String(w).trim().toLowerCase() === k; })) n++; });
+    return n;
+  }
+  function fareNow() { var f = parseInt(loadStored("rideup_fare", 1000), 10); return f > 0 ? f : 1000; }
+  function seasonStats() {
+    var h = rideHistory(), days = {}, saved = 0, f = fareNow(), people = {};
+    h.forEach(function (x) {
+      (days[x.d] = days[x.d] || []).push(x);
+      var mine = 1 + (x.n || 0); if (x.ppl > mine) saved += f - f * mine / x.ppl;
+      (x.with || []).forEach(function (w) { people[w] = (people[w] || 0) + 1; });
+    });
+    return { rides: h.length, days: days, nDays: Object.keys(days).length, saved: Math.round(saved / 10) * 10, people: people };
+  }
+  // a wing for each flying day, placed the same way every time (from the date), newest biggest
+  var WING_COLS = ["red", "blue", "yellow"];
+  function wingsHtml(dayKeys, small) {
+    return dayKeys.map(function (d, i) {
+      var n = dayKeys.length, hsh = hashStr(d), x = 4 + (i + 0.5) / n * 84 + ((hsh % 13) - 6) * Math.min(1, 6 / n), y = 6 + ((hsh >> 7) % (small ? 50 : 58)), age = n - 1 - i;
+      var w = small ? 16 : Math.max(12, 26 - age * 1.5);
+      return '<button type="button" class="ss-w" data-d="' + d + '" style="left:' + x + '%;top:' + y + '%" aria-label="' + escapeHtml(dayLabel(d)) + '"><img src="art/glider-' + WING_COLS[hsh % 3] + '.webp" alt="" style="width:' + w.toFixed(0) + 'px"></button>';
+    }).join("");
+  }
+  function dayLabel(d) { var t = new Date(d + "T12:00:00"); return t.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }); }
+  // Settings › Your season (sheet 66 · 3): a wing in your sky for every flying day you shared a taxi
+  function openSeason() { var k = Object.keys(seasonStats().days).sort(); $("ssFareEd").hidden = true; renderSeason(k[k.length - 1] || null); openSheet("seasonPop"); logEvent("season"); }
+  function renderSeason(tipDay) {
+    var st = seasonStats(), keys = Object.keys(st.days).sort(), top = Object.keys(st.people).sort(function (a, b) { return st.people[b] - st.people[a]; });
+    var tip = "";
+    if (tipDay && st.days[tipDay]) {
+      var rs = st.days[tipDay], w = {};
+      rs.forEach(function (x) { (x.with || []).forEach(function (n) { w[n] = 1; }); });
+      tip = '<div class="ss-tip"><b>' + escapeHtml(dayLabel(tipDay)) + '</b><span>' + (Object.keys(w).length ? "with " + escapeHtml(Object.keys(w).slice(0, 3).join(", ")) + " · " : "") + rs.map(function (x) { return minsLabel(x.m) + " " + escapeHtml(x.car === "TAXI" ? "taxi" : capFirst(x.car.toLowerCase())); }).join(", ") + '</span></div>';
+    }
+    $("ssSky").innerHTML = (keys.length ? wingsHtml(keys) : '<div class="ss-empty">Your first shared taxi puts a wing here.</div>') + tip;
+    document.querySelectorAll("#ssSky .ss-w").forEach(function (w) { w.classList.toggle("on", w.dataset.d === tipDay); });
+    $("ssDays").textContent = st.nDays; $("ssRides").textContent = st.rides; $("ssSaved").textContent = "₹" + st.saved.toLocaleString("en-IN");
+    $("ssFare").textContent = "₹" + fareNow().toLocaleString("en-IN");
+  }
+  $("ssSky").onclick = function (e) { var b = e.target.closest(".ss-w"); if (b) renderSeason(b.dataset.d); };
+  $("ssFareBtn").onclick = function () {
+    // no browser pop-ups in Ride Up: a small inline editor
+    $("ssFareEd").hidden = false; $("ssFareIn").value = fareNow(); $("ssFareIn").focus();
+  };
+  $("ssFareSave").onclick = function () {
+    var n = parseInt(String($("ssFareIn").value).replace(/[^\d]/g, ""), 10);
+    if (!(n >= 100 && n <= 20000)) { toast("A taxi fare between ₹100 and ₹20,000, please."); return; }
+    saveStored("rideup_fare", n); $("ssFareEd").hidden = true; renderSeason(); toast("Saved");
+  };
+  // the quiet-evening card on an empty home: your week (sheet 66 · 3)
+  function weekCardHtml() {
+    var h = rideHistory(), wk = {}, rides = 0;
+    h.forEach(function (x) { var age = (new Date(todayStr() + "T12:00:00") - new Date(x.d + "T12:00:00")) / 86400000; if (age >= 0 && age < 7) { wk[x.d] = 1; rides++; } });
+    var days = Object.keys(wk).sort(); if (!days.length) return "";
+    var name = (getProfile().name || "").split(" ")[0];
+    return '<div class="r2-week"><b>Good evening' + (name ? ", " + escapeHtml(name) : "") + '</b><span>This week: <em>' + days.length + " flying " + plural(days.length, "day", "days") + '</em>, ' + rides + " shared " + plural(rides, "taxi", "taxis") + '.</span>' +
+      '<div class="r2-wsky">' + wingsHtml(days, true) + '</div><button type="button" class="r2-link" data-open="season">Your season ›</button></div>';
+  }
+  // after "We've driven off" (for 3 hours, until closed): not a dead end (sheet 65 · fix 1)
+  function flightCardHtml() {
+    var f = loadStored("rideup_flight", null);
+    if (!f || f.closed || Date.now() - f.at > 3 * 3600000) return "";
+    var name = (getProfile().name || "").split(" ")[0], wxl = $("wxLine") ? $("wxLine").textContent.trim() : "";
+    return '<div class="r2-fly"><button type="button" class="r2-fx" data-r2="fl-x" aria-label="Close">✕</button><b>Have a good flight' + (name ? ", " + escapeHtml(name) : "") + ' 🪂</b>' +
+      '<span>Your taxi left at ' + clock(new Date(f.at)) + (f.n > 1 ? " with " + f.n + " pilots" : "") + '.</span>' +
+      '<button type="button" class="r2-fr" data-open="weather"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 0-8 5.5 5.5 0 0 0-10.6 1.6A3.2 3.2 0 0 0 7 18z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></i><span><b>Billing now' + (wxl && !/Checking/.test(wxl) ? ": " + escapeHtml(wxl) : "") + '</b><small>Weather · Now ›</small></span></button>' +
+      '<button type="button" class="r2-fr" data-r2="fl-pickup"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.5 7-11.5a7 7 0 0 0-14 0C5 14.5 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="9.5" r="2.4" fill="currentColor"/></svg></i><span><b>Landed out?</b><small>Ask for a pickup in SOS ›</small></span></button>' +
+      '<button type="button" class="r2-fr" data-r2="fl-report"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i><span><b>Report what you see</b><small>Cloud base, wind at take-off ›</small></span></button></div>';
+  }
+  // no signal: the last rides we saw, kept on the phone (public names and times only), with Try again and the game
+  var r2Offline = null, r2LastOk = null;
+  function saveLastRides() {
+    try { saveStored("rideup_last_rides", { at: Date.now(), data: allSessions.filter(function (s) { var c = describeCab(s); return c.visible && s.vehicle !== "own"; }) }); } catch (e) {}
+  }
+  function offlineCardHtml() {
+    if (!r2Offline) return "";
+    return '<div class="r2-off"><b>No signal</b><span>' + (r2Offline.at ? "Showing rides as they were at " + clock(new Date(r2Offline.at)) + ". " : "") + 'Joining&nbsp;needs a&nbsp;signal.</span>' +
+      '<div class="r2-offb"><button type="button" class="r2-eb" data-r2="retry">Try again</button><button type="button" class="r2-b2" data-r2="play">▶ Play while you wait</button></div></div>';
+  }
+  window.addEventListener("online", function () { if (r2Offline) fetchSessions(); });
+  // the ride-full moment (sheet 66 · 2): the last dot pops, a soft green glow, one buzz; once
+  var r2FullFx = null;
+  function rideFullMoment(id) {
+    r2FullFx = id; renderSessions();
+    try { if (navigator.vibrate && (!navigator.userActivation || navigator.userActivation.hasBeenActive) && !matchMedia("(prefers-reduced-motion: reduce)").matches) navigator.vibrate(30); } catch (e) {}
+    setTimeout(function () { r2FullFx = null; renderSessions(); }, 1300);
+  }
+
+  // ---------- 2.0 GAME: UP THE BIR ROAD (sheet 65, replaces the full-screen painting) ----------
+  // One thumb, like the offline dino game: drive the taxi from the landing (1,400 m) to Billing take-off (2,400 m).
+  // Tap to hop over cows and potholes; drive past pilots waiting with their wings to pick them up. Drawn with the
+  // painting and sprites the scene already has; the wheels turn and the cows walk (real frames). Works offline once
+  // Ride Up has been opened (sw.js keeps these files). Best run kept on this phone only (rideup_game_best).
+  var GM = null, G_IMG = {};
+  var G_ART = ["bg2-autumn-day", "road-strip", "car-taxi", "life-cow-walk", "life-walker-p"];
+  function gImg(n) { if (!G_IMG[n]) { var i = new Image(); i.src = "art/" + n + ".webp"; G_IMG[n] = i; } return G_IMG[n]; }
+  function gBest() { return loadStored("rideup_game_best", { alt: 0, pilots: 0 }) || { alt: 0, pilots: 0 }; }
+  function openGame() {
+    G_ART.forEach(gImg);
+    $("gameOv").hidden = false; document.body.classList.add("game-on");
+    if (!(history.state && history.state.game)) history.pushState({ game: 1 }, "");
+    GM = { state: "menu", round: 0 }; gResize(); gCard("start"); logEvent("game", "open");
+    cancelAnimationFrame(gRaf); gLast = 0; gRaf = requestAnimationFrame(gTick);
+  }
+  function closeGame(fromPop) {
+    if ($("gameOv").hidden) return;
+    $("gameOv").hidden = true; document.body.classList.remove("game-on"); cancelAnimationFrame(gRaf); GM = null;
+    if (!fromPop && history.state && history.state.game) history.back();
+  }
+  window.addEventListener("popstate", function () { if (!$("gameOv").hidden) closeGame(true); });
+  var gRaf = 0, gLast = 0, gW = 0, gH = 0, gDpr = 1;
+  function gResize() {
+    var cv = $("gameCv"); gDpr = Math.min(2, window.devicePixelRatio || 1); gW = window.innerWidth; gH = window.innerHeight;
+    cv.width = Math.round(gW * gDpr); cv.height = Math.round(gH * gDpr); cv.style.width = gW + "px"; cv.style.height = gH + "px";
+  }
+  window.addEventListener("resize", function () { if (GM) gResize(); });
+  function gStart() {
+    var round = GM ? GM.round : 0, carW = Math.min(gW * 0.26, gH * 0.3), carH = carW * 154 / 320;
+    var base = carW * 2.3;
+    GM = { state: "play", round: round, carW: carW, carH: carH, ground: gH * 0.8, y: 0, vy: 0, dist: 0, D: base * 66, base: base,
+      obs: [], next: carW * 4, seats: 1, spared: 0, t: 0, wheel: 0, hitBy: null };
+    gCard(null); logEvent("game", "start");
+  }
+  function gJump() {
+    if (!GM) return;
+    if (GM.state !== "play") return;
+    if (GM.y > -1) GM.vy = -Math.sqrt(2 * gGrav() * GM.carH * 2.2);
+  }
+  function gGrav() { return gH * 1.6; }   // a long, floaty hop: about 0.7 s in the air
+  function gTick(ts) {
+    gRaf = requestAnimationFrame(gTick);
+    if (!GM) return;
+    var dt = gLast ? Math.min(0.05, (ts - gLast) / 1000) : 0; gLast = ts;
+    if (GM.state === "play") gStep(dt);
+    gDraw();
+  }
+  function gStep(dt) {
+    var g = GM, frac = Math.min(1, g.dist / g.D), v = g.base * (1 + 0.55 * frac) * (1 + 0.15 * g.round);
+    g.t += dt; g.dist += v * dt; g.wheel += v * dt / (g.carW * 0.078);
+    g.vy += gGrav() * dt; g.y = Math.min(0, g.y + g.vy * dt); if (g.y === 0) g.vy = 0;
+    // things on the road come towards the taxi
+    g.obs.forEach(function (o) { o.x -= (v - (o.k === "cow" ? g.carW * 0.25 : 0)) * dt; });
+    g.next -= v * dt;
+    if (g.next <= 0) {
+      var r = Math.random(), k = g.seats < 4 && r < 0.27 ? "pilot" : r < 0.65 ? "cow" : "hole";
+      g.obs.push({ k: k, x: gW + 20, hue: Math.floor(Math.random() * 360) });
+      g.next = g.carW * (3.4 + Math.random() * 3.2) * (1 + 0.3 * frac);
+    }
+    var cx = gW * 0.12, car = { l: cx + g.carW * 0.18, r: cx + g.carW * 0.86, b: g.ground + g.y };   // a forgiving hit box
+    g.obs = g.obs.filter(function (o) {
+      var w = o.k === "cow" ? g.carH * 1.0 : o.k === "pilot" ? g.carH * 0.68 : g.carW * 0.34;
+      if (o.x + w < -10) { if (o.k === "cow") g.spared++; return false; }
+      var over = car.r > o.x + w * 0.15 && car.l < o.x + w * 0.85;
+      if (!over) return true;
+      if (o.k === "pilot") { if (g.y > -g.carH * 0.3) { g.seats = Math.min(4, g.seats + 1); g.pop = { t: g.t, txt: "+1 pilot" }; return false; } return true; }
+      // a cow: hit if the taxi is lower than its back; a pothole: hit if the wheels are on the road
+      var hit = o.k === "cow" ? car.b > g.ground - g.carH * 0.9 : g.y > -3;
+      if (hit) { g.state = "over"; g.hitBy = o.k; gFinish(false); }
+      return true;
+    });
+    if (g.dist >= g.D && g.state === "play") { g.state = "won"; gFinish(true); }
+  }
+  function gAlt() { return GM && GM.D ? Math.round(1400 + 1000 * Math.min(1, GM.dist / GM.D)) : 1400; }
+  function gFinish(won) {
+    var alt = gAlt(), b = gBest(), better = alt > b.alt || (alt === b.alt && GM.seats - 1 > b.pilots);
+    if (better) saveStored("rideup_game_best", { alt: alt, pilots: GM.seats - 1 });
+    GM.better = better;
+    try { if (navigator.vibrate && (!navigator.userActivation || navigator.userActivation.hasBeenActive)) navigator.vibrate(won ? [20, 40, 20] : 60); } catch (e) {}
+    logEvent("game", won ? "won" : "over");
+    setTimeout(function () { if (GM) gCard(won ? "won" : "over"); }, won ? 300 : 500);
+  }
+  function gCard(kind) {
+    var c = $("gCard"), b = gBest(), html = "";
+    $("gameOv").classList.toggle("playing", !kind);
+    if (!kind) { c.hidden = true; return; }
+    if (kind === "start") html = '<b>Up the Bir Road</b><span>Drive the taxi from Bir (1,400 m) up to Billing (2,400 m). Tap to hop over cows and potholes. Drive past pilots to pick them up.</span>' +
+      '<button type="button" class="g-go" data-g="go">▶ Start</button><small>' + (b.alt ? 'Your best: ' + b.alt.toLocaleString("en-IN") + ' m · ' + b.pilots + ' ' + plural(b.pilots, "pilot", "pilots") : 'First run: reach 2,400 m with 3 pilots') + '</small>';
+    if (kind === "over") html = '<b>' + (GM.hitBy === "cow" ? "Oops, a cow!" : "Bump! A pothole") + '</b><span>You reached ' + gAlt().toLocaleString("en-IN") + ' m with ' + (GM.seats - 1) + ' ' + plural(GM.seats - 1, "pilot", "pilots") + ' on board.' + (GM.better ? " New best." : "") + '</span>' +
+      '<button type="button" class="g-go" data-g="go">▶ Again</button><small>Your best: ' + gBest().alt.toLocaleString("en-IN") + ' m</small>';
+    if (kind === "won") html = '<b>Billing take-off! 🎉</b><span>2,400 m · ' + (GM.seats - 1) + ' ' + plural(GM.seats - 1, "pilot", "pilots") + ' up · ' + GM.spared + ' ' + plural(GM.spared, "cow", "cows") + ' spared.</span>' +
+      '<button type="button" class="g-go" data-g="next">▶ Again</button><small>' + (GM.better ? "New best. " : "") + 'The road gets quicker each time.</small>';
+    c.innerHTML = html + '<button type="button" class="g-back" data-g="x">✕ Back to rides</button>'; c.hidden = false;
+  }
+  $("gCard").onclick = function (e) {
+    var b = e.target.closest("[data-g]"); if (!b) return; e.stopPropagation();
+    if (b.dataset.g === "go") gStart();
+    if (b.dataset.g === "next") { GM.round++; gStart(); }
+    if (b.dataset.g === "x") closeGame();
+  };
+  $("gX").onclick = function () { closeGame(); };
+  $("gameCv").addEventListener("pointerdown", function (e) { e.preventDefault(); if (GM && GM.state === "play") gJump(); });
+  document.addEventListener("keydown", function (e) {
+    if (!GM || $("gameOv").hidden) return;
+    if (e.key === " " || e.key === "ArrowUp") { e.preventDefault(); if (GM.state === "play") gJump(); else if (GM.state !== "play") gStart(); }
+    if (e.key === "Escape") closeGame();
+  });
+  document.addEventListener("visibilitychange", function () { gLast = 0; });
+  function gDraw() {
+    var cv = $("gameCv"), x = cv.getContext("2d"), g = GM; if (!g) return;
+    x.setTransform(gDpr, 0, 0, gDpr, 0, 0);
+    var ground = g.ground || gH * 0.8, bg = gImg("bg2-autumn-day"), road = gImg("road-strip");
+    x.fillStyle = "#9cc3e6"; x.fillRect(0, 0, gW, gH);
+    // the painting behind, drifting slowly as the road climbs
+    var rh = gH * 0.13, ry = ground - rh * 0.27, sx = 0, vw = 0, sc = 1;
+    if (bg.complete && bg.naturalWidth) {
+      var sh = ground + gH * 0.02; sc = sh / (bg.naturalHeight * 0.74); vw = gW / sc;
+      sx = Math.max(0, Math.min(bg.naturalWidth - vw, 900 + (g.dist || 0) * 0.05 / sc));
+      x.drawImage(bg, sx, 0, vw, bg.naturalHeight * 0.74, 0, 0, gW, sh);
+      // the field in front of the road: the painting's own foreground grass
+      x.drawImage(bg, sx, bg.naturalHeight * 0.8, vw, bg.naturalHeight * 0.2, 0, ry + rh * 0.6, gW, gH - ry - rh * 0.6);
+    }
+    // the road: the painted strip, repeated (its torn paper edges trimmed off)
+    if (road.complete && road.naturalWidth) {
+      var srcX = 40, srcW = road.naturalWidth - 80, srcH = road.naturalHeight * 0.86, rw = rh * srcW / road.naturalHeight, off = ((g.dist || 0) % rw);
+      for (var px = -off; px < gW; px += rw - 1) x.drawImage(road, srcX, 0, srcW, srcH, px, ry, rw, rh * 0.86);
+    }
+    if (g.state === "menu") return;
+    // cows, potholes, pilots
+    (g.obs || []).forEach(function (o) {
+      if (o.k === "hole") { x.fillStyle = "rgba(40,38,34,.85)"; x.beginPath(); x.ellipse(o.x + g.carW * 0.17, ground - 1, g.carW * 0.17, g.carH * 0.09, 0, 0, 7); x.fill(); return; }
+      if (o.k === "cow") {
+        var cow = gImg("life-cow-walk"), ch = g.carH * 0.95, fw = cow.naturalWidth / 6, f = Math.floor(g.t * 7 + o.hue) % 6;
+        if (cow.complete && fw) x.drawImage(cow, f * fw, 0, fw, cow.naturalHeight, o.x, ground - ch, ch * fw / cow.naturalHeight, ch);
+        return;
+      }
+      var pl = gImg("life-walker-p"), ph = g.carH * 1.12, pw = pl.naturalWidth / 6;
+      if (pl.complete && pw) { x.save(); x.filter = "hue-rotate(" + o.hue + "deg)"; x.drawImage(pl, 0, 0, pw, pl.naturalHeight, o.x, ground - ph, ph * pw / pl.naturalHeight, ph); x.restore(); }
+    });
+    // the taxi, its wheels turning
+    var car = gImg("car-taxi"), cx = gW * 0.12, cy = ground + (g.y || 0) - g.carH;
+    if (car.complete && car.naturalWidth) x.drawImage(car, cx, cy, g.carW, g.carH);
+    [0.135, 0.765].forEach(function (wx) {
+      var wcx = cx + g.carW * wx, wcy = cy + g.carH * 0.81, r = g.carW * 0.06;
+      x.strokeStyle = "rgba(50,50,50,.55)"; x.lineWidth = Math.max(1, g.carW / 110);
+      for (var k = 0; k < 3; k++) { var a = (g.wheel || 0) + k * 2.094; x.beginPath(); x.moveTo(wcx + Math.cos(a) * r * 0.25, wcy + Math.sin(a) * r * 0.25); x.lineTo(wcx + Math.cos(a) * r, wcy + Math.sin(a) * r); x.stroke(); }
+    });
+    if (g.pop && g.t - g.pop.t < 0.9) { x.fillStyle = "#fff"; x.font = "800 " + Math.round(g.carH * 0.38) + "px system-ui, sans-serif"; x.fillText(g.pop.txt, cx + g.carW * 0.2, cy - 8 - (g.t - g.pop.t) * 30); }
+    // the climb and the seats
+    var alt = gAlt();
+    $("gAlt").textContent = alt.toLocaleString("en-IN") + " m"; $("gAltBar").style.width = ((alt - 1400) / 10) + "%";
+    $("gSeat").textContent = "🪂 " + g.seats + " / 4";
+  }
 
   // ---------- 2.0 SOS ----------
   // Call first: Call 112 · Call Rescue. Then my location (GPS, read it out or send it), the radio, my emergency info (kept
@@ -8577,7 +9007,7 @@ if (window.CW_FRAME) {
   var PUSH_OK = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
   var IS_IOS = /iPhone|iPad|iPod/.test(navigator.userAgent), IS_STANDALONE = (window.navigator.standalone === true) || matchMedia("(display-mode: standalone)").matches;
   var swReg = null;
-  if (PUSH_OK && !DEMO) navigator.serviceWorker.register("sw.js").then(function (r) { swReg = r; pushRelink(); }).catch(function () {});
+  if ("serviceWorker" in navigator && !DEMO) navigator.serviceWorker.register("sw.js").then(function (r) { swReg = r; pushRelink(); }).catch(function () {});
   function b64ToBytes(b) { var p = "=".repeat((4 - b.length % 4) % 4), s = atob((b + p).replace(/-/g, "+").replace(/_/g, "/")), a = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return a; }
   function pushLinks() {
     var links = getMemberships().map(function (m) { return { passenger_id: m.passenger_id, token: m.token }; });
@@ -8620,8 +9050,8 @@ if (window.CW_FRAME) {
   $("paAllow").onclick = async function () { closeSheet("pushAsk"); await pushTurnOn(); renderNotify(); };
   $("paLater").onclick = function () { closeSheet("pushAsk"); toast("You can turn them on any time in Settings → Notifications."); };
   // Settings → Notifications
-  var PUSH_KINDS = [["join", "Someone joins or leaves my ride"], ["time", "My ride's time moves, or it's called off"], ["soon", "10 minutes before my ride"], ["pickup", "My pickup: someone is coming"], ["need", "Someone needs a pickup", "Off unless you turn it on"]];
-  function pushPrefs() { var p = (loadStored("rideup_push", {}) || {}).prefs; return p || { join: true, time: true, soon: true, pickup: true, need: false }; }
+  var PUSH_KINDS = [["join", "Someone joins or leaves my ride"], ["time", "My ride's time moves, or it's called off"], ["soon", "10 minutes before my ride"], ["pickup", "My pickup: someone is coming"], ["need", "Someone needs a pickup", "Off unless you turn it on"], ["morning", "Morning sky", "On flyable days at 8:30 am: how Billing looks and how many are going up. Off unless you turn it on"]];
+  function pushPrefs() { var p = (loadStored("rideup_push", {}) || {}).prefs; return p || { join: true, time: true, soon: true, pickup: true, need: false, morning: false }; }
   function renderNotify() {
     var st = pushState(), pr = pushPrefs();
     $("ntState").innerHTML = st === "on" ? "Notifications are <b>on</b> on this phone." : st === "homescreen" ? "On iPhone, notifications work only when Ride Up is opened from your <b>Home Screen</b>." :
